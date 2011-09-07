@@ -23,6 +23,9 @@ class CDigiBoosterPlayer : public CModPlayer
 {
 public:
     CDigiBoosterPlayer(const CReadBuffer *pFileData);
+    virtual ~CDigiBoosterPlayer() {}
+    
+    virtual bool ParseFileInfo();
 };
 
 #endif // DIGIBOOSTERPLAYER_H

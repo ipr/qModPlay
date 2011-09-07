@@ -8,4 +8,10 @@ CSymphoniePlayer::CSymphoniePlayer(const CReadBuffer *pFileData)
 {
 }
 
+bool CSymphoniePlayer::ParseFileInfo()
+{
+    return false;
+    
+}
+
 

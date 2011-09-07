@@ -63,8 +63,11 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer &fileBuffer)
         break;
 
     case HEADERTYPE_DBM:
-    case HEADERTYPE_DBPRO:
         pModPlayer = new CDigiBoosterPlayer(&fileBuffer);
+        break;
+        
+    case HEADERTYPE_DBPRO:
+        // TODO: may need different for this..
         break;
         
     case HEADERTYPE_AHX:

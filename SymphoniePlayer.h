@@ -22,6 +22,9 @@ class CSymphoniePlayer : public CModPlayer
 {
 public:
     CSymphoniePlayer(const CReadBuffer *pFileData);
+    virtual ~CSymphoniePlayer() {}
+    
+    virtual bool ParseFileInfo();
 };
 
 #endif // SYMPHONIEPLAYER_H

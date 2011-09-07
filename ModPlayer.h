@@ -5,6 +5,8 @@
 // abstract base class for each player implementation,
 // give unified interface to application and share code easily
 //
+// Actually "decoder" would be more appropriate..
+//
 // Ilkka Prusi
 // ilkka.prusi@gmail.com
 //
@@ -50,7 +52,7 @@ protected:
         return fTemp;
     }
     
-    // original data
+    // original file data
     const CReadBuffer *m_pFileData;
     
 public:
@@ -61,13 +63,16 @@ public:
     
     // start by determining details from metadata in header
     // before actual decoding (can help guessing buffer sizes etc.)
-    //bool ParseFileInfo() = 0;
+    virtual bool ParseFileInfo() = 0;
     
     // TODO: output format with QAudioFormat?
     // get suitable format for output
     // or use "forced" format?
-    //QAudioFormat GetOutputFormat() = 0;
+    //virtual QAudioFormat GetOutputFormat() = 0;
     
+    // TODO: check details, "decode" in parts to buffer,
+    // leave it upto caller to actually output..
+    //virtual size_t Decode(void *pBuffer, const size_t nBufSize) = 0;
     
 };
 
