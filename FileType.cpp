@@ -34,6 +34,12 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	// note: start with types which have least possibility of conflict
 	// such as IFF "FORM", 
 	// add ambigious types to end (such as only two-byte identifiers).
+    
+    if (::memcmp(pBuffer, "OKTASONG", 8) == 0)
+    {
+        // Amiga Oktalyzer tracker module
+        return HEADERTYPE_OKTALYZER;
+    }
 
 	// try to determine by string at start..
 	if (::memcmp(pBuffer, "FORM", 4) == 0)
@@ -134,6 +140,9 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	}
 	else if (::memcmp(pBuffer, "DIGI", 4) == 0)
 	{
+        // actually, starts with 20 byte string:
+        // "DIGI Booster module\0"
+        
 		// digibooster module
 		return HEADERTYPE_DBM;
 	}
@@ -186,6 +195,12 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		*/
 		return enFileType;
 	}
+    else if (::memcmp(pBuffer, "THX", 3) == 0)
+    {
+        // AHX (which was previously THX)
+        // sound module
+        return HEADERTYPE_AHX;
+    }
 
 	if (pBuffer[0] == 0x42
 		&& pBuffer[1] == 0x5A)

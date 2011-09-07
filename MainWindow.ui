@@ -44,6 +44,7 @@
    <addaction name="actionQuit"/>
    <addaction name="actionPlay"/>
    <addaction name="actionStop"/>
+   <addaction name="actionFiles"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionQuit">
@@ -62,6 +63,11 @@
   <action name="actionStop">
    <property name="text">
     <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionFiles">
+   <property name="text">
+    <string>Files</string>
    </property>
   </action>
  </widget>

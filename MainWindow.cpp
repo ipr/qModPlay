@@ -127,5 +127,14 @@ void MainWindow::on_actionStop_triggered()
 		delete m_pAudioOut;
 		m_pAudioOut = nullptr;
 	}
+}
 
+void MainWindow::on_actionFiles_triggered()
+{
+    QStringList files = QFileDialog::getOpenFileNames(this, tr("Open file"));
+    foreach (QString file, files)
+    {
+        // (temp)
+		ui->listWidget->addItem(new QListWidgetItem(file));
+    }
 }

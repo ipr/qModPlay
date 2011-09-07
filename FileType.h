@@ -55,15 +55,19 @@ typedef enum tHeaderType
 	HEADERTYPE_XZ, // XZ Utils packer (xz)
 
 	// audio types, modules ("trackers")
-	HEADERTYPE_MOD,
-	HEADERTYPE_OCTAMED,	 // OctaMED (MMD0..3, MED2..4)
+	HEADERTYPE_MOD, // ProTracker (and others..)
+	HEADERTYPE_OCTAMED,	 // OctaMED & SoundStudio (MMD0..3, MED2..4)
 	HEADERTYPE_DBM,	 // Digibooster
 	HEADERTYPE_DBPRO,	 // Digibooster PRO
 	HEADERTYPE_SYMMOD,	 // Symphonie mod (SYMMOD)
+    HEADERTYPE_AHX, //Abyss' Highest eXperience (AHX0, AHX1, was called: THX)
+    HEADERTYPE_OKTALYZER, // Oktalyzer
 	//HEADERTYPE_XM, // FastTracker
     //HEADERTYPE_IT, // ImpulseTracker
 	//HEADERTYPE_S3M, // ScreamTracker 3
 	//HEADERTYPE_S3I,
+    //HEADERTYPE_MTM, // MultiTracker
+    //HEADERTYPE_FC, // FutureComposer (FC13, FC14)
 	
 	// audio types, voice/sound
 	HEADERTYPE_8SVX, // 8-bit sound "voice" (sample)(IFF)
