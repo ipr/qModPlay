@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia
 
 TARGET = qModPlay
 TEMPLATE = app
@@ -13,14 +13,22 @@ TEMPLATE = app
 SOURCES += main.cpp\
         MainWindow.cpp \
     AnsiFile.cpp \
-    FileType.cpp
+    FileType.cpp \
+    SymphoniePlayer.cpp \
+    DigiBoosterPlayer.cpp
 
 HEADERS  += MainWindow.h \
     AnsiFile.h \
     FileType.h \
-    ModPlayer.h
+    ModPlayer.h \
+    SymphoniePlayer.h \
+    DigiBoosterPlayer.h
 
 FORMS    += MainWindow.ui
+
+
+
+
 
 
 

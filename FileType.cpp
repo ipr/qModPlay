@@ -143,18 +143,23 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
         // actually, starts with 20 byte string:
         // "DIGI Booster module\0"
         
-		// digibooster module
+		// Digibooster module
 		return HEADERTYPE_DBM;
 	}
 	else if (::memcmp(pBuffer, "DBM0", 4) == 0)
 	{
-		// digibooster pro module
+		// Digibooster PRO module
 		return HEADERTYPE_DBPRO;
 	}
 	else if (::memcmp(pBuffer, "SymM", 4) == 0)
 	{
-		// symphonie module
+		// Symphonie module
 		return HEADERTYPE_SYMMOD;
+	}
+    else if (::memcmp(pBuffer, "IMPM", 4) == 0)
+	{
+		// ImpulseTracker module
+		return HEADERTYPE_IT;
 	}
 	else if (::memcmp(pBuffer, "RIFF", 4) == 0)
 	{
@@ -200,6 +205,11 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
         // AHX (which was previously THX)
         // sound module
         return HEADERTYPE_AHX;
+    }
+    else if (::memcmp(pBuffer, "MTM", 3) == 0)
+    {
+        // MultiTracker sound module
+        return HEADERTYPE_MTM;
     }
 
 	if (pBuffer[0] == 0x42
@@ -374,9 +384,13 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
 	case HEADERTYPE_DBM:
 	case HEADERTYPE_DBPRO:
 	case HEADERTYPE_SYMMOD:
+    case HEADERTYPE_AHX:
+    case HEADERTYPE_OKTALYZER:
 	//case HEADERTYPE_XM:
+    //case HEADERTYPE_IT:
 	//case HEADERTYPE_S3M:
 	//case HEADERTYPE_S3I:
+    //case HEADERTYPE_MTM:
 		return HEADERCAT_SOUND_MODULE;
 		
 	case HEADERTYPE_8SVX:

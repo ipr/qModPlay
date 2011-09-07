@@ -59,6 +59,15 @@ public:
     {}
     virtual ~CModPlayer() {}
     
+    // start by determining details from metadata in header
+    // before actual decoding (can help guessing buffer sizes etc.)
+    //bool ParseFileInfo() = 0;
+    
+    // TODO: output format with QAudioFormat?
+    // get suitable format for output
+    // or use "forced" format?
+    //QAudioFormat GetOutputFormat() = 0;
+    
     
 };
 

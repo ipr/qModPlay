@@ -13,6 +13,11 @@
 #include "AnsiFile.h"
 #include "FileType.h"
 
+#include "ModPlayer.h"
+#include "DigiBoosterPlayer.h"
+#include "SymphoniePlayer.h"
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,6 +36,50 @@ MainWindow::~MainWindow()
 	}
     delete ui;
 }
+
+CModPlayer *MainWindow::GetPlayer(CReadBuffer &fileBuffer)
+{
+    if (fileBuffer.GetSize() < 16)
+    {
+        // nothing useful in the file..
+        return nullptr;
+    }
+    
+    CModPlayer *pModPlayer = nullptr;
+    CFileType type;
+    type.DetermineFileType(fileBuffer.GetBegin(), 16);
+    switch (type.m_enFileType)
+    {
+    case HEADERTYPE_MOD:
+        //pModPlayer = new CProTrackerPlayer();
+        break;
+        
+    case HEADERTYPE_OCTAMED:
+        //pModPlayer = new COctaMedPlayer();
+        break;
+        
+    case HEADERTYPE_SYMMOD:
+        pModPlayer = new CSymphoniePlayer(&fileBuffer);
+        break;
+
+    case HEADERTYPE_DBM:
+    case HEADERTYPE_DBPRO:
+        pModPlayer = new CDigiBoosterPlayer(&fileBuffer);
+        break;
+        
+    case HEADERTYPE_AHX:
+        break;
+        
+    case HEADERTYPE_OKTALYZER:
+        break;
+
+    default:
+        // just to silence GCC..
+        break;
+    }
+    return pModPlayer;
+}
+
 
 void MainWindow::on_actionPlay_triggered()
 {
@@ -52,55 +101,12 @@ void MainWindow::on_actionPlay_triggered()
         return;
     }
     
-    //CModPlayer *pModPlayer = nullptr;
-    CFileType type;
-    type.DetermineFileType(filebuf.GetBegin(), 16);
-    
-    switch (type.m_enFileType)
-    {
-    case HEADERTYPE_MOD:
-        //pModPlayer = new CProTrackerPlayer();
-        break;
-        
-    case HEADERTYPE_OCTAMED:
-        //pModPlayer = new COctaMedPlayer();
-        break;
-        
-    case HEADERTYPE_SYMMOD:
-        //pModPlayer = new CSymphoniePlayer();
-        break;
-
-    case HEADERTYPE_DBM:
-    case HEADERTYPE_DBPRO:
-        //pModPlayer = new CDigiBoosterPlayer();
-        break;
-
-        /*        
-    case HEADERTYPE_XM:
-        // fast tracker
-        break;
-        
-    case HEADERTYPE_S3M:
-        // scream tracker 3
-        break;
-        
-    case HEADERTYPE_IT:
-        //pModPlayer = new CImpulseTrackerPlayer();
-        break;
-        */
-        
-    default:
-        ui->statusBar->showMessage("Unsupported format");
-        break;
-    }
-
-    /*
+    CModPlayer *pModPlayer = GetPlayer(filebuf);
     if (pModPlayer == nullptr)
     {
         ui->statusBar->showMessage("Failed to create player");
         return;
     }
-    */
     
     QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
     if (info.isNull() == true)
@@ -108,8 +114,12 @@ void MainWindow::on_actionPlay_triggered()
         ui->statusBar->showMessage("Failed to get default audio output");
 		return;
     }
+    
+    // 
+    //QAudioFormat format = pModPlayer->GetOutputFormat();
 
     //m_pAudioOut = new QAudioOutput(format, this);
+    //
 	//connect(m_pAudioOut, SIGNAL(stateChanged(QAudio::State)), this, SLOT(onAudioState(QAudio::State)));
 	//connect(m_pAudioOut, SIGNAL(notify()), this, SLOT(onPlayNotify()));
     

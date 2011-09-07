@@ -63,12 +63,14 @@ typedef enum tHeaderType
     HEADERTYPE_AHX, //Abyss' Highest eXperience (AHX0, AHX1, was called: THX)
     HEADERTYPE_OKTALYZER, // Oktalyzer
 	//HEADERTYPE_XM, // FastTracker
-    //HEADERTYPE_IT, // ImpulseTracker
+    HEADERTYPE_IT, // ImpulseTracker
 	//HEADERTYPE_S3M, // ScreamTracker 3
 	//HEADERTYPE_S3I,
-    //HEADERTYPE_MTM, // MultiTracker
+    HEADERTYPE_MTM, // MultiTracker
     //HEADERTYPE_FC, // FutureComposer (FC13, FC14)
-	
+
+    //HEADERTYPE_MO3, // Module packed with MP3..
+    
 	// audio types, voice/sound
 	HEADERTYPE_8SVX, // 8-bit sound "voice" (sample)(IFF)
 	HEADERTYPE_WAVE, // wave-sound (RIFF)
