@@ -22,7 +22,7 @@
 class CDigiBoosterPlayer : public CModPlayer
 {
 public:
-    CDigiBoosterPlayer(const CReadBuffer *pFileData);
+    CDigiBoosterPlayer(CReadBuffer *pFileData);
     virtual ~CDigiBoosterPlayer() {}
     
     virtual bool ParseFileInfo();

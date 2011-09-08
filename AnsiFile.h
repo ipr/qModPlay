@@ -9,6 +9,8 @@
 #ifndef _ANSIFILE_H_
 #define _ANSIFILE_H_
 
+#include <stdint.h>
+
 #include <string>
 #include <exception>
 
@@ -201,9 +203,9 @@ public:
 	{
 		if (m_nCurrentPos < m_nReadBufferSize)
 		{
-			return true;
+			return false;
 		}
-		return false;
+		return true;
 	}
 	
 	// current allocation,
@@ -240,6 +242,26 @@ public:
 		m_nCurrentPos += nSize;
 		return true;
 	}
+    
+    // meh.. do some quick helpers..
+    uint32_t NextUI4()
+    {
+        return (*((uint32_t*)GetNext(4)));
+    }
+    uint16_t NextUI2()
+    {
+        return (*((uint16_t*)GetNext(2)));
+    }
+    uint8_t NextUI1()
+    {
+        return GetNext(1)[0];
+    }
+    float NextF4()
+    {
+        float *pf = (float*)GetNext(4);
+        return (*pf);
+    }
+    
 };
 
 

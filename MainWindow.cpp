@@ -83,31 +83,37 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer &fileBuffer)
     return pModPlayer;
 }
 
-
-void MainWindow::on_actionPlay_triggered()
+void MainWindow::PlayFile(QString &filename)
 {
-    std::string filename = "c:/tmpmods/Nexus7-Theme";
-
     // TODO: different thread for module handling?
     
-    CAnsiFile file(filename);
+    CAnsiFile file(filename.toStdString());
     if (file.IsOk() == false)
     {
-        ui->statusBar->showMessage("Failed to open file: " + QString::fromStdString(filename));
+        ui->statusBar->showMessage("Failed to open file: " + filename);
         return;
     }
-    
+
+    // TODO: keep as member..
+    // while debugging, release when exiting..
     CReadBuffer filebuf(file.GetSize());
     if (file.Read(filebuf.GetBegin(), filebuf.GetSize()) == false)
     {
-        ui->statusBar->showMessage("Failed to read file: " + QString::fromStdString(filename));
+        ui->statusBar->showMessage("Failed to read file: " + filename);
         return;
     }
-    
+
+    // keep as member also..
     CModPlayer *pModPlayer = GetPlayer(filebuf);
     if (pModPlayer == nullptr)
     {
         ui->statusBar->showMessage("Failed to create player");
+        return;
+    }
+    
+    if (pModPlayer->ParseFileInfo() == false)
+    {
+        ui->statusBar->showMessage("File could not be handled");
         return;
     }
     
@@ -125,8 +131,18 @@ void MainWindow::on_actionPlay_triggered()
     //
 	//connect(m_pAudioOut, SIGNAL(stateChanged(QAudio::State)), this, SLOT(onAudioState(QAudio::State)));
 	//connect(m_pAudioOut, SIGNAL(notify()), this, SLOT(onPlayNotify()));
+}
+
+
+void MainWindow::on_actionPlay_triggered()
+{
+    // TODO: get selection from list..
     
-    
+    //QString filename = "c:/tmpmods/Nexus7-Theme";
+    QString filename = "C:/tmpmods/Breathless.SymMOD";
+
+
+    PlayFile(filename);    
 }
 
 void MainWindow::on_actionStop_triggered()

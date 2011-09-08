@@ -23,7 +23,7 @@ public:
 
 protected:
     CModPlayer *GetPlayer(CReadBuffer &fileBuffer);
-    
+    void PlayFile(QString &filename);
     
 private slots:
     void on_actionPlay_triggered();

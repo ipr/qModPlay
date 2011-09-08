@@ -51,12 +51,24 @@ protected:
         fTemp = (*((float*)(&tmp)));
         return fTemp;
     }
+
+    // make IFF-style tag from string
+	uint32_t IFFTag(const char *buf) const
+    {
+        uint32_t tmp = 0;
+        tmp |= (((uint32_t)(buf[3])) << 24);
+        tmp |= (((uint32_t)(buf[2])) << 16);
+        tmp |= (((uint32_t)(buf[1])) << 8);
+        tmp |= ((uint32_t)(buf[0]));
+        return tmp;
+    }
+
     
     // original file data
-    const CReadBuffer *m_pFileData;
+    CReadBuffer *m_pFileData;
     
 public:
-    CModPlayer(const CReadBuffer *pFileData) 
+    CModPlayer(CReadBuffer *pFileData) 
         : m_pFileData(pFileData)
     {}
     virtual ~CModPlayer() {}

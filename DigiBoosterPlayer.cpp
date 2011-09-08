@@ -3,7 +3,7 @@
 // for buffer-wrapper..
 #include "AnsiFile.h"
 
-CDigiBoosterPlayer::CDigiBoosterPlayer(const CReadBuffer *pFileData)
+CDigiBoosterPlayer::CDigiBoosterPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
 {
 }
