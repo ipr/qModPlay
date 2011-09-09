@@ -246,11 +246,13 @@ public:
     // meh.. do some quick helpers..
     uint32_t NextUI4()
     {
-        return (*((uint32_t*)GetNext(4)));
+		uint32_t *pval = (uint32_t*)GetNext(4);
+        return (*pval);
     }
     uint16_t NextUI2()
     {
-        return (*((uint16_t*)GetNext(2)));
+		uint16_t *pval = (uint16_t*)GetNext(2);
+        return (*pval);
     }
     uint8_t NextUI1()
     {

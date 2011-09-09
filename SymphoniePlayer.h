@@ -70,8 +70,11 @@ protected:
     // always 1..?
     long m_lVersion;
     
-    bool OnLargeChunk(uint32_t chunkID);
     bool OnChunk(uint32_t chunkID);
+    bool OnLargeChunk(uint32_t chunkID);
+
+	// TODO:..
+	//bool UnpackRunlen();
     
 public:
     CSymphoniePlayer(CReadBuffer *pFileData);

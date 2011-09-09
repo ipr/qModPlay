@@ -8,56 +8,6 @@
 
 //////////// protected methods
 
-// bool OnChunk(uint32_t chunkID, uint32_t chunkLen)
-
-bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
-{
-    bool bHandled = true;
-    size_t nPos = m_pFileData->GetCurrentPos();
-    
-    uint32_t chunkLen = Swap4(m_pFileData->NextUI4());
-    
-    switch (chunkID)
-    {
-    /*
-    case CT_SONGDATA:
-        break;
-    case CT_SAMPLE:
-        break;
-    case CT_EMPTYSAMPLE:
-        break;
-    case CT_NOTEDATA:
-        break;
-    case CT_SAMPLENAMES:
-        break;
-    case CT_SEQUENCE:
-        break;
-    case CT_INFOTEXT:
-        break;
-    case CT_DELTASAMPLE:
-        break;
-    case CT_DELTA16:
-        break;
-    case CT_INFOTYPE:
-        break;
-    case CT_INFOOBJ:
-        break;
-    case CT_STRING:
-        break;
-        */
-        
-    default:
-        bHandled = false;
-        break;
-    }
-    
-    if (bHandled == false)
-    {
-        // skip chunk if not supported..
-        m_pFileData->SetCurrentPos(nPos + chunkLen);
-    }
-    return bHandled;
-}
 
 // some chunks have just single parameter in 4 bytes
 // and no length of chunk; 
@@ -118,7 +68,7 @@ bool CSymphoniePlayer::OnChunk(uint32_t chunkID)
     case CT_INFOTYPE:
     case CT_INFOOBJ:
     case CT_STRING:
-        OnLargeChunk(chunkID);
+        bHandled = OnLargeChunk(chunkID);
         break;
         
         
@@ -138,6 +88,58 @@ bool CSymphoniePlayer::OnChunk(uint32_t chunkID)
 }
 
 
+bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
+{
+    bool bHandled = true;
+    size_t nPos = m_pFileData->GetCurrentPos();
+    uint32_t chunkLen = Swap4(m_pFileData->NextUI4());
+    
+    switch (chunkID)
+    {
+    /*
+    case CT_SONGDATA:
+        break;
+    case CT_SAMPLE:
+        break;
+    case CT_EMPTYSAMPLE:
+        break;
+    case CT_NOTEDATA:
+        break;
+    case CT_SAMPLENAMES:
+        break;
+    case CT_SEQUENCE:
+        break;
+    case CT_INFOTEXT:
+        break;
+    case CT_DELTASAMPLE:
+        break;
+    case CT_DELTA16:
+        break;
+    case CT_INFOTYPE:
+        break;
+    case CT_INFOOBJ:
+        break;
+    case CT_STRING:
+        break;
+        */
+        
+    default:
+        bHandled = false;
+        break;
+    }
+    
+    nPos = m_pFileData->GetCurrentPos();
+    if (bHandled == false)
+    {
+        // skip chunk if not supported..
+        m_pFileData->SetCurrentPos(nPos + chunkLen);
+    }
+    return bHandled;
+}
+
+
+// TODO:..
+//bool CSymphoniePlayer::UnpackRunlen();
 
 
 /////////// public
@@ -175,33 +177,20 @@ bool CSymphoniePlayer::ParseFileInfo()
  
     while (m_pFileData->IsEnd() == false)
     {
-        size_t nPos = m_pFileData->GetCurrentPos();
-        
-        uint32_t chunkID = m_pFileData->NextUI4();
-        if (chunkID != CT_EMPTYSAMPLE)
+		// keep our enumerations, swap ID also..
+        uint32_t chunkID = Swap4(m_pFileData->NextUI4());
+        if (chunkID == CT_EOF)
+        {
+            // end of file?
+            break;
+        }
+        else if (chunkID != CT_EMPTYSAMPLE)
         {
             if (OnChunk(chunkID) == false)
             {
                 // not supported somewhere..
                 return false;
             }
-
-            /* length is not always given -> can't skip unknown chunks..
-            uint32_t chunkLen = Swap4(m_pFileData->NextUI4());
-            if (OnChunk(chunkID, chunkLen) == false)
-            {
-                // not supported (yet)
-                // -> skip it
-                m_pFileData->SetCurrentPos(nPos + chunkLen);
-            }
-            */
-        }
-        
-        nPos = m_pFileData->GetCurrentPos();
-        if (chunkID == CT_EOF)
-        {
-            // end of file?
-            break;
         }
     }
     

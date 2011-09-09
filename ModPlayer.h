@@ -55,6 +55,7 @@ protected:
     // make IFF-style tag from string
 	uint32_t IFFTag(const char *buf) const
     {
+		// note byteorder.. (little-endian CPU)
         uint32_t tmp = 0;
         tmp |= (((uint32_t)(buf[3])) << 24);
         tmp |= (((uint32_t)(buf[2])) << 16);
