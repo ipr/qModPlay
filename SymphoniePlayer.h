@@ -74,7 +74,8 @@ protected:
     bool OnLargeChunk(uint32_t chunkID);
 
 	// TODO:..
-	//bool UnpackRunlen();
+	bool UnpackRunlen(const uint8_t *pOrigData, const size_t nLen, uint8_t *pOutBuf, size_t nUnpackLen);
+    bool UnpackDelta();
     
 public:
     CSymphoniePlayer(CReadBuffer *pFileData);

@@ -94,6 +94,30 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     size_t nPos = m_pFileData->GetCurrentPos();
     uint32_t chunkLen = Swap4(m_pFileData->NextUI4());
     
+    uint8_t pData = m_pFileData->GetAtCurrent();
+    if (::memcmp(pData, "PACK", 4) == 0
+        && pData[4] == -1 && pData[5] == -1
+        && chunkLen > 16)
+    {
+        // runlen packing of chunk data -> unpack to buffer
+
+        // update offset
+        m_pFileData->SetCurrentPos(nPos +10);
+       
+        uint32_t unpackedLen = Swap4(m_pFileData->NextUI4());
+        pData = new uint8_t[unpackedLen];
+        
+        // TODO: implement
+        UnpackRunlen(m_pFileData->GetAtCurrent(), chunkLen, pData, unpackedLen);
+        
+    }
+    else
+    {
+        // otherwise use as-is for further..
+        m_pFileData->SetCurrentPos(nPos +4);
+    }
+    
+    // process data, byteswap and such..
     switch (chunkID)
     {
     /*
@@ -138,8 +162,67 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
 }
 
 
-// TODO:..
-//bool CSymphoniePlayer::UnpackRunlen();
+// TODO: implement
+// unpack simple "runlength" packing of chunk data
+bool CSymphoniePlayer::UnpackRunlen(const uint8_t *pOrigData, const size_t nLen, uint8_t *pOutBuf, size_t nUnpackLen)
+{
+    size_t nPos = 0;
+    size_t nOutPos = 0;
+    while (nPos < nLen)
+    {
+        uint8_t packMode = pOrigData[nPos];
+        nPos++;
+        switch (packMode)
+        {
+        case 0:
+            // copy as-is next bytes (upto 255)
+            uint8_t byteCount = pOrigData[nPos];
+            nPos++;
+            ::memcpy(pOutBuf[nOutPos], pOrigData[nPos], byteCount);
+            break;
+            
+        case 3:
+            // upto 255 bytes of zero
+            uint8_t byteCount = pOrigData[nPos];
+            nPos++;
+            ::memset(pOutBuf[nOutPos], 0, byteCount);
+            
+            break;
+        
+        case 2:
+            // 32-bit longs
+            //uint32_t val = Swap4();
+            //uint32_t val = Swap4();
+            break;
+            
+        case 1:
+            // copy next n 32-bit longs to out
+            /*
+            uint8_t valCount = pOrigData[nPos];
+            nPos++;
+            
+            for (uint8_t n = nPos; n < valCount; n++)
+            {
+                Swap4();
+            }
+            */
+            break;
+            
+        default:
+            // unsupported packing mode (bug on?)
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// TODO: implement
+// unpack delta compression of sample data
+bool CSymphoniePlayer::UnpackDelta()
+{
+    return false;
+}
 
 
 /////////// public
@@ -177,7 +260,7 @@ bool CSymphoniePlayer::ParseFileInfo()
  
     while (m_pFileData->IsEnd() == false)
     {
-		// keep our enumerations, swap ID also..
+		// keep our enumerations for clarity, swap ID..
         uint32_t chunkID = Swap4(m_pFileData->NextUI4());
         if (chunkID == CT_EOF)
         {
