@@ -15,16 +15,20 @@ SOURCES += main.cpp\
     AnsiFile.cpp \
     FileType.cpp \
     SymphoniePlayer.cpp \
-    DigiBoosterPlayer.cpp
+    DigiBoosterPlayer.cpp \
+    DigiBoosterProPlayer.cpp
 
 HEADERS  += MainWindow.h \
     AnsiFile.h \
     FileType.h \
     ModPlayer.h \
     SymphoniePlayer.h \
-    DigiBoosterPlayer.h
+    DigiBoosterPlayer.h \
+    DigiBoosterProPlayer.h
 
 FORMS    += MainWindow.ui
+
+
 
 
 

@@ -24,6 +24,20 @@ class CReadBuffer;
 class CModPlayer
 {
 protected:
+    
+    // simple buffer descriptor for reuse
+    struct bufferedData_t
+    {
+        bufferedData_t()
+        {
+            m_pBuf = nullptr;
+            m_nLen = 0;
+        }
+        uint8_t *m_pBuf;
+        size_t m_nLen;
+    };
+    
+    
     // byteswap methods, needed everywhere,
     // can't inline when inherited so we lose one function call..
     //

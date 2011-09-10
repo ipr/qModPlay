@@ -15,6 +15,7 @@
 
 #include "ModPlayer.h"
 #include "DigiBoosterPlayer.h"
+#include "DigiBoosterProPlayer.h"
 #include "SymphoniePlayer.h"
 
 
@@ -74,11 +75,11 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer *fileBuffer) const
     switch (type.m_enFileType)
     {
     case HEADERTYPE_MOD:
-        //pModPlayer = new CProTrackerPlayer();
+        //pModPlayer = new CProTrackerPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_OCTAMED:
-        //pModPlayer = new COctaMedPlayer();
+        //pModPlayer = new COctaMedPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_SYMMOD:
@@ -90,20 +91,20 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer *fileBuffer) const
         break;
         
     case HEADERTYPE_DBPRO:
-        // TODO: may need different for this..
+        pModPlayer = new CDigiBoosterProPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_AHX:
-        //pModPlayer = new CAhxPlayer();
+        //pModPlayer = new CAhxPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_OKTALYZER:
-        //pModPlayer = new COktalyzerPlayer();
+        //pModPlayer = new COktalyzerPlayer(fileBuffer);
         break;
     
         /*
     case HEADERTYPE_NOISETRACKER:
-        //pModPlayer = new CNoisetrackerPlayer();
+        //pModPlayer = new CNoisetrackerPlayer(fileBuffer);
         break;
         */
 

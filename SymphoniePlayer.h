@@ -151,18 +151,7 @@ protected:
         
         CT_EOF = 0x00000000             // end of file
     };
-    
-    struct bufferedData_t
-    {
-        bufferedData_t()
-        {
-            m_pBuf = nullptr;
-            m_nLen = 0;
-        }
-        uint8_t *m_pBuf;
-        size_t m_nLen;
-    };
-    
+
     class Instrument
     {
     public:
