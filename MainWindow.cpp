@@ -22,24 +22,47 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    m_pfileBuffer(nullptr),
+    m_pModPlayer(nullptr),
+    m_pDecodeBuffer(nullptr),
 	m_pAudioOut(nullptr)
 {
     ui->setupUi(this);
+    
+    // we can adjust size later,
+    // also reusable with suffcient buffer size
+    m_pDecodeBuffer = new CReadBuffer();
 }
 
 MainWindow::~MainWindow()
 {
+    // TODO: deleted automatically by output-device?
+	m_pDevOut = nullptr;
+    
     if (m_pAudioOut != nullptr)
 	{
 		m_pAudioOut->stop();
 		delete m_pAudioOut;
 	}
+
+    if (m_pfileBuffer != nullptr)
+    {
+        delete m_pfileBuffer;
+        m_pfileBuffer = nullptr;
+    }
+    if (m_pModPlayer != nullptr)
+    {
+        delete m_pModPlayer;
+        m_pModPlayer = nullptr;
+    }
+    delete m_pDecodeBuffer;
+    
     delete ui;
 }
 
-CModPlayer *MainWindow::GetPlayer(CReadBuffer &fileBuffer)
+CModPlayer *MainWindow::GetPlayer(CReadBuffer *fileBuffer) const
 {
-    if (fileBuffer.GetSize() < 16)
+    if (fileBuffer->GetSize() < 16)
     {
         // nothing useful in the file..
         return nullptr;
@@ -47,7 +70,7 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer &fileBuffer)
     
     CModPlayer *pModPlayer = nullptr;
     CFileType type;
-    type.DetermineFileType(fileBuffer.GetBegin(), 16);
+    type.DetermineFileType(fileBuffer->GetBegin(), 16);
     switch (type.m_enFileType)
     {
     case HEADERTYPE_MOD:
@@ -59,11 +82,11 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer &fileBuffer)
         break;
         
     case HEADERTYPE_SYMMOD:
-        pModPlayer = new CSymphoniePlayer(&fileBuffer);
+        pModPlayer = new CSymphoniePlayer(fileBuffer);
         break;
 
     case HEADERTYPE_DIGIBOOSTER:
-        pModPlayer = new CDigiBoosterPlayer(&fileBuffer);
+        pModPlayer = new CDigiBoosterPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_DBPRO:
@@ -104,22 +127,22 @@ void MainWindow::PlayFile(QString &filename)
 
     // TODO: keep as member..
     // while debugging, release when exiting..
-    CReadBuffer filebuf(file.GetSize());
-    if (file.Read(filebuf.GetBegin(), filebuf.GetSize()) == false)
+    m_pfileBuffer = new CReadBuffer(file.GetSize());
+    if (file.Read(m_pfileBuffer->GetBegin(), m_pfileBuffer->GetSize()) == false)
     {
         ui->statusBar->showMessage("Failed to read file: " + filename);
         return;
     }
 
     // keep as member also..
-    CModPlayer *pModPlayer = GetPlayer(filebuf);
-    if (pModPlayer == nullptr)
+    m_pModPlayer = GetPlayer(m_pfileBuffer);
+    if (m_pModPlayer == nullptr)
     {
         ui->statusBar->showMessage("Failed to create player");
         return;
     }
     
-    if (pModPlayer->ParseFileInfo() == false)
+    if (m_pModPlayer->ParseFileInfo() == false)
     {
         ui->statusBar->showMessage("File could not be handled");
         return;
@@ -160,11 +183,12 @@ void MainWindow::PlayFile(QString &filename)
     
     // create buffer for decoding 
     //QByteArray decodeBuffer();
-    CReadBuffer decodeBuffer(nBuffer);
+    //CReadBuffer decodeBuffer(nBuffer);
+    m_pDecodeBuffer->PrepareBuffer(nBuffer, false);
     
     // placeholder..
-    size_t nInBuf = pModPlayer->Decode(decodeBuffer.GetBegin(), decodeBuffer.GetSize());
-    qint64 nWritten = m_pDevOut->write(decodeBuffer.GetBegin(), nInBuf);
+    //size_t nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetSize());
+    //qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), nInBuf);
 }
 
 
@@ -183,13 +207,24 @@ void MainWindow::on_actionStop_triggered()
 {
     // TODO: deleted automatically by output-device?
 	m_pDevOut = nullptr;
-	
+
 	if (m_pAudioOut != nullptr)
 	{
 		m_pAudioOut->stop();
 		delete m_pAudioOut;
 		m_pAudioOut = nullptr;
 	}
+    
+    if (m_pfileBuffer != nullptr)
+    {
+        delete m_pfileBuffer;
+        m_pfileBuffer = nullptr;
+    }
+    if (m_pModPlayer != nullptr)
+    {
+        delete m_pModPlayer;
+        m_pModPlayer = nullptr;
+    }
 }
 
 void MainWindow::on_actionFiles_triggered()

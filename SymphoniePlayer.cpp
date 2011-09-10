@@ -298,8 +298,29 @@ bool CSymphoniePlayer::OnSampleNames(const uint8_t *pData, const size_t nLen)
 
 CSymphoniePlayer::CSymphoniePlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
+    , m_pInstruments(nullptr)
+    , m_PatternData()
+    , m_nPatternCount(0)
+    , m_comments()
+    , m_audioChannelcount(0)
+    , m_trackLength(0)
+    , m_totalPatternlength(0)
+    , m_instrumentCount(0)
+    , m_songEventSize(0)
+    , m_systemBPM(0)
+    , m_isPureSong(0)
+    , m_globalSampleBoost(0)
+    , m_stereoEncPitchDiff(0)
+    , m_stereoEncSampleDiff(0)
 {
 }
+
+CSymphoniePlayer::~CSymphoniePlayer()
+{
+    delete m_PatternData.m_pBuf;
+    delete m_pInstruments;
+}
+
 
 /* some file format notes..
   
@@ -312,9 +333,7 @@ CSymphoniePlayer::CSymphoniePlayer(CReadBuffer *pFileData)
     ...
 
     .. not exactly IFF as chunks don't always have sizes given ..
- 
 */
- 
 
 bool CSymphoniePlayer::ParseFileInfo()
 {

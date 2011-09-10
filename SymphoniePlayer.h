@@ -154,6 +154,11 @@ protected:
     
     struct bufferedData_t
     {
+        bufferedData_t()
+        {
+            m_pBuf = nullptr;
+            m_nLen = 0;
+        }
         uint8_t *m_pBuf;
         size_t m_nLen;
     };
@@ -161,6 +166,11 @@ protected:
     class Instrument
     {
     public:
+        Instrument()
+            : m_name()
+            , m_data()
+            , m_bIsVirtual(false)
+        {}
         std::string m_name;
         bufferedData_t m_data;
         bool m_bIsVirtual;
@@ -204,7 +214,7 @@ protected:
     
 public:
     CSymphoniePlayer(CReadBuffer *pFileData);
-    virtual ~CSymphoniePlayer() {}
+    virtual ~CSymphoniePlayer();
     
     virtual bool ParseFileInfo();
     

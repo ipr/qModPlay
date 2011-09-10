@@ -22,7 +22,7 @@ public:
     ~MainWindow();
 
 protected:
-    CModPlayer *GetPlayer(CReadBuffer &fileBuffer);
+    CModPlayer *GetPlayer(CReadBuffer *fileBuffer) const;
     void PlayFile(QString &filename);
     
 private slots:
@@ -35,6 +35,11 @@ private slots:
     
 private:
     Ui::MainWindow *ui;
+    
+    CReadBuffer *m_pfileBuffer;
+    CModPlayer *m_pModPlayer;
+    
+    CReadBuffer *m_pDecodeBuffer;
 
     QAudioOutput *m_pAudioOut;
 	QIODevice *m_pDevOut;
