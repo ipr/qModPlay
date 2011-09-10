@@ -3,166 +3,12 @@
 // for buffer-wrapper..
 #include "AnsiFile.h"
 
-
+#include <string>
 
 
 //////////// protected methods
 
 
-// some chunks have just single parameter in 4 bytes
-// and no length of chunk; 
-// some have varying data and need more handling (length given..)
-bool CSymphoniePlayer::OnChunk(uint32_t chunkID)
-{
-    // debug..
-    long lId = chunkID;
-    bool bHandled = true;
-    size_t nPos = m_pFileData->GetCurrentPos();
-
-
-    switch (chunkID)
-    {
-    case CT_CHANNELNUMB:
-        m_audioChannelcount = Swap4(m_pFileData->NextUI4());
-        break;
-    case CT_TRACKLEN:
-        m_trackLength = Swap4(m_pFileData->NextUI4());
-        break;
-    case CT_PATTERNNUMB:
-        m_totalPatternlength = Swap4(m_pFileData->NextUI4());
-        break;
-    case CT_SAMPLENUMB:
-        // 16-bit value in 4 bytes? -> get word only
-        m_instrumentCount = (Swap4(m_pFileData->NextUI4()) & 0x0000FFFF);
-        break;
-    case CT_NOTESIZE:
-        // 16-bit value in 4 bytes? -> get word only
-        m_songEventSize = (Swap4(m_pFileData->NextUI4()) & 0x0000FFFF);
-        break;
-    case CT_SYSTEMSPEED:
-        m_systemBPM = Swap4(m_pFileData->NextUI4());
-        break;
-    case CT_ISSONG:
-        m_isPureSong = Swap4(m_pFileData->NextUI4());
-        break;
-        
-    case CT_NGSAMPLEBOOST:
-        m_globalSampleBoost = Swap4(m_pFileData->NextUI4());
-        break;
-    case CT_PITCHDIFF:
-        m_stereoEncPitchDiff = Swap4(m_pFileData->NextUI4());
-        break;
-    case CT_SAMPLEDIFF:
-        m_stereoEncSampleDiff = Swap4(m_pFileData->NextUI4());
-        break;
-        
-    case CT_SONGDATA:
-    case CT_SAMPLE:
-    case CT_EMPTYSAMPLE:
-    case CT_NOTEDATA:
-    case CT_SAMPLENAMES:
-    case CT_SEQUENCE:
-    case CT_INFOTEXT:
-    case CT_DELTASAMPLE:
-    case CT_DELTA16:
-    case CT_INFOTYPE:
-    case CT_INFOOBJ:
-    case CT_STRING:
-        bHandled = OnLargeChunk(chunkID);
-        break;
-        
-        
-    default:
-        // we should skip unknown chunks
-        // but we don't know size of it..
-        bHandled = false;
-        break;
-        
-    }
-
-    // debug
-    nPos = m_pFileData->GetCurrentPos();
-    
-    // not supported chunk yet..
-    return bHandled;
-}
-
-
-bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
-{
-    bool bHandled = true;
-    size_t nPos = m_pFileData->GetCurrentPos();
-    uint32_t chunkLen = Swap4(m_pFileData->NextUI4());
-    
-    uint8_t pData = m_pFileData->GetAtCurrent();
-    if (::memcmp(pData, "PACK", 4) == 0
-        && pData[4] == -1 && pData[5] == -1
-        && chunkLen > 16)
-    {
-        // runlen packing of chunk data -> unpack to buffer
-
-        // update offset
-        m_pFileData->SetCurrentPos(nPos +10);
-       
-        uint32_t unpackedLen = Swap4(m_pFileData->NextUI4());
-        pData = new uint8_t[unpackedLen];
-        
-        // TODO: implement
-        UnpackRunlen(m_pFileData->GetAtCurrent(), chunkLen, pData, unpackedLen);
-        
-    }
-    else
-    {
-        // otherwise use as-is for further..
-        m_pFileData->SetCurrentPos(nPos +4);
-    }
-    
-    // process data, byteswap and such..
-    switch (chunkID)
-    {
-    /*
-    case CT_SONGDATA:
-        break;
-    case CT_SAMPLE:
-        break;
-    case CT_EMPTYSAMPLE:
-        break;
-    case CT_NOTEDATA:
-        break;
-    case CT_SAMPLENAMES:
-        break;
-    case CT_SEQUENCE:
-        break;
-    case CT_INFOTEXT:
-        break;
-    case CT_DELTASAMPLE:
-        break;
-    case CT_DELTA16:
-        break;
-    case CT_INFOTYPE:
-        break;
-    case CT_INFOOBJ:
-        break;
-    case CT_STRING:
-        break;
-        */
-        
-    default:
-        bHandled = false;
-        break;
-    }
-    
-    nPos = m_pFileData->GetCurrentPos();
-    if (bHandled == false)
-    {
-        // skip chunk if not supported..
-        m_pFileData->SetCurrentPos(nPos + chunkLen);
-    }
-    return bHandled;
-}
-
-
-// TODO: implement
 // unpack simple "runlength" packing of chunk data
 bool CSymphoniePlayer::UnpackRunlen(const uint8_t *pOrigData, const size_t nLen, uint8_t *pOutBuf, size_t nUnpackLen)
 {
@@ -230,9 +76,193 @@ bool CSymphoniePlayer::UnpackRunlen(const uint8_t *pOrigData, const size_t nLen,
 
 // TODO: implement
 // unpack delta compression of sample data
-bool CSymphoniePlayer::UnpackDelta()
+bool CSymphoniePlayer::Decode8bitSample(const uint8_t *pData, const size_t nLen)
 {
     return false;
+}
+
+// TODO: implement
+// unpack delta compression of sample data
+bool CSymphoniePlayer::Decode16bitSample(const uint8_t *pData, const size_t nLen)
+{
+    return false;
+}
+
+
+// some chunks have just single parameter in 4 bytes
+// and no length of chunk; 
+// some have varying data and need more handling (length given..)
+bool CSymphoniePlayer::OnChunk(uint32_t chunkID)
+{
+    // debug..
+    long lId = chunkID;
+    bool bHandled = true;
+    size_t nPos = m_pFileData->GetCurrentPos();
+
+
+    switch (chunkID)
+    {
+    case CT_CHANNELNUMB:
+        m_audioChannelcount = Swap4(m_pFileData->NextUI4());
+        break;
+    case CT_TRACKLEN:
+        m_trackLength = Swap4(m_pFileData->NextUI4());
+        break;
+    case CT_PATTERNNUMB:
+        m_totalPatternlength = Swap4(m_pFileData->NextUI4());
+        break;
+    case CT_SAMPLENUMB:
+        // 16-bit value in 4 bytes? -> get word only
+        m_instrumentCount = (Swap4(m_pFileData->NextUI4()) & 0x0000FFFF);
+        break;
+    case CT_NOTESIZE:
+        // 16-bit value in 4 bytes? -> get word only
+        m_songEventSize = (Swap4(m_pFileData->NextUI4()) & 0x0000FFFF);
+        break;
+    case CT_SYSTEMSPEED:
+        m_systemBPM = Swap4(m_pFileData->NextUI4());
+        break;
+    case CT_ISSONG:
+        m_isPureSong = Swap4(m_pFileData->NextUI4());
+        break;
+        
+    case CT_NGSAMPLEBOOST:
+        m_globalSampleBoost = Swap4(m_pFileData->NextUI4());
+        break;
+    case CT_PITCHDIFF:
+        m_stereoEncPitchDiff = Swap4(m_pFileData->NextUI4());
+        break;
+    case CT_SAMPLEDIFF:
+        m_stereoEncSampleDiff = Swap4(m_pFileData->NextUI4());
+        break;
+        
+    case CT_SONGDATA:
+    case CT_SAMPLE:
+    case CT_NOTEDATA:
+    case CT_SAMPLENAMES:
+    case CT_SEQUENCE:
+    case CT_INFOTEXT:
+    case CT_DELTASAMPLE:
+    case CT_DELTA16:
+    case CT_INFOTYPE:
+    case CT_INFOOBJ:
+    case CT_STRING:
+        bHandled = OnLargeChunk(chunkID);
+        break;
+        
+    default:
+        // we should skip unknown chunks
+        // but we don't know size of it..
+        return false;
+    }
+    
+    // not supported chunk yet..
+    return bHandled;
+}
+
+
+bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
+{
+    bool bHandled = true;
+    size_t nPos = m_pFileData->GetCurrentPos();
+    uint32_t chunkLen = Swap4(m_pFileData->NextUI4());
+    
+    uint8_t pData = m_pFileData->GetAtCurrent();
+    if (::memcmp(pData, "PACK", 4) == 0
+        && pData[4] == -1 && pData[5] == -1
+        && chunkLen > 16)
+    {
+        // runlen packing of chunk data -> unpack to buffer
+
+        // update offset
+        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 6);
+       
+        uint32_t unpackedLen = Swap4(m_pFileData->NextUI4());
+        pData = new uint8_t[unpackedLen];
+        
+        if (UnpackRunlen(m_pFileData->GetAtCurrent(), chunkLen, pData, unpackedLen) == false)
+        {
+            // bug or corrupted file detected
+            return false;
+        }
+        
+        // update offset
+        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + chunkLen);
+        chunkLen = unpackedLen;
+    }
+    
+    // process data, byteswap and such..
+    switch (chunkID)
+    {
+    case CT_SONGDATA: // -10
+        break;
+    case CT_SAMPLE: // -11
+        break;
+    case CT_NOTEDATA: // -13
+        // pattern data, keep as is?
+        m_PatternData.m_pBuf = pData;
+        m_PatternData.m_nLen = chunkLen;
+        break;
+    case CT_SAMPLENAMES: // -14
+        bHandled = OnSampleNames(pData, chunkLen);
+        break;
+    case CT_SEQUENCE: // -15
+        break;
+    case CT_INFOTEXT: // -16
+        break;
+        
+    case CT_DELTASAMPLE: // -17
+        // 8-bit deltapacked sample
+        //bHandled = Decode8bitSample(pData, chunkLen);
+        break;
+    case CT_DELTA16: // -18
+        // 16-bit deltapacked sample
+        //bHandled = Decode16bitSample(pData, chunkLen);
+        break;
+        
+    case CT_INFOTYPE: // -19
+        break;
+    case CT_INFOOBJ: // -20
+        break;
+    case CT_STRING: // -21
+        break;
+        
+    default:
+        return false;
+    }
+    
+    return bHandled;
+}
+
+// sample/instrument names
+bool CSymphoniePlayer::OnSampleNames(const uint8_t *pData, const size_t nLen)
+{
+    // ?? fixed size strings?
+    int sampleNameCount = nLen / 256;
+    uint8_t *pBuf = pData;
+    
+    for (int i = 0; i < sampleNameCount; i++)
+    {
+        // should be null-terminated string
+        std::string sampleName = (char*)pBuf;
+        
+        if (sampleName == "ViRT")
+        {
+            // virtual instrument, only visual information?
+            
+            // TODO: keep somewhere..
+        }
+        else
+        {
+            // "normal" instrument
+            
+            // TODO: keep somewhere..
+        }
+        
+        pBuf = (pBuf + 256);
+    }
+    
+    return true;
 }
 
 
