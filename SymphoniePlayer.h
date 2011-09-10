@@ -160,6 +160,10 @@ protected:
             , m_data()
             , m_bIsVirtual(false)
         {}
+        ~Instrument()
+        {
+            delete m_data.m_pBuf;
+        }
         std::string m_name;
         bufferedData_t m_data;
         bool m_bIsVirtual;

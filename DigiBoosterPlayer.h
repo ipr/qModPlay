@@ -22,6 +22,14 @@
 
 class CDigiBoosterPlayer : public CModPlayer
 {
+protected:
+
+    // 128 bytes of data
+    uint8_t *m_pOrders;    
+    
+    char m_versionName[4]; // version as string
+    uint8_t m_versionNumber; // version as byte
+    
 public:
     CDigiBoosterPlayer(CReadBuffer *pFileData);
     virtual ~CDigiBoosterPlayer();

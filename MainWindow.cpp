@@ -28,7 +28,7 @@
 #include "DigiBoosterPlayer.h"
 #include "DigiBoosterProPlayer.h"
 #include "SymphoniePlayer.h"
-
+#include "TfmxPlayer.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -112,7 +112,7 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer *fileBuffer) const
         break;
         
     case HEADERTYPE_TFMX:
-        //pModPlayer = new CTfmxPlayer(fileBuffer);
+        pModPlayer = new CTfmxPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_OKTALYZER:
@@ -177,6 +177,7 @@ void MainWindow::PlayFile(QString &filename)
     // (what is supported by player/format/module..)
     //QAudioFormat format = pModPlayer->GetOutputFormat();
 
+    /*
     // placeholder..
     QAudioFormat format;
     m_pAudioOut = new QAudioOutput(format, this);
@@ -207,6 +208,7 @@ void MainWindow::PlayFile(QString &filename)
     // placeholder..
     //size_t nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetSize());
     //qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), nInBuf);
+    */
 }
 
 
@@ -216,6 +218,7 @@ void MainWindow::on_actionPlay_triggered()
     
     //QString filename = "c:/tmpmods/Nexus7-Theme";
     QString filename = "C:/tmpmods/Breathless.SymMOD";
+    QString filename = "C:/tmpmods/plastic elements.digi";
 
 
     PlayFile(filename);    

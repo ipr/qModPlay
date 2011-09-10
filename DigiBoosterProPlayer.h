@@ -6,6 +6,9 @@
 //
 // Based on documentation by: Tomasz Piasta
 //
+// Official specification of DBM0 format:
+// http://digibooster.eu/format.php
+//
 //
 // Author: Ilkka Prusi, 2011
 // Contact: ilkka.prusi@gmail.com
@@ -24,11 +27,11 @@
 
 struct DBMInfoChunk_t
 {
-    uint16_t m_instruments;
-    uint16_t m_samples;
-    uint16_t m_songs;
-    uint16_t m_patterns;
-    uint16_t m_channels;
+    uint16_t m_instruments;     // upto 255
+    uint16_t m_samples;         // upto 255
+    uint16_t m_songs;           // DBPro v2.x limited to 5
+    uint16_t m_patterns;        // upto 1024
+    uint16_t m_tracks;          // 4 to 254, even
 };
 
 struct DBMInstrumentChunk_t
@@ -61,15 +64,32 @@ class CDigiBoosterProPlayer : public CModPlayer
 {
 protected:
     
+    class DBMSong
+    {
+    public:
+        DBMSong()
+            : m_name()
+            , m_playlistCount(0)
+            , m_pOrders(nullptr)
+        {}
+        ~DBMSong()
+        {
+            delete m_pOrders;
+        }
+        
+        std::string m_name;
+        uint16_t m_playlistCount;
+        uint16_t *m_pOrders;
+    };
+    
     std::string m_moduleName;
+    DBMInfoChunk_t m_moduleInfo;
 
-    std::string m_songName;
-    uint16_t m_songOrderCount;
-    uint16_t *m_pSongOrders;
+    // amout equal to m_songs in DBMInfoChunk_t
+    DBMSong *m_pSongBlocks;
 
     std::string m_instrumentName;
     
-    DBMInfoChunk_t m_moduleInfo;
     DBMInstrumentChunk_t m_instruments;
     
     uint16_t m_patternRowCount;
@@ -85,7 +105,8 @@ protected:
     bufferedData_t m_volEnvelopeData;
 
     
-    long m_version;
+    uint8_t m_version;
+    uint8_t m_revision;
     
     bool OnChunk(uint32_t chunkID, const uint32_t chunkLen);
     

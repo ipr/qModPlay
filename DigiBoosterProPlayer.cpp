@@ -25,45 +25,46 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
 {
     if (chunkID == IFFTag("NAME"))
     {
-        //m_moduleName.assign(m_pFileData->GetAtCurrent(), chunkLen);
-        
-        // 44 characters for module name
+        // fixed length: 44 characters for module name
         m_moduleName.assign((char*)m_pFileData->GetAtCurrent(), 44);
         return true;
     }
     else if (chunkID == IFFTag("INFO"))
     {
-        // module info chunk
-        
+        // module info chunk, fixed size: 10 bytes
         DBMInfoChunk_t *pInfo = (DBMInfoChunk_t*)m_pFileData->GetAtCurrent();
         m_moduleInfo.m_instruments = Swap2(pInfo->m_instruments);
         m_moduleInfo.m_samples = Swap2(pInfo->m_samples);
         m_moduleInfo.m_songs = Swap2(pInfo->m_songs);
         m_moduleInfo.m_patterns = Swap2(pInfo->m_patterns);
-        m_moduleInfo.m_channels = Swap2(pInfo->m_channels);
+        m_moduleInfo.m_tracks = Swap2(pInfo->m_tracks);
         return true;
     }
     else if (chunkID == IFFTag("SONG"))
     {
-        // songs hunk
-        // (TODO: are there one or more instances of this chunk per file?)
+        // songs hunk, variable length
         
-        // song name
-        m_songName.assign((char*)m_pFileData->GetAtCurrent(), 44);
-        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 44);
+        m_pSongBlocks = new DBMSong[m_moduleInfo.m_songs];
 
-        // song orders
-        m_songOrderCount = Swap2(m_pFileData->NextUI2());
-        m_pSongOrders = new uint16_t[m_songOrderCount];
-        for (int i = 0; i < m_songOrderCount; i++)
+        for (int song = 0; song < m_moduleInfo.m_songs; song++)
         {
-            m_pSongOrders[i] = Swap2(m_pFileData->NextUI2());
+            // song name
+            m_pSongBlocks[song].m_songName.assign((char*)m_pFileData->GetAtCurrent(), 44);
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 44);
+            
+            // song orders
+            m_pSongBlocks[song].m_playlistCount = Swap2(m_pFileData->NextUI2());
+            m_pSongBlocks[song].m_pSongOrders = new uint16_t[m_pSongBlocks[song].m_songOrderCount];
+            for (int i = 0; i < m_songOrderCount; i++)
+            {
+                m_pSongBlocks[song].m_pOrders[i] = Swap2(m_pFileData->NextUI2());
+            }
         }
         return true;
     }
     else if (chunkID == IFFTag("INST"))
     {
-        // instruments hunk
+        // instruments hunk, variable length
         // (TODO: are there one or more instances of this chunk per file?)
         
         // instrument name
@@ -83,7 +84,7 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     }
     else if (chunkID == IFFTag("PATT"))
     {
-        // patterns hunk 
+        // patterns hunk, variable length
         // (TODO: are there one or more instances of this chunk per file?)
         
         m_patternRowCount = Swap2(m_pFileData->NextUI2());
@@ -99,7 +100,7 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     }
     else if (chunkID == IFFTag("SMPL"))
     {
-        // samples hunk
+        // samples hunk, variable length
         // (TODO: are there one or more instances of this chunk per file?)
         
         // flags:
@@ -145,7 +146,7 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     }
     else if (chunkID == IFFTag("VENV"))
     {
-        // volume envelopes hunk (optional)
+        // volume envelopes hunk (optional), variable length
         // (TODO: are there one or more instances of this chunk per file?)
         
         m_volEnvelopeCount = Swap2(m_pFileData->NextUI2());
@@ -170,10 +171,18 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         //m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_volEnvelopeData.m_nLen);
         return true;
     }
-    /* TODO: is this used/existing?
     else if (chunkID == IFFTag("PENV"))
-    {}
-    */
+    {
+        // panning envelopes (optional?), variable length
+        // chunk added in newer Digibooster 3?
+        
+    }
+    else if (chunkID == IFFTag("PNAM"))
+    {
+        // pattern names (optional?), variable length
+        // chunk added in newer Digibooster 3?
+        
+    }
     
     // TODO: debug output: unsupport chunk found..
     return false;
@@ -186,9 +195,8 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
 CDigiBoosterProPlayer::CDigiBoosterProPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_moduleName()
-    , m_songName()
-    , m_songOrderCount(0)
-    , m_pSongOrders(nullptr)
+    , m_moduleInfo()
+    , m_pSongBlocks(nullptr)
     , m_instrumentName()
     , m_version(0)
 {
@@ -196,7 +204,7 @@ CDigiBoosterProPlayer::CDigiBoosterProPlayer(CReadBuffer *pFileData)
 
 CDigiBoosterProPlayer::~CDigiBoosterProPlayer() 
 {
-    delete m_pSongOrders;
+    delete m_pSongBlocks;
 }
 
 /*
@@ -219,8 +227,10 @@ bool CDigiBoosterProPlayer::ParseFileInfo()
         return false;
     }
     
-    // version
-    m_version = Swap2(m_pFileData->NextUI2());
+    // version and revision (as BCD value?)
+    // -> handle ..
+    m_version = m_pFileData->NextUI1();
+    m_revision = m_pFileData->NextUI1();
     
     // skip two bytes (reserved)
     m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos()+2);
