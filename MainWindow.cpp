@@ -62,7 +62,7 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer &fileBuffer)
         pModPlayer = new CSymphoniePlayer(&fileBuffer);
         break;
 
-    case HEADERTYPE_DBM:
+    case HEADERTYPE_DIGIBOOSTER:
         pModPlayer = new CDigiBoosterPlayer(&fileBuffer);
         break;
         

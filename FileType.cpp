@@ -144,7 +144,7 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
         // "DIGI Booster module\0"
         
 		// Digibooster module
-		return HEADERTYPE_DBM;
+		return HEADERTYPE_DIGIBOOSTER;
 	}
 	else if (::memcmp(pBuffer, "DBM0", 4) == 0)
 	{

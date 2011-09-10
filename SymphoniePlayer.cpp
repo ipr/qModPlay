@@ -178,34 +178,45 @@ bool CSymphoniePlayer::UnpackRunlen(const uint8_t *pOrigData, const size_t nLen,
             // copy as-is next bytes (upto 255)
             uint8_t byteCount = pOrigData[nPos];
             nPos++;
-            ::memcpy(pOutBuf[nOutPos], pOrigData[nPos], byteCount);
+            ::memcpy(pOutBuf + nOutPos, pOrigData + nPos, byteCount);
+            nOutPos += byteCount;
             break;
             
         case 3:
             // upto 255 bytes of zero
             uint8_t byteCount = pOrigData[nPos];
             nPos++;
-            ::memset(pOutBuf[nOutPos], 0, byteCount);
-            
+            ::memset(pOutBuf + nOutPos, 0, byteCount);
+            nOutPos += byteCount;
             break;
         
         case 2:
-            // 32-bit longs
-            //uint32_t val = Swap4();
-            //uint32_t val = Swap4();
+            // 2x 32-bit long value
+            uint32_t *pVal = (uint32_t*)(pOrigData + nPos);
+            nPos += 4;
+            uint32_t val = Swap4(*pVal);
+            ::memcpy(pOutBuf + nOutPos, &val, 4);
+            nOutPos += 4;
+            ::memcpy(pOutBuf + nOutPos, &val, 4);
+            nOutPos += 4;
             break;
             
         case 1:
             // copy next n 32-bit longs to out
-            /*
-            uint8_t valCount = pOrigData[nPos];
+            uint8_t byteCount = pOrigData[nPos];
             nPos++;
-            
-            for (uint8_t n = nPos; n < valCount; n++)
+            uint32_t *pVal = (uint32_t*)(pOrigData + nPos);
+            nPos += 4;
+            uint32_t val = Swap4(*pVal);
+            for (int i = 0; i < byteCount; i++)
             {
-                Swap4();
+                ::memcpy(pOutBuf + nOutPos, &val, 4);
+                nOutPos += 4;
             }
-            */
+            break;
+            
+        case 0xFF:
+            // noop
             break;
             
         default:
