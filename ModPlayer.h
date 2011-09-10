@@ -85,7 +85,7 @@ public:
     
     // TODO: check details, "decode" in parts to buffer,
     // leave it upto caller to actually output..
-    //virtual size_t Decode(void *pBuffer, const size_t nBufSize) = 0;
+    //virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize) = 0;
     
 };
 

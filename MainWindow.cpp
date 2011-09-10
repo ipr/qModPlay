@@ -71,10 +71,18 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer &fileBuffer)
         break;
         
     case HEADERTYPE_AHX:
+        //pModPlayer = new CAhxPlayer();
         break;
         
     case HEADERTYPE_OKTALYZER:
+        //pModPlayer = new COktalyzerPlayer();
         break;
+    
+        /*
+    case HEADERTYPE_NOISETRACKER:
+        //pModPlayer = new CNoisetrackerPlayer();
+        break;
+        */
 
     default:
         // just to silence GCC..
@@ -124,13 +132,39 @@ void MainWindow::PlayFile(QString &filename)
 		return;
     }
     
-    // 
+    // TODO: get info on what is suitable format for playing..
+    // (what is supported by player/format/module..)
     //QAudioFormat format = pModPlayer->GetOutputFormat();
 
-    //m_pAudioOut = new QAudioOutput(format, this);
-    //
+    // placeholder..
+    QAudioFormat format;
+    m_pAudioOut = new QAudioOutput(format, this);
+    
+    // TODO: change&notify handlers (push new data when enough has played)
 	//connect(m_pAudioOut, SIGNAL(stateChanged(QAudio::State)), this, SLOT(onAudioState(QAudio::State)));
 	//connect(m_pAudioOut, SIGNAL(notify()), this, SLOT(onPlayNotify()));
+    
+    // count size of buffer for decoding:
+    // channels, samplesize, frequency etc.
+    // just guess for now: 
+    // expect 2-channels and 16-bit samples at 44.1kHz,
+    // get proper values later
+    int64_t nBuffer = ( 2 * 2 * 44100);
+
+    int iBufSize = m_pAudioOut->bufferSize();
+	if (iBufSize < nBuffer)
+	{
+		m_pAudioOut->setBufferSize(nBuffer);
+	}
+    m_pAudioOut->setNotifyInterval(250); // 250ms
+    
+    // create buffer for decoding 
+    //QByteArray decodeBuffer();
+    CReadBuffer decodeBuffer(nBuffer);
+    
+    // placeholder..
+    size_t nInBuf = pModPlayer->Decode(decodeBuffer.GetBegin(), decodeBuffer.GetSize());
+    qint64 nWritten = m_pDevOut->write(decodeBuffer.GetBegin(), nInBuf);
 }
 
 

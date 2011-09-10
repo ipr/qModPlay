@@ -167,9 +167,17 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     size_t nPos = m_pFileData->GetCurrentPos();
     uint32_t chunkLen = Swap4(m_pFileData->NextUI4());
     
+    if (chunkID == CT_INFOTEXT)
+    {
+        // just comments/text information,
+        // no packing?
+        m_comments.assign(pData, chunkLen);
+        return true;
+    }
+    
     uint8_t pData = m_pFileData->GetAtCurrent();
     if (::memcmp(pData, "PACK", 4) == 0
-        && pData[4] == -1 && pData[5] == -1
+        && pData[4] == 0xFF && pData[5] == 0xFF
         && chunkLen > 16)
     {
         // runlen packing of chunk data -> unpack to buffer
@@ -199,16 +207,13 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     case CT_SAMPLE: // -11
         break;
     case CT_NOTEDATA: // -13
-        // pattern data, keep as is?
-        m_PatternData.m_pBuf = pData;
-        m_PatternData.m_nLen = chunkLen;
+        // pattern data
+        bHandled = OnPatternData(pData, chunkLen);
         break;
     case CT_SAMPLENAMES: // -14
         bHandled = OnSampleNames(pData, chunkLen);
         break;
     case CT_SEQUENCE: // -15
-        break;
-    case CT_INFOTEXT: // -16
         break;
         
     case CT_DELTASAMPLE: // -17
@@ -232,6 +237,29 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     }
     
     return bHandled;
+}
+
+bool CSymphoniePlayer::OnPatternData(const uint8_t *pData, const size_t nLen)
+{
+    // keep as is..
+    m_PatternData.m_pBuf = pData;
+    m_PatternData.m_nLen = nLen;
+    
+    size_t nPatternSize = m_audioChannelcount*m_trackLength*4;
+    if (nPatternSize == 0 || m_PatternData.m_nLen == 0)
+    {
+        // no data
+        return false;
+    }
+    
+    m_nPatternCount = m_PatternData.m_nLen / nPatternSize;
+    if (m_nPatternCount == 0)
+    {
+        return false;
+    }
+    
+    
+    return true;
 }
 
 // sample/instrument names
@@ -321,4 +349,11 @@ bool CSymphoniePlayer::ParseFileInfo()
     return true;
 }
 
+// TODO: implement
+// decode in parts to given playback buffer
+// when playing module
+size_t CSymphoniePlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
+{
+    return 0;
+}
 
