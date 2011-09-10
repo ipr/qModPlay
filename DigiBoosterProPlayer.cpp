@@ -73,6 +73,8 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         // (TODO: are there one or more instances of this chunk per file?)
         
         m_patternRowCount = Swap2(m_pFileData->NextUI2());
+        
+        // packed pattern: size and data
         m_patternData.m_nLen = Swap2(m_pFileData->NextUI2());
         m_patternData.m_pBuf = new uint8_t[m_patternData.m_nLen];
         ::memcpy(m_patternData.m_pBuf, m_pFileData->GetAtCurrent(), m_patternData.m_nLen);
@@ -93,6 +95,7 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         //
         m_sampleFlags = Swap4(m_pFileData->NextUI4());
         
+        // sample data: size and data
         m_sampleData.m_nLen = Swap4(m_pFileData->NextUI4());
         m_sampleData.m_pBuf = new uint8_t[m_sampleData.m_nLen];
         ::memcpy(m_sampleData.m_pBuf, m_pFileData->GetAtCurrent(), m_sampleData.m_nLen);
@@ -128,12 +131,13 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     }
     else if (chunkID == IFFTag("VENV"))
     {
-        // volume envelopes hunk
+        // volume envelopes hunk (optional)
         // (TODO: are there one or more instances of this chunk per file?)
         
         m_volEnvelopeCount = Swap2(m_pFileData->NextUI2());
         m_instrumentNumber = Swap2(m_pFileData->NextUI2());
         
+        // volume envelope: fixed-size buffer? is it really?
         m_volEnvelopeData.m_nLen = 134;
         m_volEnvelopeData.m_pBuf = new uint8_t[m_volEnvelopeData.m_nLen];
         ::memcpy(m_volEnvelopeData.m_pBuf, m_pFileData->GetAtCurrent(), m_volEnvelopeData.m_nLen);
@@ -152,6 +156,10 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         //m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_volEnvelopeData.m_nLen);
         return true;
     }
+    /* TODO: is this used/existing?
+    else if (chunkID == IFFTag("PENV"))
+    {}
+    */
     
     // TODO: debug output: unsupport chunk found..
     return false;

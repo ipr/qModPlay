@@ -35,7 +35,12 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	// such as IFF "FORM", 
 	// add ambigious types to end (such as only two-byte identifiers).
     
-    if (::memcmp(pBuffer, "OKTASONG", 8) == 0)
+    if (::memcmp(pBuffer, "TFMX-SONG ", 10) == 0)
+    {
+        // Amiga TFMX module
+        return HEADERTYPE_TFMX;
+    }
+    else if (::memcmp(pBuffer, "OKTASONG", 8) == 0)
     {
         // Amiga Oktalyzer tracker module
         return HEADERTYPE_OKTALYZER;
@@ -130,13 +135,17 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		// Rar-archive
 		return HEADERTYPE_RAR;
 	}
-	else if (::memcmp(pBuffer, "MMD", 3) == 0
-			 || ::memcmp(pBuffer, "MED", 3) == 0)
+    else if (::memcmp(pBuffer, "MED", 3) == 0)
+    {
+        // OctaMED/Pro
+        // MED2..4
+        return HEADERTYPE_OCTAMED;
+    }
+	else if (::memcmp(pBuffer, "MMD", 3) == 0)
 	{
-		// OctaMED
+		// OctaMED SoundStudio
 		// MMD0..3
-		// MED2..4
-		return HEADERTYPE_OCTAMED;
+        return HEADERTYPE_OCTAMED_OSS
 	}
 	else if (::memcmp(pBuffer, "DIGI", 4) == 0)
 	{
@@ -149,7 +158,7 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	else if (::memcmp(pBuffer, "DBM0", 4) == 0)
 	{
 		// Digibooster PRO module
-		return HEADERTYPE_DBPRO;
+		return HEADERTYPE_DBMPRO;
 	}
 	else if (::memcmp(pBuffer, "SymM", 4) == 0)
 	{
@@ -178,10 +187,6 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		{
 			enFileType = HEADERTYPE_AVI;
 		}
-		/*
-	    else if (::memcmp(pTmp, "CDDA", 4) == 0)
-		{}
-		*/
 		return enFileType;
 	}
 	else if (::memcmp(pBuffer, "DOS", 3) == 0)
@@ -235,7 +240,6 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		&& pBuffer[1] == 0x0A)
 	{
 		// LHA-compressed TAR?
-		//enFileType = ;
 	}
 	*/
 	else if (pBuffer[0] == 0x4D

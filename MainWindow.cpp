@@ -81,6 +81,9 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer *fileBuffer) const
     case HEADERTYPE_OCTAMED:
         //pModPlayer = new COctaMedPlayer(fileBuffer);
         break;
+    case HEADERTYPE_OCTAMED_OSS:
+        //pModPlayer = new COctaMedOSSPlayer(fileBuffer);
+        break;
         
     case HEADERTYPE_SYMMOD:
         pModPlayer = new CSymphoniePlayer(fileBuffer);
@@ -89,13 +92,16 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer *fileBuffer) const
     case HEADERTYPE_DIGIBOOSTER:
         pModPlayer = new CDigiBoosterPlayer(fileBuffer);
         break;
-        
-    case HEADERTYPE_DBPRO:
+    case HEADERTYPE_DBMPRO:
         pModPlayer = new CDigiBoosterProPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_AHX:
         //pModPlayer = new CAhxPlayer(fileBuffer);
+        break;
+        
+    case HEADERTYPE_TFMX:
+        //pModPlayer = new CTfmxPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_OKTALYZER:

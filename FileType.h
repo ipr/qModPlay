@@ -57,12 +57,13 @@ typedef enum tHeaderType
 	// audio types, modules ("trackers")
 	HEADERTYPE_MOD, // ProTracker (and others..)
     //HEADERTYPE_NOISETRACKER, // NoiseTracker
-	HEADERTYPE_OCTAMED,	 // OctaMED & SoundStudio (MMD0..3, MED2..4)
-    //HEADERTYPE_MED_SOUNDSTUDIO,	 // OctaMED SoundStudio (MMD0..3, MED2..4)
+	HEADERTYPE_OCTAMED,	 // OctaMED "classic" (MMD0..3, MED2..4)
+    HEADERTYPE_OCTAMED_OSS,	 // OctaMED SoundStudio (MMD0..3, MED2..4)
 	HEADERTYPE_DIGIBOOSTER,	 // Digibooster (dbmob)
-	HEADERTYPE_DBPRO,	 // Digibooster PRO
+	HEADERTYPE_DBMPRO,	 // Digibooster PRO
 	HEADERTYPE_SYMMOD,	 // Symphonie mod (SYMMOD)
-    HEADERTYPE_AHX, //Abyss' Highest eXperience (AHX0, AHX1, was called: THX)
+    HEADERTYPE_TFMX,	 // TFMX, "The Final Musicsystem eXtended"
+    HEADERTYPE_AHX, // "Abyss' Highest eXperience" (AHX0, AHX1, was called: THX)
     HEADERTYPE_OKTALYZER, // Oktalyzer
 	//HEADERTYPE_XM, // FastTracker
     HEADERTYPE_IT, // ImpulseTracker
