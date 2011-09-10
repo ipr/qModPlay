@@ -9,6 +9,11 @@
 //
 // Based on documentation by: Claudio Matsuoka
 //
+// NOTE! might need heavy rewrite..
+// see if there's more details somewhere,
+// those fixed-length arrays and fixed offsets seem ridiculous..
+// Until then, this is what is found in documents..
+//
 //
 // Author: Ilkka Prusi, 2011
 // Contact: ilkka.prusi@gmail.com
@@ -19,13 +24,39 @@
 
 #include "ModPlayer.h"
 
+#include <string>
 
 class CDigiBoosterPlayer : public CModPlayer
 {
 protected:
-
-    // 128 bytes of data
-    uint8_t *m_pOrders;    
+    
+    // actual song data?
+    bufferedData_t m_SongData;
+    
+    // always fixed-size array of fixed-length strings?
+    std::string *m_pSampleNames;
+    
+    std::string m_songName;
+    
+    ///////
+    // always 31 values in these?
+    uint32_t *m_pSampleLength;
+    uint32_t *m_pSampleLoopStart;
+    uint32_t *m_pSampleLoopLength;
+    uint8_t *m_pSampleVolumes;
+    uint8_t *m_pSampleFinetunes;
+    ///////
+    
+    // 128 bytes of data,
+    // is it always?
+    bufferedData_t m_Orders;
+    
+    uint8_t m_channelCount;
+    uint8_t m_patternsCount;
+    uint8_t m_orderCount;
+    
+    // size???
+    bool m_PackEnable;
     
     char m_versionName[4]; // version as string
     uint8_t m_versionNumber; // version as byte

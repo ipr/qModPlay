@@ -204,7 +204,7 @@ CDigiBoosterProPlayer::CDigiBoosterProPlayer(CReadBuffer *pFileData)
 
 CDigiBoosterProPlayer::~CDigiBoosterProPlayer() 
 {
-    delete m_pSongBlocks;
+    delete [] m_pSongBlocks;
 }
 
 /*

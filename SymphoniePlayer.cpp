@@ -333,7 +333,7 @@ CSymphoniePlayer::CSymphoniePlayer(CReadBuffer *pFileData)
 CSymphoniePlayer::~CSymphoniePlayer()
 {
     delete m_PatternData.m_pBuf;
-    delete m_pInstruments;
+    delete [] m_pInstruments;
 }
 
 
