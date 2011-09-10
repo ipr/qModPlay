@@ -98,7 +98,29 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         ::memcpy(m_sampleData.m_pBuf, m_pFileData->GetAtCurrent(), m_sampleData.m_nLen);
 
         // - check flag for sample size
-        // - swap byteorder for each value in buffer        
+        // - swap byteorder for each value in buffer
+        //
+        uint32_t flag = 1;
+        if (m_sampleFlags & (flag << 1))
+        {
+            // 16-bit
+            uint16_t *pBuf = (uint16_t*)m_sampleData.m_pBuf;
+            int count = m_sampleData.m_nLen / sizeof(uint16_t);
+            for (int i = 0; i < count; i++)
+            {
+                pBuf[i] = Swap2(pBuf[i]);
+            }
+        }
+        else if (m_sampleFlags & (flag << 2))
+        {
+            // 32-bit
+            uint32_t *pBuf = (uint32_t*)m_sampleData.m_pBuf;
+            int count = m_sampleData.m_nLen / sizeof(uint32_t);
+            for (int i = 0; i < count; i++)
+            {
+                pBuf[i] = Swap4(pBuf[i]);
+            }
+        }
         
         // debug
         //m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_sampleData.m_nLen);
@@ -109,6 +131,26 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         // volume envelopes hunk
         // (TODO: are there one or more instances of this chunk per file?)
         
+        m_volEnvelopeCount = Swap2(m_pFileData->NextUI2());
+        m_instrumentNumber = Swap2(m_pFileData->NextUI2());
+        
+        m_volEnvelopeData.m_nLen = 134;
+        m_volEnvelopeData.m_pBuf = new uint8_t[m_volEnvelopeData.m_nLen];
+        ::memcpy(m_volEnvelopeData.m_pBuf, m_pFileData->GetAtCurrent(), m_volEnvelopeData.m_nLen);
+        
+        // for simplicity.. do some parsing&byteswapping for later use
+        ::memcpy(&m_volEnvelopeDesc, m_volEnvelopeData.m_pBuf, sizeof(DBMVolEnvelope_t));
+        
+        uint16_t *pEnvPts = (uint16_t*)(m_volEnvelopeData.m_pBuf + sizeof(DBMVolEnvelope_t));
+        int count = (m_volEnvelopeData.m_nLen - sizeof(DBMVolEnvelope_t)) / sizeof(uint16_t);
+        for (int i = 0; i < count; i++)
+        {
+            pEnvPts[i] = Swap2(pEnvPts[i]);
+        }
+        
+        // debug
+        //m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_volEnvelopeData.m_nLen);
+        return true;
     }
     
     // TODO: debug output: unsupport chunk found..

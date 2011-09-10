@@ -41,6 +41,18 @@ struct DBMInstrumentChunk_t
     uint16_t m_flags;
 };
 
+struct DBMVolEnvelope_t
+{
+    uint8_t m_type; // bitfield
+    uint8_t m_pointCount;
+    uint8_t m_sustainPoint1;
+    uint8_t m_loopStartPoint;
+    uint8_t m_loopEndPoint;
+    uint8_t m_sustainPoint2;
+    uint8_t m_reserved;
+};
+
+
 #pragma pack(pop)
 
 
@@ -64,6 +76,13 @@ protected:
 
     uint32_t m_sampleFlags;
     bufferedData_t m_sampleData;
+
+    uint16_t m_volEnvelopeCount;
+    uint16_t m_instrumentNumber;
+    
+    DBMVolEnvelope_t m_volEnvelopeDesc;
+    bufferedData_t m_volEnvelopeData;
+
     
     long m_version;
     
