@@ -1,16 +1,17 @@
 //////////////////////////////////////
 //
 // CDigiBoosterPlayer :
-// rewrite of DigiBooster and DigiBooster PRO player 
+// player for DigiBooster modules
 // in (mostly) portable C++
 //
 // Based on M68k assembler and E-language source codes..
 // (well, at least there _are_ sources..)
 //
-// Just interface for now..
+// Based on documentation by: Claudio Matsuoka
 //
-// Ilkka Prusi
-// ilkka.prusi@gmail.com
+//
+// Author: Ilkka Prusi, 2011
+// Contact: ilkka.prusi@gmail.com
 //
 
 #ifndef DIGIBOOSTERPLAYER_H
@@ -23,7 +24,7 @@ class CDigiBoosterPlayer : public CModPlayer
 {
 public:
     CDigiBoosterPlayer(CReadBuffer *pFileData);
-    virtual ~CDigiBoosterPlayer() {}
+    virtual ~CDigiBoosterPlayer();
     
     virtual bool ParseFileInfo();
 };

@@ -1,3 +1,17 @@
+//////////////////////////////////////
+//
+// CDigiBoosterProPlayer :
+// player for DigiBooster PRO modules 
+// in (mostly) portable C++
+//
+// Based on documentation by: Tomasz Piasta
+//
+//
+// Author: Ilkka Prusi, 2011
+// Contact: ilkka.prusi@gmail.com
+//
+
+
 #include "DigiBoosterProPlayer.h"
 
 // for buffer-wrapper..

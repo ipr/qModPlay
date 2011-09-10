@@ -1,3 +1,18 @@
+//////////////////////////////////////
+//
+// CSymphoniePlayer :
+// player for Symphonie modules (SymMOD)
+// in (mostly) portable C++
+//
+// Based on M68k assembler and Java source codes 
+// by: Patrick Meng 2008
+// 
+//
+// Author: Ilkka Prusi, 2011
+// Contact: ilkka.prusi@gmail.com
+//
+
+
 #include "SymphoniePlayer.h"
 
 // for buffer-wrapper..

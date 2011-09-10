@@ -16,7 +16,9 @@ SOURCES += main.cpp\
     FileType.cpp \
     SymphoniePlayer.cpp \
     DigiBoosterPlayer.cpp \
-    DigiBoosterProPlayer.cpp
+    DigiBoosterProPlayer.cpp \
+    TfmxPlayer.cpp \
+    AhxPlayer.cpp
 
 HEADERS  += MainWindow.h \
     AnsiFile.h \
@@ -24,9 +26,13 @@ HEADERS  += MainWindow.h \
     ModPlayer.h \
     SymphoniePlayer.h \
     DigiBoosterPlayer.h \
-    DigiBoosterProPlayer.h
+    DigiBoosterProPlayer.h \
+    TfmxPlayer.h \
+    AhxPlayer.h
 
 FORMS    += MainWindow.ui
+
+
 
 
 

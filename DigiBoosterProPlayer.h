@@ -1,13 +1,14 @@
 //////////////////////////////////////
 //
-// CDigiBoosterPlayer :
-// rewrite of DigiBooster PRO player 
+// CDigiBoosterProPlayer :
+// player for DigiBooster PRO modules 
 // in (mostly) portable C++
 //
-// Just interface for now..
+// Based on documentation by: Tomasz Piasta
 //
-// Ilkka Prusi
-// ilkka.prusi@gmail.com
+//
+// Author: Ilkka Prusi, 2011
+// Contact: ilkka.prusi@gmail.com
 //
 
 #ifndef DIGIBOOSTERPROPLAYER_H

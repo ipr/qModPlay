@@ -4,11 +4,13 @@
 // handle TFMX modules by Chris Huelsbeck
 //
 // Some (rough) text files exist for format,
-// some C-code for Amiga library..
-//
+// some C-code for Amiga library and some for a Unix/Linux app..
 // Should be possible to create new player for it..
 //
-// Author: Ilkka Prusi
+// So far based on documentation by: Jonathan H. Pickard
+//
+//
+// Author: Ilkka Prusi, 2011
 // Contact: ilkka.prusi@gmail.com
 //
 

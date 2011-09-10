@@ -1,3 +1,14 @@
+//////////////////////////////////////
+//
+// main Qt-app window and framework
+// to handle module players and audio-device
+//
+//
+// Author: Ilkka Prusi, 2011
+// Contact: ilkka.prusi@gmail.com
+//
+
+
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
