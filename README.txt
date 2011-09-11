@@ -13,13 +13,56 @@ some players/plugins are even expecting Amiga sound-chip (Paula) emulation as we
 2. Simple to maintain/extend:
 sources available, (somewhat) clean&simple code/structure etc.
 
-3. 
+3. Free and open:
+keep open so these modules can be played in future when we no longer have PCs..
 
 Note: large parts _will_ be used from other GPL-licensed apps like xmp and uade
 but rewritten/refractored for my tastes anyway.. Maybe fix a bug or two while at it..
 
-Licensing:
-GPL (v2/v3?)
+This will never be more than a player and my personal interest is in tracker-formats used on Amiga
+so progress may be slower than expected on some formats.
 
-(TODO)
+Licensing:
+GPL? (v2/v3?) (or BSD?/MIT? undecided..)
+
+Point is, non-profit use only: this is supposed to stay open so that modules can be played in future also
+when there's no PC anymore and everything is done on handheld-devices (or other such scenario).
+
+Status:
+
+Some fileformats mostly read, others not so much.
+Decode/playback missing from all currently (working on it).
+
+List below:
+* DBM0 (DigiBooster PRO) 
+  - fileformat is missing sample-handling (working on it)
+  - no playback
+* DIGI (old-style DigiBooster) 
+  - maybe 20-30% of fileformat? 
+  - no playback
+* SyMMod (Symphonie) 
+  - fileformat maybe half-way there? 
+  - no playback
+* TFMX 
+  - maybe 10% of fileformat done?
+* AFX 
+  - nothing yet (placeholder)
+* OctaMED 
+  - nothing yet (placeholder)
+* ProTracker 
+  - nothing yet (placeholder)
+* NoiseTracker? 
+  - nothing yet (placeholder)
+* IT (ImpulseTracker) 
+  - nothing yet (placeholder)
+* MT2 (Mad Tracker 2) 
+  - nothing yet (placeholder)
+* ScreamTracker 2/3 
+  - nothing yet (placeholder)
+* ... and so on ..
+
+Seems sad? Try locating documentation for some of these..
+And come on, I've only used about a week on it so far..
+
+Timetable? Forever/in progress..
 
