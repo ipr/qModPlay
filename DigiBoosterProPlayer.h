@@ -73,7 +73,6 @@ struct DBMEnvelope_t
     // too lazy to add each one here..
 };
 
-
 #pragma pack(pop)
 
 

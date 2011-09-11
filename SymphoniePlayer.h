@@ -20,6 +20,32 @@
 #include <string>
 
 
+// force 1-byte alignment for struct (no padding)
+#pragma pack(push, 1)
+
+struct SyMMSequenceChunk_t
+{
+    uint16_t m_startPosition;     // 
+    uint16_t m_endPosition;       // 
+    uint16_t m_action;            // 
+    uint16_t m_tune;              // 
+    uint16_t m_loopCount;         // 
+};
+
+struct SyMMSongPositionChunk_t
+{
+    uint16_t m_nPatternNumber;     // 
+    uint16_t m_tune;               // 
+    uint16_t m_startRow;           // 
+    uint16_t m_rowLength;          // 
+    uint16_t m_loopCount;          // 
+    uint16_t m_speedCycl;          // 
+};
+
+
+#pragma pack(pop)
+
+
 class CSymphoniePlayer : public CModPlayer
 {
 protected:
@@ -160,16 +186,21 @@ protected:
     public:
         SyMMInstrument()
             : m_name()
-            , m_data()
+            , m_number(0)
+            //, m_data()
             , m_bIsVirtual(false)
+            , m_type(0)
         {}
         ~SyMMInstrument()
         {
-            delete m_data.m_pBuf;
+            //delete m_data.m_pBuf;
         }
         std::string m_name;
-        bufferedData_t m_data;
+        size_t m_number; // index-value of instrument (needed somewhere..?)
+        //bufferedData_t m_data;
         bool m_bIsVirtual;
+        size_t m_type;
+        
     };
     SyMMInstrument *m_pInstruments;
     //size_t m_instrumentCount_; // CHECK! already in CT_SAMPLENUMB ??
@@ -266,7 +297,7 @@ protected:
     bool OnLargeChunk(uint32_t chunkID);
     
     bool OnPatternData(uint8_t *pData, const size_t nLen);
-    bool OnSampleNames(uint8_t *pData, const size_t nLen);
+    bool OnInstrumentNames(uint8_t *pData, const size_t nLen);
 
     bool OnInstrumentSample(uint8_t *pData, const size_t nLen);
     bool OnSequence(uint8_t *pData, const size_t nLen);
