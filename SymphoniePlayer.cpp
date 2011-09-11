@@ -190,15 +190,6 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     size_t nPos = m_pFileData->GetCurrentPos();
     uint32_t chunkLen = Swap4(m_pFileData->NextUI4());
     
-    if (chunkID == CT_INFOTEXT)
-    {
-        // just comments/text information,
-        // no packing?
-        m_comments.assign((char*)m_pFileData->GetAtCurrent(), chunkLen);
-        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + chunkLen);
-        return true;
-    }
-    
     uint8_t *pData = m_pFileData->GetAtCurrent();
     if (::memcmp(pData, "PACK", 4) == 0
         && pData[4] == 0xFF && pData[5] == 0xFF
@@ -227,8 +218,11 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     switch (chunkID)
     {
     case CT_SONGDATA: // -10
+        bHandled = OnSongDataPositions(pData, chunkLen);
         break;
     case CT_SAMPLE: // -11
+        // instrument sample
+        bHandled = OnInstrumentSample(pData, chunkLen);
         break;
     case CT_NOTEDATA: // -13
         // pattern data
@@ -238,15 +232,23 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
         bHandled = OnSampleNames(pData, chunkLen);
         break;
     case CT_SEQUENCE: // -15
+        bHandled = OnSequence(pData, chunkLen);
+        break;
+        
+    case CT_INFOTEXT: // -16
+        // just comments/text information, may be packed also?
+        m_comments.assign((char*)m_pFileData->GetAtCurrent(), chunkLen);
         break;
         
     case CT_DELTASAMPLE: // -17
         // 8-bit deltapacked sample
         //bHandled = Decode8bitSample(pData, chunkLen);
+        //bHandled = OnSampleData(pData, chunkLen);
         break;
     case CT_DELTA16: // -18
         // 16-bit deltapacked sample
         //bHandled = Decode16bitSample(pData, chunkLen);
+        //bHandled = OnSampleData(pData, chunkLen);
         break;
         
     case CT_INFOTYPE: // -19
@@ -259,7 +261,9 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     default:
         return false;
     }
-    
+
+    // update position to next chunk    
+    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + chunkLen);
     return bHandled;
 }
 
@@ -316,6 +320,22 @@ bool CSymphoniePlayer::OnSampleNames(uint8_t *pData, const size_t nLen)
     
     return true;
 }
+
+bool CSymphoniePlayer::OnInstrumentSample(uint8_t *pData, const size_t nLen)
+{
+    return false;
+}
+
+bool CSymphoniePlayer::OnSequence(uint8_t *pData, const size_t nLen)
+{
+    return false;
+}
+
+bool CSymphoniePlayer::OnSongDataPositions(uint8_t *pData, const size_t nLen)
+{
+    return false;
+}
+
 
 
 /////////// public

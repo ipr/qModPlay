@@ -204,6 +204,9 @@ protected:
     bool OnPatternData(uint8_t *pData, const size_t nLen);
     bool OnSampleNames(uint8_t *pData, const size_t nLen);
 
+    bool OnInstrumentSample(uint8_t *pData, const size_t nLen);
+    bool OnSequence(uint8_t *pData, const size_t nLen);
+    bool OnSongDataPositions(uint8_t *pData, const size_t nLen);
     
 public:
     CSymphoniePlayer(CReadBuffer *pFileData);
