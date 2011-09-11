@@ -45,24 +45,30 @@ List below:
   - no playback
 * TFMX 
   - maybe 10% of fileformat done?
-* AFX 
+* AHX 
   - nothing yet (placeholder)
 * OctaMED 
   - nothing yet (placeholder)
 * ProTracker 
   - nothing yet (placeholder)
+* Oktalyzer 
+  - nothing yet (placeholder)
 * NoiseTracker? 
+  - nothing yet (placeholder)
+* S3M (ScreamTracker 2/3) 
+  - nothing yet (placeholder)
+* MTM (MultiTracker)
   - nothing yet (placeholder)
 * IT (ImpulseTracker) 
   - nothing yet (placeholder)
 * MT2 (Mad Tracker 2) 
   - nothing yet (placeholder)
-* ScreamTracker 2/3 
+* XM (FastTracker 2)
   - nothing yet (placeholder)
 * ... and so on ..
 
 Seems sad? Try locating documentation for some of these..
 And come on, I've only used about a week on it so far..
 
-Timetable? Forever/in progress..
+Timetable? Forever..
 
