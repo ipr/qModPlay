@@ -36,24 +36,41 @@ struct DBMInfoChunk_t
 
 struct DBMInstrumentChunk_t
 {
-    uint16_t m_sampleNumber;
-    uint16_t m_volume;
-    uint32_t m_finetune; // in Hz
-    uint32_t m_repeatStart;
-    uint32_t m_repeatLength;
-    uint16_t m_generalPanning;
-    uint16_t m_flags;
+    uint16_t m_sampleNumber;    // Number of sample used by this instrument
+    uint16_t m_volume;          // Instrument default volume (from 0 to 64 including)
+    uint32_t m_finetune;        // Sampling rate for note C-4 in Hz
+    uint32_t m_repeatStart;     // The first looped sample
+    uint32_t m_repeatLength;    // Length of loop in samples (0 for no loop)
+    uint16_t m_generalPanning;  // Instrument panning (-128 = full left, +128 = full right)
+    uint16_t m_flags;   // bit 0 = forward loop, bit 1 = ping-pong loop
 };
 
-struct DBMVolEnvelope_t
+// note: There is no reserved field before the first point, as DigiBooster 2.21 documentation mistakenly specifies
+//
+// same structure is used for both volume and panning envelopes
+//
+struct DBMEnvelope_t
 {
-    uint8_t m_type; // bitfield
-    uint8_t m_pointCount;
-    uint8_t m_sustainPoint1;
-    uint8_t m_loopStartPoint;
-    uint8_t m_loopEndPoint;
-    uint8_t m_sustainPoint2;
-    uint8_t m_reserved;
+    uint16_t m_instrumentNumber; // Number of instrument the envelope is attached to
+    
+    /* bits in flags:
+        bit 0 = evenlope is turned on
+        bit 1 = evenlope first sustain is active
+        bit 2 = evenlope loop is active
+        bit 3 = evenlope second sustain is active
+    */
+    uint8_t m_flags; // bitfield
+    
+    uint8_t m_pointCount; // Number of envelope points (up to 32)
+    uint8_t m_firstSustainPoint; // Number of point of the first sustain
+    uint8_t m_loopStartPoint; // Number of point of loop start
+    uint8_t m_loopEndPoint; // Number of point of loop end
+    uint8_t m_secondSustainPoint; // Number of point of the second sustain
+    //uint8_t m_reserved;
+    
+    // note: rest of 136 bytes in this
+    // are 16-bit integers in single array,
+    // too lazy to add each one here..
 };
 
 
@@ -81,6 +98,70 @@ protected:
         uint16_t m_playlistCount;
         uint16_t *m_pOrders;
     };
+
+    class DBMInstrument
+    {
+    public:
+        DBMInstrument()
+            : m_name()
+            , m_instruments()
+        {}
+        ~DBMInstrument()
+        {
+        }
+        
+        std::string m_name;
+        DBMInstrumentChunk_t m_instruments;
+    };
+
+    class DBMPattern
+    {
+    public:
+        DBMPattern()
+            : m_rowCount(0)
+            , m_patternData()
+        {}
+        ~DBMPattern()
+        {
+            delete m_patternData.m_pBuf;
+        }
+        
+        uint16_t m_rowCount;
+        bufferedData_t m_patternData;
+    };
+
+    class DBMSample
+    {
+    public:
+        DBMSample()
+            : m_flags(0)
+            , m_sampleData()
+        {}
+        ~DBMSample()
+        {
+            delete m_sampleData.m_pBuf;
+        }
+        
+        uint32_t m_flags;
+        bufferedData_t m_sampleData;
+    };
+
+    class DBMEnvelope
+    {
+    public:
+        DBMEnvelope()
+            : m_envelope()
+            , m_envelopeData()
+        {}
+        ~DBMEnvelope()
+        {
+            delete m_envelopeData.m_pBuf;
+        }
+        
+        DBMEnvelope_t m_envelope;
+        bufferedData_t m_envelopeData;
+    };
+    
     
     std::string m_moduleName;
     DBMInfoChunk_t m_moduleInfo;
@@ -88,22 +169,23 @@ protected:
     // amout equal to m_songs in DBMInfoChunk_t
     DBMSong *m_pSongBlocks;
 
-    std::string m_instrumentName;
-    
-    DBMInstrumentChunk_t m_instruments;
-    
-    uint16_t m_patternRowCount;
-    bufferedData_t m_patternData;
+    // amout equal to m_instruments in DBMInfoChunk_t
+    DBMInstrument *m_pInstrBlocks;
 
-    uint32_t m_sampleFlags;
-    bufferedData_t m_sampleData;
+    // amout equal to m_patterns in DBMInfoChunk_t
+    DBMPattern *m_pPatternBlocks;
 
-    uint16_t m_volEnvelopeCount;
-    uint16_t m_instrumentNumber;
+    // amout equal to m_samples in DBMInfoChunk_t
+    DBMSample *m_pSampleBlocks;
+
+    uint16_t m_volEnvelopeCount; // number of volume envelopes
+    DBMEnvelope *m_pVolEnvelopes;
+
+    uint16_t m_panEnvelopeCount; // number of panning envelopes
+    DBMEnvelope *m_pPanEnvelopes;
     
-    DBMVolEnvelope_t m_volEnvelopeDesc;
-    bufferedData_t m_volEnvelopeData;
-
+    uint16_t m_patternNameEncoding;
+    std::string *m_pPatternNames;
     
     uint8_t m_version;
     uint8_t m_revision;
@@ -116,6 +198,9 @@ public:
     virtual ~CDigiBoosterProPlayer();
     
     virtual bool ParseFileInfo();
+    
+    // TODO:
+    virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize);
 };
 
 #endif // DIGIBOOSTERPROPLAYER_H

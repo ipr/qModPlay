@@ -32,6 +32,7 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     else if (chunkID == IFFTag("INFO"))
     {
         // module info chunk, fixed size: 10 bytes
+        
         DBMInfoChunk_t *pInfo = (DBMInfoChunk_t*)m_pFileData->GetAtCurrent();
         m_moduleInfo.m_instruments = Swap2(pInfo->m_instruments);
         m_moduleInfo.m_samples = Swap2(pInfo->m_samples);
@@ -65,123 +66,183 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     else if (chunkID == IFFTag("INST"))
     {
         // instruments hunk, variable length
-        // (TODO: are there one or more instances of this chunk per file?)
         
-        // instrument name
-        m_instrumentName.assign((char*)m_pFileData->GetAtCurrent(), 44);
-        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 44);
+        m_pInstrBlocks = new DBMInstrument[m_moduleInfo.m_instruments];
         
-        DBMInstrumentChunk_t *pInst = (DBMInstrumentChunk_t*)m_pFileData->GetAtCurrent();
-        m_instruments.m_sampleNumber = Swap2(pInst->m_sampleNumber);
-        m_instruments.m_volume = Swap2(pInst->m_volume);
-        m_instruments.m_finetune = Swap4(pInst->m_finetune);
-        m_instruments.m_repeatStart = Swap4(pInst->m_repeatStart);
-        m_instruments.m_repeatLength = Swap4(pInst->m_repeatLength);
-        m_instruments.m_generalPanning = Swap2(pInst->m_generalPanning);
-        m_instruments.m_flags = Swap2(pInst->m_flags);
-        
+        for (int instr = 0; instr < m_moduleInfo.m_instruments; instr++)
+        {
+            // instrument name
+            m_pInstrBlocks[instr].m_name.assign((char*)m_pFileData->GetAtCurrent(), 44);
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 44);
+            
+            DBMInstrumentChunk_t *pInst = (DBMInstrumentChunk_t*)m_pFileData->GetAtCurrent();
+            m_pInstrBlocks[instr].m_instruments.m_sampleNumber = Swap2(pInst->m_sampleNumber);
+            m_pInstrBlocks[instr].m_instruments.m_volume = Swap2(pInst->m_volume);
+            m_pInstrBlocks[instr].m_instruments.m_finetune = Swap4(pInst->m_finetune);
+            m_pInstrBlocks[instr].m_instruments.m_repeatStart = Swap4(pInst->m_repeatStart);
+            m_pInstrBlocks[instr].m_instruments.m_repeatLength = Swap4(pInst->m_repeatLength);
+            m_pInstrBlocks[instr].m_instruments.m_generalPanning = Swap2(pInst->m_generalPanning);
+            m_pInstrBlocks[instr].m_instruments.m_flags = Swap2(pInst->m_flags);
+        }
         return true;
     }
     else if (chunkID == IFFTag("PATT"))
     {
         // patterns hunk, variable length
-        // (TODO: are there one or more instances of this chunk per file?)
+
+        m_pPatternBlocks = new DBMPattern[m_moduleInfo.m_patterns];
         
-        m_patternRowCount = Swap2(m_pFileData->NextUI2());
-        
-        // packed pattern: size and data
-        m_patternData.m_nLen = Swap2(m_pFileData->NextUI2());
-        m_patternData.m_pBuf = new uint8_t[m_patternData.m_nLen];
-        ::memcpy(m_patternData.m_pBuf, m_pFileData->GetAtCurrent(), m_patternData.m_nLen);
-        
-        // debug
-        //m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_patternData.m_nLen);
+        for (int patt = 0; patt < m_moduleInfo.m_patterns; patt++)
+        {
+            m_pPatternBlocks[patt].m_rowCount = Swap2(m_pFileData->NextUI2());
+            
+            // packed pattern: size and data
+            m_pPatternBlocks[patt].m_patternData.m_nLen = Swap2(m_pFileData->NextUI2());
+            m_pPatternBlocks[patt].m_patternData.m_pBuf = new uint8_t[m_pPatternBlocks[patt].m_patternData.m_nLen];
+            
+            // copy packed pattern data
+            ::memcpy(m_pPatternBlocks[patt].m_patternData.m_pBuf, m_pFileData->GetAtCurrent(), m_pPatternBlocks[patt].m_patternData.m_nLen);
+            
+            // TODO: unpacking while playing?
+        }
         return true;
     }
     else if (chunkID == IFFTag("SMPL"))
     {
         // samples hunk, variable length
-        // (TODO: are there one or more instances of this chunk per file?)
+        // note: sample data actually signed integers, take note on playback
         
-        // flags:
-        // - bit 0 set - 8 bit sample
-        // - bit 1 set - 16 bit sample
-        // - bit 2 set - 32 bit sample
-        //
-        m_sampleFlags = Swap4(m_pFileData->NextUI4());
-        
-        // sample data: size and data
-        m_sampleData.m_nLen = Swap4(m_pFileData->NextUI4());
-        m_sampleData.m_pBuf = new uint8_t[m_sampleData.m_nLen];
-        ::memcpy(m_sampleData.m_pBuf, m_pFileData->GetAtCurrent(), m_sampleData.m_nLen);
-
-        // - check flag for sample size
-        // - swap byteorder for each value in buffer
-        //
-        uint32_t flag = 1;
-        if (m_sampleFlags & (flag << 1))
+        m_pSampleBlocks = new DBMSample[m_moduleInfo.m_samples];
+        for (int smpl = 0; smpl < m_moduleInfo.m_samples; smpl++)
         {
-            // 16-bit
-            uint16_t *pBuf = (uint16_t*)m_sampleData.m_pBuf;
-            int count = m_sampleData.m_nLen / sizeof(uint16_t);
-            for (int i = 0; i < count; i++)
+            // flags:
+            // - bit 0 set - 8 bit sample
+            // - bit 1 set - 16 bit sample
+            // - bit 2 set - 32 bit sample
+            //
+            m_pSampleBlocks[smpl].m_flags = Swap4(m_pFileData->NextUI4());
+            
+            // sample data: size and data
+            m_pSampleBlocks[smpl].m_sampleData.m_nLen = Swap4(m_pFileData->NextUI4());
+            m_pSampleBlocks[smpl].m_sampleData.m_pBuf = new uint8_t[m_pSampleBlocks[smpl].m_sampleData.m_nLen];
+            ::memcpy(m_pSampleBlocks[smpl].m_sampleData.m_pBuf, m_pFileData->GetAtCurrent(), m_pSampleBlocks[smpl].m_sampleData.m_nLen);
+    
+            // - check flag for sample size
+            // - swap byteorder for each value in buffer
+            //
+            uint32_t flag = 1;
+            if (m_pSampleBlocks[smpl].m_flags & (flag << 1))
             {
-                pBuf[i] = Swap2(pBuf[i]);
+                // 16-bit
+                uint16_t *pBuf = (uint16_t*)m_pSampleBlocks[smpl].m_sampleData.m_pBuf;
+                int count = m_pSampleBlocks[smpl].m_sampleData.m_nLen / sizeof(uint16_t);
+                for (int i = 0; i < count; i++)
+                {
+                    pBuf[i] = Swap2(pBuf[i]);
+                }
+            }
+            else if (m_pSampleBlocks[smpl].m_flags & (flag << 2))
+            {
+                // 32-bit
+                uint32_t *pBuf = (uint32_t*)m_pSampleBlocks[smpl].m_sampleData.m_pBuf;
+                int count = m_pSampleBlocks[smpl].m_sampleData.m_nLen / sizeof(uint32_t);
+                for (int i = 0; i < count; i++)
+                {
+                    pBuf[i] = Swap4(pBuf[i]);
+                }
             }
         }
-        else if (m_sampleFlags & (flag << 2))
-        {
-            // 32-bit
-            uint32_t *pBuf = (uint32_t*)m_sampleData.m_pBuf;
-            int count = m_sampleData.m_nLen / sizeof(uint32_t);
-            for (int i = 0; i < count; i++)
-            {
-                pBuf[i] = Swap4(pBuf[i]);
-            }
-        }
-        
-        // debug
-        //m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_sampleData.m_nLen);
         return true;
     }
     else if (chunkID == IFFTag("VENV"))
     {
-        // volume envelopes hunk (optional), variable length
-        // (TODO: are there one or more instances of this chunk per file?)
+        // volume envelopes hunk (optional), variable length,
+        // contains n amount of fixed-size blocks
         
         m_volEnvelopeCount = Swap2(m_pFileData->NextUI2());
-        m_instrumentNumber = Swap2(m_pFileData->NextUI2());
         
-        // volume envelope: fixed-size buffer? is it really?
-        m_volEnvelopeData.m_nLen = 134;
-        m_volEnvelopeData.m_pBuf = new uint8_t[m_volEnvelopeData.m_nLen];
-        ::memcpy(m_volEnvelopeData.m_pBuf, m_pFileData->GetAtCurrent(), m_volEnvelopeData.m_nLen);
-        
-        // for simplicity.. do some parsing&byteswapping for later use
-        ::memcpy(&m_volEnvelopeDesc, m_volEnvelopeData.m_pBuf, sizeof(DBMVolEnvelope_t));
-        
-        uint16_t *pEnvPts = (uint16_t*)(m_volEnvelopeData.m_pBuf + sizeof(DBMVolEnvelope_t));
-        int count = (m_volEnvelopeData.m_nLen - sizeof(DBMVolEnvelope_t)) / sizeof(uint16_t);
-        for (int i = 0; i < count; i++)
+        m_pVolEnvelopes = new DBMEnvelope[m_volEnvelopeCount];
+        for (int env = 0; env < m_volEnvelopeCount; env++)
         {
-            pEnvPts[i] = Swap2(pEnvPts[i]);
+            // volume envelope is fixed size 
+            
+            DBMEnvelope_t *pVEnv = (DBMEnvelope_t*)m_pFileData->GetAtCurrent();
+            ::memcpy(&(m_pVolEnvelopes[env].m_envelope), pVEnv, sizeof(DBMEnvelope_t));
+            
+            m_pVolEnvelopes[env].m_envelope.m_instrumentNumber = Swap2(m_pVolEnvelopes[env].m_envelope.m_instrumentNumber);
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + sizeof(DBMEnvelope_t));
+            
+            // rest of data..
+            m_pVolEnvelopes[env].m_envelopeData.m_nLen = (136 - sizeof(DBMEnvelope_t));
+            m_pVolEnvelopes[env].m_envelopeData.m_pBuf = new uint8_t[m_pVolEnvelopes[env].m_envelopeData.m_nLen];
+            ::memcpy(m_pVolEnvelopes[env].m_envelopeData.m_pBuf, m_pFileData->GetAtCurrent(), m_pVolEnvelopes[env].m_envelopeData.m_nLen);
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_pVolEnvelopes[env].m_envelopeData.m_nLen);
+
+            // for simplicity.. do some parsing&byteswapping for later use
+            uint16_t *pEnvPts = (uint16_t*)(m_pVolEnvelopes[env].m_envelopeData.m_pBuf);
+            int count = (m_pVolEnvelopes[env].m_envelopeData.m_nLen / sizeof(uint16_t));
+            for (int i = 0; i < count; i++)
+            {
+                pEnvPts[i] = Swap2(pEnvPts[i]);
+            }
         }
-        
-        // debug
-        //m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_volEnvelopeData.m_nLen);
         return true;
     }
     else if (chunkID == IFFTag("PENV"))
     {
-        // panning envelopes (optional?), variable length
-        // chunk added in newer Digibooster 3?
+        // panning envelopes hunk (optional), variable length,
+        // contains n amount of fixed-size blocks
         
+        m_panEnvelopeCount = Swap2(m_pFileData->NextUI2());
+        
+        m_pPanEnvelopes = new DBMEnvelope[m_panEnvelopeCount];
+        for (int env = 0; env < m_panEnvelopeCount; env++)
+        {
+            // volume envelope is fixed size 
+            
+            DBMEnvelope_t *pPEnv = (DBMEnvelope_t*)m_pFileData->GetAtCurrent();
+            ::memcpy(&(m_pPanEnvelopes[env].m_envelope), pPEnv, sizeof(DBMEnvelope_t));
+            
+            m_pPanEnvelopes[env].m_envelope.m_instrumentNumber = Swap2(m_pPanEnvelopes[env].m_envelope.m_instrumentNumber);
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + sizeof(DBMEnvelope_t));
+            
+            // rest of data..
+            m_pPanEnvelopes[env].m_envelopeData.m_nLen = (136 - sizeof(DBMEnvelope_t));
+            m_pPanEnvelopes[env].m_envelopeData.m_pBuf = new uint8_t[m_pPanEnvelopes[env].m_envelopeData.m_nLen];
+            ::memcpy(m_pPanEnvelopes[env].m_envelopeData.m_pBuf, m_pFileData->GetAtCurrent(), m_pPanEnvelopes[env].m_envelopeData.m_nLen);
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_pPanEnvelopes[env].m_envelopeData.m_nLen);
+
+            // for simplicity.. do some parsing&byteswapping for later use
+            uint16_t *pEnvPts = (uint16_t*)(m_pPanEnvelopes[env].m_envelopeData.m_pBuf);
+            int count = (m_pPanEnvelopes[env].m_envelopeData.m_nLen / sizeof(uint16_t));
+            for (int i = 0; i < count; i++)
+            {
+                pEnvPts[i] = Swap2(pEnvPts[i]);
+            }
+        }
+        return true;
     }
     else if (chunkID == IFFTag("PNAM"))
     {
         // pattern names (optional?), variable length
         // chunk added in newer Digibooster 3?
+
+        // encoding used in names:
+        // 0    = 8-bit ASCII
+        // 106  = UTF-8
+        //
+        m_patternNameEncoding = Swap2(m_pFileData->NextUI2());
+
+        // TODO: get QTextCodec for codepage conversion..
         
+        m_pPatternNames = new std::string[m_moduleInfo.m_patterns];
+        for (int i = 0; i < m_moduleInfo.m_patterns; i++)
+        {
+            uint8_t len = m_pFileData->NextUI1();
+            m_pPatternNames[i].assign((char*)m_pFileData->GetAtCurrent(), len);
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + len);
+        }
+        return true;
     }
     
     // TODO: debug output: unsupport chunk found..
@@ -197,13 +258,25 @@ CDigiBoosterProPlayer::CDigiBoosterProPlayer(CReadBuffer *pFileData)
     , m_moduleName()
     , m_moduleInfo()
     , m_pSongBlocks(nullptr)
-    , m_instrumentName()
+    , m_pInstrBlocks(nullptr)
+    , m_pPatternBlocks(nullptr)
+    , m_pSampleBlocks(nullptr)
+    , m_pVolEnvelopes(nullptr)
+    , m_pPanEnvelopes(nullptr)
+    , m_patternNameEncoding(0)
+    , m_pPatternNames(nullptr)
     , m_version(0)
 {
 }
 
 CDigiBoosterProPlayer::~CDigiBoosterProPlayer() 
 {
+    delete [] m_pPatternNames;
+    delete [] m_pPanEnvelopes;
+    delete [] m_pVolEnvelopes;
+    delete [] m_pSampleBlocks;
+    delete [] m_pPatternBlocks;
+    delete [] m_pInstrBlocks;
     delete [] m_pSongBlocks;
 }
 
@@ -263,3 +336,10 @@ bool CDigiBoosterProPlayer::ParseFileInfo()
     
     return true;
 }
+
+// TODO:
+size_t CDigiBoosterProPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
+{
+    return 0;
+}
+

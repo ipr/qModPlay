@@ -96,6 +96,6 @@ bool CTfmxPlayer::ParseFileInfo()
     // three longwords at $1D0 are null
     // Fixed offsets of $600,$200,$400 apply.
     
-    return true;    
+    return true;
 }
 
