@@ -28,9 +28,11 @@ HEADERS  += MainWindow.h \
     DigiBoosterPlayer.h \
     DigiBoosterProPlayer.h \
     TfmxPlayer.h \
-    AhxPlayer.h
+    AhxPlayer.h \
+    AudioSample.h
 
 FORMS    += MainWindow.ui
+
 
 
 

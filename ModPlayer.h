@@ -7,8 +7,8 @@
 //
 // Actually "decoder" would be more appropriate..
 //
-// Ilkka Prusi
-// ilkka.prusi@gmail.com
+// Author: Ilkka Prusi, 2011
+// Contact: ilkka.prusi@gmail.com
 //
 
 
@@ -17,6 +17,9 @@
 
 // use standard defines, fuck old typedefs
 #include <stdint.h>
+
+// pull this as well
+#include "AudioSample.h"
 
 // fwd. decl.
 class CReadBuffer;
