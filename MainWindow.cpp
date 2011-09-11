@@ -143,7 +143,7 @@ void MainWindow::PlayFile(QString &filename)
 
     // clear&reuse or allocate new if necessary
     m_pFileBuffer->PrepareBuffer(file.GetSize(), false);
-    if (file.Read(m_pFileBuffer->GetBegin(), m_pFileBuffer->GetSize()) == false)
+    if (file.Read(m_pFileBuffer->GetBegin(), file.GetSize()) == false)
     {
         ui->statusBar->showMessage("Failed to read file: " + filename);
         return;
@@ -216,7 +216,13 @@ void MainWindow::on_actionPlay_triggered()
     //QString filename = "c:/tmpmods/Nexus7-Theme";
     //QString filename = "C:/tmpmods/Breathless.SymMOD";
     //QString filename = "C:/tmpmods/plastic elements.digi";
-    
+    //QString filename = "C:/tmpmods/the_falling_log.dbm";
+    //QString filename = "C:/tmpmods/AHX.BH 90210";
+    //QString filename = "C:/tmpmods/mdat.encounter";
+    //QString filename = "C:/tmpmods/smpl.encounter";
+    //QString filename = "C:/tmpmods/mod.3DDemoTune";
+    //QString filename = "C:/tmpmods/OKT.Tekknomania";
+    //QString filename = "C:/tmpmods/WalkingInTheAir.oss.med";
     
     // get selection from list
     QListWidgetItem *pItem = ui->listWidget->currentItem();
