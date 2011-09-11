@@ -13,16 +13,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QtMultimedia/QAudioOutput>
-
 
 namespace Ui {
     class MainWindow;
 }
 
-class CModPlayer;
-//class CFileType;
-class CReadBuffer;
+class PlaybackHandler;
 
 class MainWindow : public QMainWindow
 {
@@ -32,28 +28,19 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-protected:
-    CModPlayer *GetPlayer(CReadBuffer *fileBuffer) const;
-    void PlayFile(QString &filename);
     
 private slots:
     void on_actionPlay_triggered();
-    
     void on_actionStop_triggered();
-    
     void on_actionFiles_triggered();
 
+    // playback finished by player (end of file)
+    void onPlaybackStopped();
     
 private:
     Ui::MainWindow *ui;
+    PlaybackHandler *m_playbackHandler;
     
-    CReadBuffer *m_pFileBuffer;
-    CModPlayer *m_pModPlayer;
-    
-    CReadBuffer *m_pDecodeBuffer;
-
-    QAudioOutput *m_pAudioOut;
-	QIODevice *m_pDevOut;
 };
 
 #endif // MAINWINDOW_H

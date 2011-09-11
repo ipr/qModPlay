@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     DigiBoosterPlayer.cpp \
     DigiBoosterProPlayer.cpp \
     TfmxPlayer.cpp \
-    AhxPlayer.cpp
+    AhxPlayer.cpp \
+    PlaybackHandler.cpp
 
 HEADERS  += MainWindow.h \
     AnsiFile.h \
@@ -29,9 +30,12 @@ HEADERS  += MainWindow.h \
     DigiBoosterProPlayer.h \
     TfmxPlayer.h \
     AhxPlayer.h \
-    AudioSample.h
+    AudioSample.h \
+    PlaybackHandler.h
 
 FORMS    += MainWindow.ui
+
+
 
 
 
