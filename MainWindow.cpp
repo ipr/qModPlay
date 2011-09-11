@@ -34,7 +34,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_pfileBuffer(nullptr),
+    m_pFileBuffer(nullptr),
     m_pModPlayer(nullptr),
     m_pDecodeBuffer(nullptr),
 	m_pAudioOut(nullptr)
@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // we can adjust size later,
     // also reusable with suffcient buffer size
     m_pDecodeBuffer = new CReadBuffer();
+    m_pFileBuffer = new CReadBuffer();
 }
 
 MainWindow::~MainWindow()
@@ -57,16 +58,12 @@ MainWindow::~MainWindow()
 		delete m_pAudioOut;
 	}
 
-    if (m_pfileBuffer != nullptr)
-    {
-        delete m_pfileBuffer;
-        m_pfileBuffer = nullptr;
-    }
     if (m_pModPlayer != nullptr)
     {
         delete m_pModPlayer;
         m_pModPlayer = nullptr;
     }
+    delete m_pFileBuffer;
     delete m_pDecodeBuffer;
     
     delete ui;
@@ -135,7 +132,8 @@ CModPlayer *MainWindow::GetPlayer(CReadBuffer *fileBuffer) const
 void MainWindow::PlayFile(QString &filename)
 {
     // TODO: different thread for module handling?
-    
+
+    // note: change to memory-mapped files later..
     CAnsiFile file(filename.toStdString());
     if (file.IsOk() == false)
     {
@@ -143,17 +141,17 @@ void MainWindow::PlayFile(QString &filename)
         return;
     }
 
-    // TODO: keep as member..
-    // while debugging, release when exiting..
-    m_pfileBuffer = new CReadBuffer(file.GetSize());
-    if (file.Read(m_pfileBuffer->GetBegin(), m_pfileBuffer->GetSize()) == false)
+    // clear&reuse or allocate new if necessary
+    m_pFileBuffer->PrepareBuffer(file.GetSize(), false);
+    if (file.Read(m_pFileBuffer->GetBegin(), m_pFileBuffer->GetSize()) == false)
     {
         ui->statusBar->showMessage("Failed to read file: " + filename);
         return;
     }
+    file.Close(); // can close already
 
     // keep as member also..
-    m_pModPlayer = GetPlayer(m_pfileBuffer);
+    m_pModPlayer = GetPlayer(m_pFileBuffer);
     if (m_pModPlayer == nullptr)
     {
         ui->statusBar->showMessage("Failed to create player");
@@ -214,14 +212,20 @@ void MainWindow::PlayFile(QString &filename)
 
 void MainWindow::on_actionPlay_triggered()
 {
-    // TODO: get selection from list..
-    
+    // debug
     //QString filename = "c:/tmpmods/Nexus7-Theme";
-    QString filename = "C:/tmpmods/Breathless.SymMOD";
-    QString filename = "C:/tmpmods/plastic elements.digi";
-
-
-    PlayFile(filename);    
+    //QString filename = "C:/tmpmods/Breathless.SymMOD";
+    //QString filename = "C:/tmpmods/plastic elements.digi";
+    
+    
+    // get selection from list
+    QListWidgetItem *pItem = ui->listWidget->currentItem();
+    if (pItem == NULL)
+    {
+        return;
+    }
+    
+    PlayFile(pItem->text());
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -236,11 +240,6 @@ void MainWindow::on_actionStop_triggered()
 		m_pAudioOut = nullptr;
 	}
     
-    if (m_pfileBuffer != nullptr)
-    {
-        delete m_pfileBuffer;
-        m_pfileBuffer = nullptr;
-    }
     if (m_pModPlayer != nullptr)
     {
         delete m_pModPlayer;

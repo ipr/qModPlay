@@ -49,13 +49,13 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         for (int song = 0; song < m_moduleInfo.m_songs; song++)
         {
             // song name
-            m_pSongBlocks[song].m_songName.assign((char*)m_pFileData->GetAtCurrent(), 44);
+            m_pSongBlocks[song].m_name.assign((char*)m_pFileData->GetAtCurrent(), 44);
             m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 44);
             
             // song orders
             m_pSongBlocks[song].m_playlistCount = Swap2(m_pFileData->NextUI2());
-            m_pSongBlocks[song].m_pSongOrders = new uint16_t[m_pSongBlocks[song].m_songOrderCount];
-            for (int i = 0; i < m_songOrderCount; i++)
+            m_pSongBlocks[song].m_pOrders = new uint16_t[m_pSongBlocks[song].m_playlistCount];
+            for (int i = 0; i < m_pSongBlocks[song].m_playlistCount; i++)
             {
                 m_pSongBlocks[song].m_pOrders[i] = Swap2(m_pFileData->NextUI2());
             }

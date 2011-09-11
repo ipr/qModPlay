@@ -36,43 +36,51 @@ bool CSymphoniePlayer::UnpackRunlen(const uint8_t *pOrigData, const size_t nLen,
         switch (packMode)
         {
         case 0:
-            // copy as-is next bytes (upto 255)
-            uint8_t byteCount = pOrigData[nPos];
-            nPos++;
-            ::memcpy(pOutBuf + nOutPos, pOrigData + nPos, byteCount);
-            nOutPos += byteCount;
+            {
+                // copy as-is next bytes (upto 255)
+                uint8_t byteCount = pOrigData[nPos];
+                nPos++;
+                ::memcpy(pOutBuf + nOutPos, pOrigData + nPos, byteCount);
+                nOutPos += byteCount;
+            }
             break;
             
         case 3:
-            // upto 255 bytes of zero
-            uint8_t byteCount = pOrigData[nPos];
-            nPos++;
-            ::memset(pOutBuf + nOutPos, 0, byteCount);
-            nOutPos += byteCount;
+            {
+                // upto 255 bytes of zero
+                uint8_t byteCount = pOrigData[nPos];
+                nPos++;
+                ::memset(pOutBuf + nOutPos, 0, byteCount);
+                nOutPos += byteCount;
+            }
             break;
         
         case 2:
-            // 2x 32-bit long value
-            uint32_t *pVal = (uint32_t*)(pOrigData + nPos);
-            nPos += 4;
-            uint32_t val = Swap4(*pVal);
-            ::memcpy(pOutBuf + nOutPos, &val, 4);
-            nOutPos += 4;
-            ::memcpy(pOutBuf + nOutPos, &val, 4);
-            nOutPos += 4;
+            {
+                // 2x 32-bit long value
+                uint32_t *pVal = (uint32_t*)(pOrigData + nPos);
+                nPos += 4;
+                uint32_t val = Swap4(*pVal);
+                ::memcpy(pOutBuf + nOutPos, &val, 4);
+                nOutPos += 4;
+                ::memcpy(pOutBuf + nOutPos, &val, 4);
+                nOutPos += 4;
+            }
             break;
             
         case 1:
-            // copy next n 32-bit longs to out
-            uint8_t byteCount = pOrigData[nPos];
-            nPos++;
-            uint32_t *pVal = (uint32_t*)(pOrigData + nPos);
-            nPos += 4;
-            uint32_t val = Swap4(*pVal);
-            for (int i = 0; i < byteCount; i++)
             {
-                ::memcpy(pOutBuf + nOutPos, &val, 4);
-                nOutPos += 4;
+                // copy next n 32-bit longs to out
+                uint8_t byteCount = pOrigData[nPos];
+                nPos++;
+                uint32_t *pVal = (uint32_t*)(pOrigData + nPos);
+                nPos += 4;
+                uint32_t val = Swap4(*pVal);
+                for (int i = 0; i < byteCount; i++)
+                {
+                    ::memcpy(pOutBuf + nOutPos, &val, 4);
+                    nOutPos += 4;
+                }
             }
             break;
             
@@ -186,11 +194,12 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     {
         // just comments/text information,
         // no packing?
-        m_comments.assign(pData, chunkLen);
+        m_comments.assign((char*)m_pFileData->GetAtCurrent(), chunkLen);
+        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + chunkLen);
         return true;
     }
     
-    uint8_t pData = m_pFileData->GetAtCurrent();
+    uint8_t *pData = m_pFileData->GetAtCurrent();
     if (::memcmp(pData, "PACK", 4) == 0
         && pData[4] == 0xFF && pData[5] == 0xFF
         && chunkLen > 16)
@@ -254,7 +263,7 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     return bHandled;
 }
 
-bool CSymphoniePlayer::OnPatternData(const uint8_t *pData, const size_t nLen)
+bool CSymphoniePlayer::OnPatternData(uint8_t *pData, const size_t nLen)
 {
     // keep as is..
     m_PatternData.m_pBuf = pData;
@@ -278,7 +287,7 @@ bool CSymphoniePlayer::OnPatternData(const uint8_t *pData, const size_t nLen)
 }
 
 // sample/instrument names
-bool CSymphoniePlayer::OnSampleNames(const uint8_t *pData, const size_t nLen)
+bool CSymphoniePlayer::OnSampleNames(uint8_t *pData, const size_t nLen)
 {
     // ?? fixed size strings?
     int sampleNameCount = nLen / 256;

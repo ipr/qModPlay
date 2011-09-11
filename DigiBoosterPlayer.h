@@ -55,8 +55,8 @@ protected:
     uint8_t m_patternsCount;
     uint8_t m_orderCount;
     
-    // size???
-    bool m_PackEnable;
+    // size??? assuming byte
+    uint8_t m_packEnable;
     
     char m_versionName[4]; // version as string
     uint8_t m_versionNumber; // version as byte

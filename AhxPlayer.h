@@ -19,7 +19,7 @@ class CAhxPlayer : public CModPlayer
 {
 public:
     CAhxPlayer(CReadBuffer *pFileData);
-    virtual ~CDigiBoosterPlayer();
+    virtual ~CAhxPlayer();
     
     virtual bool ParseFileInfo();
 };

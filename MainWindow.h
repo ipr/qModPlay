@@ -47,7 +47,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     
-    CReadBuffer *m_pfileBuffer;
+    CReadBuffer *m_pFileBuffer;
     CModPlayer *m_pModPlayer;
     
     CReadBuffer *m_pDecodeBuffer;

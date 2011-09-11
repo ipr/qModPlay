@@ -59,8 +59,8 @@ typedef enum tHeaderType
     //HEADERTYPE_NOISETRACKER, // NoiseTracker
 	HEADERTYPE_OCTAMED,	 // OctaMED "classic" (MMD0..3, MED2..4)
     HEADERTYPE_OCTAMED_OSS,	 // OctaMED SoundStudio (MMD0..3, MED2..4)
-	HEADERTYPE_DIGIBOOSTER,	 // Digibooster (dbmob)
-	HEADERTYPE_DBMPRO,	 // Digibooster PRO
+	HEADERTYPE_DIGIBOOSTER,	 // old Digibooster DIGI-module
+	HEADERTYPE_DBMPRO,	 // Digibooster PRO (DBM0)
 	HEADERTYPE_SYMMOD,	 // Symphonie mod (SYMMOD)
     HEADERTYPE_TFMX,	 // TFMX, "The Final Musicsystem eXtended"
     HEADERTYPE_AHX, // "Abyss' Highest eXperience" (AHX0, AHX1, was called: THX)

@@ -62,13 +62,14 @@ bool CDigiBoosterPlayer::ParseFileInfo()
     }
     
     // version string
-    ::memcpy(m_version, pPos + 20, 4);
+    ::memcpy(m_versionName, pPos + 20, 4);
     m_versionNumber = m_pFileData->GetAt(24)[0];
     
     m_channelCount = m_pFileData->GetAt(25)[0];
 
     // TODO: pack enable? what size?
-    
+    // assuming byte..
+    m_packEnable = m_pFileData->GetAt(26)[0];
     
     // unknown segment..
     
@@ -87,17 +88,17 @@ bool CDigiBoosterPlayer::ParseFileInfo()
     m_pSampleVolumes = new uint8_t[31];
     m_pSampleFinetunes = new uint8_t[31];
     
-    uint32_t *pSmpLen = m_pFileData->GetAt(176);
+    uint32_t *pSmpLen = (uint32_t*)m_pFileData->GetAt(176);
     for (int i = 0; i < 31; i++)
     {
         m_pSampleLength[i] = Swap4(pSmpLen[i]);
     }
-    uint32_t *pSmpLoopStart = m_pFileData->GetAt(300);
+    uint32_t *pSmpLoopStart = (uint32_t*)m_pFileData->GetAt(300);
     for (int i = 0; i < 31; i++)
     {
         m_pSampleLoopStart[i] = Swap4(pSmpLoopStart[i]);
     }
-    uint32_t *pSmpLoopLen = m_pFileData->GetAt(424);
+    uint32_t *pSmpLoopLen = (uint32_t*)m_pFileData->GetAt(424);
     for (int i = 0; i < 31; i++)
     {
         m_pSampleLoopLength[i] = Swap4(pSmpLoopLen[i]);
@@ -108,14 +109,14 @@ bool CDigiBoosterPlayer::ParseFileInfo()
     ::memcpy(m_pSampleFinetunes, pPos, 31);
 
     // fixed length name for song?    
-    m_songName.assign(m_pFileData->GetAt(610), 32);
+    m_songName.assign((char*)m_pFileData->GetAt(610), 32);
 
     // also fixed sizes array of fixed-length strings?
     m_pSampleNames = new std::string[31];
     pPos = m_pFileData->GetAt(642);
     for (int i = 0; i < 31; i++)
     {
-        m_pSampleNames[i].assign(pPos, 30);
+        m_pSampleNames[i].assign((char*)pPos, 30);
         pPos = (pPos + 30);
     }
 

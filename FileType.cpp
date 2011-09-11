@@ -145,7 +145,7 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	{
 		// OctaMED SoundStudio
 		// MMD0..3
-        return HEADERTYPE_OCTAMED_OSS
+        return HEADERTYPE_OCTAMED_OSS;
 	}
 	else if (::memcmp(pBuffer, "DIGI", 4) == 0)
 	{
@@ -384,17 +384,21 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
 		return HEADERCAT_PACKER;
 		
 	case HEADERTYPE_MOD:
+    //case HEADERTYPE_NOISETRACKER:
 	case HEADERTYPE_OCTAMED:
-	case HEADERTYPE_DBM:
-	case HEADERTYPE_DBPRO:
+    case HEADERTYPE_OCTAMED_OSS:
+	case HEADERTYPE_DIGIBOOSTER:
+	case HEADERTYPE_DBMPRO:
 	case HEADERTYPE_SYMMOD:
+    case HEADERTYPE_TFMX:
     case HEADERTYPE_AHX:
     case HEADERTYPE_OKTALYZER:
 	//case HEADERTYPE_XM:
-    //case HEADERTYPE_IT:
+    case HEADERTYPE_IT:
 	//case HEADERTYPE_S3M:
 	//case HEADERTYPE_S3I:
     //case HEADERTYPE_MTM:
+    //case HEADERTYPE_FC:
 		return HEADERCAT_SOUND_MODULE;
 		
 	case HEADERTYPE_8SVX:

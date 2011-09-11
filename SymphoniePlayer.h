@@ -201,8 +201,8 @@ protected:
     bool OnChunk(uint32_t chunkID);
     bool OnLargeChunk(uint32_t chunkID);
     
-    bool OnPatternData(const uint8_t *pData, const size_t nLen);
-    bool OnSampleNames(const uint8_t *pData, const size_t nLen);
+    bool OnPatternData(uint8_t *pData, const size_t nLen);
+    bool OnSampleNames(uint8_t *pData, const size_t nLen);
 
     
 public:

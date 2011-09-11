@@ -59,8 +59,8 @@ bool CTfmxPlayer::ParseFileInfo()
     m_pFileData->SetCurrentPos(16);
     
     // 40x6 text area
-    m_textArea.assign(m_pFileData->GetAtCurrent(), 240);
-    m_pFileData->SetCurrentPos(m_pFileData->GetAtCurrent() + 240);
+    m_textArea.assign((char*)m_pFileData->GetAtCurrent(), 240);
+    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 240);
     
     // array of 96 words:
     // - 1st 32 are song start positions
