@@ -218,7 +218,7 @@ bool CSymphoniePlayer::OnLargeChunk(uint32_t chunkID)
     switch (chunkID)
     {
     case CT_SONGDATA: // -10
-        bHandled = OnSongDataPositions(pData, chunkLen);
+        bHandled = OnSongPositions(pData, chunkLen);
         break;
     case CT_SAMPLE: // -11
         // instrument sample
@@ -273,8 +273,8 @@ bool CSymphoniePlayer::OnPatternData(uint8_t *pData, const size_t nLen)
     m_PatternData.m_pBuf = pData;
     m_PatternData.m_nLen = nLen;
     
-    size_t nPatternSize = m_audioChannelcount*m_trackLength*4;
-    if (nPatternSize == 0 || m_PatternData.m_nLen == 0)
+    m_nPatternSize = m_audioChannelcount*m_trackLength*4;
+    if (m_nPatternSize == 0 || m_PatternData.m_nLen == 0)
     {
         // no data
         return false;
@@ -328,12 +328,59 @@ bool CSymphoniePlayer::OnInstrumentSample(uint8_t *pData, const size_t nLen)
 
 bool CSymphoniePlayer::OnSequence(uint8_t *pData, const size_t nLen)
 {
-    return false;
+    m_sequenceCount = (len / SEQUENCE_SIZEOF);
+    
+    m_pSequences = new SyMMSequence[m_sequenceCount];
+
+    for (int i = 0; i < m_sequenceCount; i++)
+    {
+        // some values are not read or padding?
+        //size_t offset = SEQUENCE_SIZEOF*i;
+        
+        m_pSequences[i].m_startPosition = Swap2(m_pFileData->NextUI2());
+        m_pSequences[i].m_endPosition = Swap2(m_pFileData->NextUI2());
+        m_pSequences[i].m_action = Swap2(m_pFileData->NextUI2());
+        m_pSequences[i].m_tune = Swap2(m_pFileData->NextUI2());
+        m_pSequences[i].m_loopCount = Swap2(m_pFileData->NextUI2());
+        
+        // skip unused, is it just padding?
+        // awful waste of space consider how tightly packed everything else is..
+        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 6);
+    }
+    
+    return true;
 }
 
-bool CSymphoniePlayer::OnSongDataPositions(uint8_t *pData, const size_t nLen)
+bool CSymphoniePlayer::OnSongPositions(uint8_t *pData, const size_t nLen)
 {
-    return false;
+    m_positionCount = (len / POSITION_SIZEOF);
+    
+    m_pPositions = new SyMMPosition[m_positionCount];
+
+    for (int i = 0; i < m_positionCount; i++)
+    {
+        // some values are not read or padding?
+        //size_t offset = POSITION_SIZEOF*i;
+
+        // is it always just one layer?
+        // seems pointless to have following buffer then..
+        m_pPositions[i].m_layerCount = 1; // ?
+        m_pPositions[i].m_PatternNumbers.m_nLen = sizeof(uint16_t);
+        m_pPositions[i].m_PatternNumbers.m_pBuf = new uint16_t[1];
+        m_pPositions[i].m_PatternNumbers.m_pBuf[0] = Swap2(m_pFileData->NextUI2());
+
+        m_pPositions[i].m_tune = Swap2(m_pFileData->NextUI2());
+        m_pPositions[i].m_startRow = Swap2(m_pFileData->NextUI2());
+        m_pPositions[i].m_rowLength = Swap2(m_pFileData->NextUI2());
+        m_pPositions[i].m_loopCount = Swap2(m_pFileData->NextUI2());
+        m_pPositions[i].m_speedCycl = Swap2(m_pFileData->NextUI2());
+        
+        // skip unused, is it just padding?
+        // awful waste of space consider how tightly packed everything else is..
+        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 20);
+    }
+    
+    return true;
 }
 
 
@@ -343,8 +390,14 @@ bool CSymphoniePlayer::OnSongDataPositions(uint8_t *pData, const size_t nLen)
 CSymphoniePlayer::CSymphoniePlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_pInstruments(nullptr)
+    , m_instrumentCount(0)
+    , m_pSequences(nullptr)
+    , m_sequenceCount(0)
+    , m_pPositions(nullptr)
+    , m_positionCount(0)
     , m_PatternData()
     , m_nPatternCount(0)
+    , m_nPatternSize(0)
     , m_comments()
     , m_audioChannelcount(0)
     , m_trackLength(0)
@@ -362,6 +415,8 @@ CSymphoniePlayer::CSymphoniePlayer(CReadBuffer *pFileData)
 CSymphoniePlayer::~CSymphoniePlayer()
 {
     delete m_PatternData.m_pBuf;
+    delete [] m_pPositions;
+    delete [] m_pSequences;
     delete [] m_pInstruments;
 }
 

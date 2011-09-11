@@ -24,6 +24,8 @@ class CSymphoniePlayer : public CModPlayer
 {
 protected:
     
+    // these just offsets in file used when parsing?
+    // -> could skip..
     enum SymphonieSequence 
     { 
         SEQUENCE_STARTPOS	=	0,
@@ -32,6 +34,7 @@ protected:
         SEQUENCE_INFO		=	6,	//;0=PLAY 1=SKIP -1=LAST OF SONG
         SEQUENCE_TUNE		=	8,	//;SEQ TRANSPOSE HALBTONES
     
+        // padding or unused variables here?
         SEQUENCE_SIZEOF		=	16,
     
         SEQINFO_PLAY		=	0,
@@ -152,15 +155,15 @@ protected:
         CT_EOF = 0x00000000             // end of file
     };
 
-    class Instrument
+    class SyMMInstrument
     {
     public:
-        Instrument()
+        SyMMInstrument()
             : m_name()
             , m_data()
             , m_bIsVirtual(false)
         {}
-        ~Instrument()
+        ~SyMMInstrument()
         {
             delete m_data.m_pBuf;
         }
@@ -168,11 +171,69 @@ protected:
         bufferedData_t m_data;
         bool m_bIsVirtual;
     };
-    Instrument *m_pInstruments;
+    SyMMInstrument *m_pInstruments;
+    size_t m_instrumentCount;
+    
+    class SyMMSequence
+    {
+    public:
+        SyMMSequence()
+            : m_sequenceCount(0)
+            , m_startPosition(0)
+            , m_endPosition(0)
+            , m_action(0)
+            , m_tune(0)
+            , m_loopCount(0)
+        {}
+        ~SyMMSequence()
+        {}
+        size_t m_sequenceCount;
+        size_t m_startPosition;
+        size_t m_endPosition;
+        size_t m_action;
+        size_t m_tune;
+        size_t m_loopCount;
+    };
+    SyMMSequence *m_pSequences;
+    size_t m_sequenceCount;
 
+    
+    class SyMMPosition
+    {
+    public:
+        SyMMPosition()
+            : m_layerCount(0)
+            , m_tune(0)
+            , m_startRow(0)
+            , m_rowLength(0)
+            , m_loopCount(0)
+            , m_speedCycl(0)
+            , m_PatternNumbers()
+        {}
+        ~SyMMPosition()
+        {
+            // does this have to be a buffer
+            // when single uint16 seems to be enough?
+            delete m_PatternNumbers.m_pBuf;
+        }
+        size_t m_layerCount;
+        size_t m_tune;
+        size_t m_startRow;
+        size_t m_rowLength;
+        size_t m_loopCount;
+        size_t m_speedCycl;
+        
+        // TODO: ?
+        //bufferedData_t m_positionData;
+        bufferedData_t m_PatternNumbers;
+    };
+    SyMMPosition *m_pPositions;
+    size_t m_positionCount;
+    
     // CT_NOTEDATA
     bufferedData_t m_PatternData;
     size_t m_nPatternCount;
+    size_t m_nPatternSize;
     
     // CT_INFOTEXT
     std::string m_comments;
@@ -206,7 +267,7 @@ protected:
 
     bool OnInstrumentSample(uint8_t *pData, const size_t nLen);
     bool OnSequence(uint8_t *pData, const size_t nLen);
-    bool OnSongDataPositions(uint8_t *pData, const size_t nLen);
+    bool OnSongPositions(uint8_t *pData, const size_t nLen);
     
 public:
     CSymphoniePlayer(CReadBuffer *pFileData);
