@@ -280,7 +280,7 @@ bool CSymphoniePlayer::OnPatternData(uint8_t *pData, const size_t nLen)
         return false;
     }
     
-    m_nPatternCount = m_PatternData.m_nLen / nPatternSize;
+    m_nPatternCount = m_PatternData.m_nLen / m_nPatternSize;
     if (m_nPatternCount == 0)
     {
         return false;
@@ -328,7 +328,7 @@ bool CSymphoniePlayer::OnInstrumentSample(uint8_t *pData, const size_t nLen)
 
 bool CSymphoniePlayer::OnSequence(uint8_t *pData, const size_t nLen)
 {
-    m_sequenceCount = (len / SEQUENCE_SIZEOF);
+    m_sequenceCount = (nLen / SEQUENCE_SIZEOF);
     
     m_pSequences = new SyMMSequence[m_sequenceCount];
 
@@ -353,7 +353,7 @@ bool CSymphoniePlayer::OnSequence(uint8_t *pData, const size_t nLen)
 
 bool CSymphoniePlayer::OnSongPositions(uint8_t *pData, const size_t nLen)
 {
-    m_positionCount = (len / POSITION_SIZEOF);
+    m_positionCount = (nLen / POSITION_SIZEOF);
     
     m_pPositions = new SyMMPosition[m_positionCount];
 
@@ -365,9 +365,14 @@ bool CSymphoniePlayer::OnSongPositions(uint8_t *pData, const size_t nLen)
         // is it always just one layer?
         // seems pointless to have following buffer then..
         m_pPositions[i].m_layerCount = 1; // ?
+        /*
+        // does this have to be a buffer
+        // when single uint16 seems to be enough?
         m_pPositions[i].m_PatternNumbers.m_nLen = sizeof(uint16_t);
         m_pPositions[i].m_PatternNumbers.m_pBuf = new uint16_t[1];
         m_pPositions[i].m_PatternNumbers.m_pBuf[0] = Swap2(m_pFileData->NextUI2());
+        */
+        m_pPositions[i].m_nPatternNumber = Swap2(m_pFileData->NextUI2());
 
         m_pPositions[i].m_tune = Swap2(m_pFileData->NextUI2());
         m_pPositions[i].m_startRow = Swap2(m_pFileData->NextUI2());
@@ -390,7 +395,6 @@ bool CSymphoniePlayer::OnSongPositions(uint8_t *pData, const size_t nLen)
 CSymphoniePlayer::CSymphoniePlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_pInstruments(nullptr)
-    , m_instrumentCount(0)
     , m_pSequences(nullptr)
     , m_sequenceCount(0)
     , m_pPositions(nullptr)

@@ -30,12 +30,14 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_playbackHandler(nullptr)
+    m_playbackHandler(nullptr),
+    m_lastPath()
 {
     ui->setupUi(this);
     
     m_playbackHandler = new PlaybackHandler(this);
     connect(m_playbackHandler, SIGNAL(playbackFinished()), this, SLOT(onPlaybackStopped()));
+    connect(m_playbackHandler, SIGNAL(error(QString)), this, SLOT(onError(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -63,7 +65,20 @@ void MainWindow::on_actionStop_triggered()
 
 void MainWindow::on_actionFiles_triggered()
 {
-    QStringList files = QFileDialog::getOpenFileNames(this, tr("Open file"));
+    // get file(s) to playlist
+    QStringList files = QFileDialog::getOpenFileNames(this, tr("Open file"), m_lastPath);
+    
+    if (files.isEmpty() == false)
+    {
+        // keep path where file(s) were selected
+        m_lastPath = files[0];
+        m_lastPath.replace('\\', "/");
+        m_lastPath = m_lastPath.left(m_lastPath.lastIndexOf('/'));
+    }
+
+    // add each selection to playlist
+    // TODO: check for duplicates?
+    //    
     foreach (QString file, files)
     {
         // (temp)
@@ -75,3 +90,9 @@ void MainWindow::onPlaybackStopped()
 {
     // show that we have stopped/move to next file
 }
+
+void MainWindow::onError(QString message)
+{
+    ui->statusBar->showMessage(message);
+}
+

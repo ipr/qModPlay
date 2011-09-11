@@ -118,7 +118,7 @@ void PlaybackHandler::onPlayNotify()
 
 CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
 {
-    if (fileBuffer->GetSize() < 16)
+    if (fileBuffer->GetSize() < 32)
     {
         // nothing useful in the file..
         return nullptr;
@@ -126,7 +126,7 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
     
     CModPlayer *pModPlayer = nullptr;
     CFileType type;
-    type.DetermineFileType(fileBuffer->GetBegin(), 16);
+    type.DetermineFileType(fileBuffer->GetBegin(), 32);
     switch (type.m_enFileType)
     {
     case HEADERTYPE_MOD:
@@ -184,7 +184,7 @@ void PlaybackHandler::PlayFile(QString &filename)
     CAnsiFile file(filename.toStdString());
     if (file.IsOk() == false)
     {
-        ui->statusBar->showMessage("Failed to open file: " + filename);
+        emit error("Failed to open file: " + filename);
         return;
     }
 
@@ -192,7 +192,7 @@ void PlaybackHandler::PlayFile(QString &filename)
     m_pFileBuffer->PrepareBuffer(file.GetSize(), false);
     if (file.Read(m_pFileBuffer->GetBegin(), file.GetSize()) == false)
     {
-        ui->statusBar->showMessage("Failed to read file: " + filename);
+        emit error("Failed to read file: " + filename);
         return;
     }
     file.Close(); // can close already
@@ -201,20 +201,20 @@ void PlaybackHandler::PlayFile(QString &filename)
     m_pModPlayer = GetPlayer(m_pFileBuffer);
     if (m_pModPlayer == nullptr)
     {
-        ui->statusBar->showMessage("Failed to create player");
+        emit error("Failed to create player");
         return;
     }
     
     if (m_pModPlayer->ParseFileInfo() == false)
     {
-        ui->statusBar->showMessage("File could not be handled");
+        emit error("File could not be handled");
         return;
     }
     
     QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
     if (info.isNull() == true)
     {
-        ui->statusBar->showMessage("Failed to get default audio output");
+        emit error("Failed to get default audio output");
 		return;
     }
     

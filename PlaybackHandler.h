@@ -32,6 +32,7 @@ public:
 
 signals:
     void playbackFinished();
+    void error(QString message);
 
 public slots:
     void playFile(QString filename);

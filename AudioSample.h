@@ -1,10 +1,14 @@
 //////////////////////////////////////
 //
-// ModPlayer.h
+// AudioSample.h
 //
 // abstract base class for audio sample information,
 // give unified interface/reusable code for
 // module information processing.
+//
+// modules can have different sample types
+// so just try to make reusable and allow differences,
+// actual playback is module-type dependant anyway..
 //
 // derived classes would implement something like these:
 // - IFF 8SVX

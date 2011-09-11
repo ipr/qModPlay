@@ -35,6 +35,36 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	// such as IFF "FORM", 
 	// add ambigious types to end (such as only two-byte identifiers).
     
+    if (ulLength >= 20)
+    {
+        if (::memcmp(pBuffer, "DIGI Booster module\0", 20) == 0)
+        {
+            // starts with 20 byte string
+            
+            // old-style Digibooster module
+            return HEADERTYPE_DIGIBOOSTER;
+        }
+    }
+    
+    // LhA, Lzh variations..
+    if (ulLength >= 8)
+    {
+        // many variations: skip two bytes
+        // and look for string like
+        // "-lh?-" or "-lz?-",
+        // where '?' is number from 0..7
+        // or character 's'..
+        // 
+        char *pData = (char*)pBuffer;
+        if ((::memcmp(pData + 2, "-lh", 3) == 0
+             || ::memcmp(pData + 2, "-lz", 3) == 0)
+            && pData[6] == '-')
+        {
+            return HEADERTYPE_LHA;
+        }
+    }
+    
+    // try to determine by string at start..
     if (::memcmp(pBuffer, "TFMX-SONG ", 10) == 0)
     {
         // Amiga TFMX module
@@ -45,15 +75,20 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
         // Amiga Oktalyzer tracker module
         return HEADERTYPE_OKTALYZER;
     }
-
-	// try to determine by string at start..
-	if (::memcmp(pBuffer, "FORM", 4) == 0)
+	else if (::memcmp(pBuffer, "FORM", 4) == 0)
 	{
 		// EA-IFF format file header:
 		// handle additional info for actual type,
 		// values in file in big-endian format
 	    enFileType = HEADERTYPE_IFF_GENERIC;
+        
+        if (ulLength < 12)
+        {
+            // not enough data, can't look deeper
+            return HEADERTYPE_IFF_GENERIC;
+        }
 
+        // past ID&len
 		const uint8_t *pTmp = (pBuffer +8);
 		if (::memcmp(pTmp, "LWOB", 4) == 0)
 		{
@@ -108,21 +143,71 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		// determine actual packer..
 	    enFileType = HEADERTYPE_XPK_GENERIC;
 
-		const uint8_t *pTmp = (pBuffer +8);
-		if (::memcmp(pTmp, "SQSH", 4) == 0)
-		{
-			return HEADERTYPE_XPK_SQSH;
-		}
-		else if (::memcmp(pTmp, "NUKE", 4) == 0)
-		{
-			return HEADERTYPE_XPK_NUKE;
-		}
+        // past ID&len
+        if (ulLength >= 12)
+        {
+            const uint8_t *pTmp = (pBuffer +8);
+            if (::memcmp(pTmp, "SQSH", 4) == 0)
+            {
+                return HEADERTYPE_XPK_SQSH;
+            }
+            else if (::memcmp(pTmp, "NUKE", 4) == 0)
+            {
+                return HEADERTYPE_XPK_NUKE;
+            }
+        }
+		return enFileType;
+	}
+    else if (::memcmp(pBuffer, "RIFF", 4) == 0)
+	{
+		// note: also RIFX for big-endian version?
+		
+		// Microsoft/IBM counterpart to EA-IFF format:
+		// values in file in little-endian format
+	    enFileType = HEADERTYPE_RIFF_GENERIC;
+
+        // past ID&len
+        if (ulLength >= 12)
+        {
+            const uint8_t *pTmp = (pBuffer +8);
+            if (::memcmp(pTmp, "WAVE", 4) == 0)
+            {
+                return HEADERTYPE_WAVE;
+            }
+            else if (::memcmp(pTmp, "AVI ", 4) == 0)
+            {
+                return HEADERTYPE_AVI;
+            }
+        }
 		return enFileType;
 	}
 	else if (::memcmp(pBuffer, "PP20", 4) == 0)
 	{
 		// powerpacker
 		return HEADERTYPE_PP20;
+	}
+    else if (::memcmp(pBuffer, "DIGI", 4) == 0)
+	{
+        // actually, starts with 20 byte string:
+        // "DIGI Booster module\0"
+        
+		// old-style Digibooster module
+		return HEADERTYPE_DIGIBOOSTER;
+	}
+	else if (::memcmp(pBuffer, "DBM0", 4) == 0)
+	{
+		// Digibooster PRO module
+		return HEADERTYPE_DBMPRO;
+	}
+	else if (::memcmp(pBuffer, "SymM", 4) == 0)
+	{
+		// Symphonie module
+		return HEADERTYPE_SYMMOD;
+	}
+    else if (::memcmp(pBuffer, "IMPM", 4) == 0)
+	{
+		// ImpulseTracker module
+		return HEADERTYPE_IT;
 	}
 	else if (::memcmp(pBuffer, "LZX", 3) == 0)
 	{
@@ -147,51 +232,20 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		// MMD0..3
         return HEADERTYPE_OCTAMED_OSS;
 	}
-	else if (::memcmp(pBuffer, "DIGI", 4) == 0)
+    else if (::memcmp(pBuffer, "THX", 3) == 0)
+    {
+        // AHX (which was previously THX)
+        // sound module
+        return HEADERTYPE_AHX;
+    }
+    else if (::memcmp(pBuffer, "MTM", 3) == 0)
+    {
+        // MultiTracker sound module
+        return HEADERTYPE_MTM;
+    }
+    else if (::memcmp(pBuffer, "DOS", 3) == 0)
 	{
-        // actually, starts with 20 byte string:
-        // "DIGI Booster module\0"
-        
-		// Digibooster module
-		return HEADERTYPE_DIGIBOOSTER;
-	}
-	else if (::memcmp(pBuffer, "DBM0", 4) == 0)
-	{
-		// Digibooster PRO module
-		return HEADERTYPE_DBMPRO;
-	}
-	else if (::memcmp(pBuffer, "SymM", 4) == 0)
-	{
-		// Symphonie module
-		return HEADERTYPE_SYMMOD;
-	}
-    else if (::memcmp(pBuffer, "IMPM", 4) == 0)
-	{
-		// ImpulseTracker module
-		return HEADERTYPE_IT;
-	}
-	else if (::memcmp(pBuffer, "RIFF", 4) == 0)
-	{
-		// note: also RIFX for big-endian version?
-		
-		// Microsoft/IBM counterpart to EA-IFF format:
-		// values in file in little-endian format
-	    enFileType = HEADERTYPE_RIFF_GENERIC;
-	    
-	    const uint8_t *pTmp = (pBuffer +8);
-	    if (::memcmp(pTmp, "WAVE", 4) == 0)
-	    {
-			enFileType = HEADERTYPE_WAVE;
-	    }
-	    else if (::memcmp(pTmp, "AVI ", 4) == 0)
-		{
-			enFileType = HEADERTYPE_AVI;
-		}
-		return enFileType;
-	}
-	else if (::memcmp(pBuffer, "DOS", 3) == 0)
-	{
-		// AmigaDOS-disk?
+		// AmigaDOS-disk? (ADF-file)
 		enFileType = HEADERTYPE_ADFDOS_DISK;
 		/*
 		if (pBuffer[3] == 0)
@@ -205,17 +259,6 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		*/
 		return enFileType;
 	}
-    else if (::memcmp(pBuffer, "THX", 3) == 0)
-    {
-        // AHX (which was previously THX)
-        // sound module
-        return HEADERTYPE_AHX;
-    }
-    else if (::memcmp(pBuffer, "MTM", 3) == 0)
-    {
-        // MultiTracker sound module
-        return HEADERTYPE_MTM;
-    }
 
 	if (pBuffer[0] == 0x42
 		&& pBuffer[1] == 0x5A)
@@ -334,25 +377,6 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	/*
 	// TAR (POSIX)	.tar	75 73 74 61 72	ustar (offset by 257 bytes)
 	*/
-
-
-	// otherwise, if no match, look deeper (e.g. LHA starts after first two bytes)
-	// also, lha has multiple variants (H0..H5, ZS, Z5, Z4)
-	char *pData = (char*)(&pBuffer[2]);
-
-	// alternate to reduce comparisons 
-	// (when different packing options are used)
-	// can be: -lh0- .. -lh7-
-	// or -lz0- .. -lz7- or -lzs-
-	// or others..
-	if (pData[4] == '-')
-	{
-		if (::memcmp(pData, "-lh", 3) == 0
-			|| ::memcmp(pData, "-lz", 3) == 0)
-		{
-			return HEADERTYPE_LHA;
-		}
-	}
 
 	return enFileType;
 }

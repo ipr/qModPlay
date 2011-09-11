@@ -172,7 +172,7 @@ protected:
         bool m_bIsVirtual;
     };
     SyMMInstrument *m_pInstruments;
-    size_t m_instrumentCount;
+    //size_t m_instrumentCount_; // CHECK! already in CT_SAMPLENUMB ??
     
     class SyMMSequence
     {
@@ -208,13 +208,14 @@ protected:
             , m_rowLength(0)
             , m_loopCount(0)
             , m_speedCycl(0)
-            , m_PatternNumbers()
+            //, m_PatternNumbers()
+            , m_nPatternNumber(0)
         {}
         ~SyMMPosition()
         {
             // does this have to be a buffer
             // when single uint16 seems to be enough?
-            delete m_PatternNumbers.m_pBuf;
+            //delete m_PatternNumbers.m_pBuf;
         }
         size_t m_layerCount;
         size_t m_tune;
@@ -224,8 +225,10 @@ protected:
         size_t m_speedCycl;
         
         // TODO: ?
-        //bufferedData_t m_positionData;
-        bufferedData_t m_PatternNumbers;
+        // does this have to be a buffer
+        // when single uint16 seems to be enough?
+        //bufferedData_t m_PatternNumbers;
+        size_t m_nPatternNumber;
     };
     SyMMPosition *m_pPositions;
     size_t m_positionCount;
