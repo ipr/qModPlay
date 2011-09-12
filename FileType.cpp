@@ -33,7 +33,30 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	
 	// note: start with types which have least possibility of conflict
 	// such as IFF "FORM", 
-	// add ambigious types to end (such as only two-byte identifiers).
+	// and add ambigious types to end (such as only two-byte identifiers).
+    
+    // fuck.. identifier in odd place..
+    if (ulLength >= 1084)
+    {
+        char *pData = (char*)(pBuffer + 1080);
+        if (::memcmp(pData, "M.K.", 4) == 0)
+        {
+            // should be ProTracker module..
+            // could be anything else also..
+            // we just don't know
+            return HEADERTYPE_MOD;
+        }
+        /*
+        else if (::memcmp(pData, "FLT4", 4) == 0)
+        {
+            return HEADERTYPE_STARTREKKER;
+        }
+        else if (::memcmp(pData, "FLT8", 4) == 0)
+        {
+            return HEADERTYPE_STARTREKKER;
+        }
+        */
+    }
     
     if (ulLength >= 20)
     {

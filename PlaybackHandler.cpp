@@ -132,7 +132,11 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
     
     CModPlayer *pModPlayer = nullptr;
     CFileType type;
-    type.DetermineFileType(fileBuffer->GetBegin(), 32);
+    
+    // some types have identifier somewhere middle of file..
+    // just tell what we have for identifying it.
+    type.DetermineFileType(fileBuffer->GetBegin(), fileBuffer->GetSize());
+    
     switch (type.m_enFileType)
     {
     case HEADERTYPE_MOD:

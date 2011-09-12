@@ -56,6 +56,7 @@ typedef enum tHeaderType
 
 	// audio types, modules ("trackers")
 	HEADERTYPE_MOD, // ProTracker (and others..)
+    //HEADERTYPE_STARTREKKER, // StarTrekker tracker
     //HEADERTYPE_NOISETRACKER, // NoiseTracker
 	HEADERTYPE_OCTAMED,	 // OctaMED "classic" (MMD0..3, MED2..4)
     HEADERTYPE_OCTAMED_OSS,	 // OctaMED SoundStudio (MMD0..3, MED2..4)

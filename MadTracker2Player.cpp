@@ -125,10 +125,10 @@ bool CMadTracker2Player::ParseFileInfo()
     m_version = m_pFileData->NextUI1();
     m_revision = m_pFileData->NextUI1();
     
-    m_trackerName.assign(m_pFileData->GetAtCurrent(), 32);
+    m_trackerName.assign((char*)m_pFileData->GetAtCurrent(), 32);
     m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() +32);
     
-    m_moduleTitle.assign(m_pFileData->GetAtCurrent(), 64);
+    m_moduleTitle.assign((char*)m_pFileData->GetAtCurrent(), 64);
     m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() +64);
     
     m_positionCount = m_pFileData->NextUI2();
