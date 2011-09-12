@@ -286,6 +286,7 @@ bool CSymphoniePlayer::OnPatternData(uint8_t *pData, const size_t nLen)
         return false;
     }
     
+    // TODO: some other stuff needed?
     
     return true;
 }

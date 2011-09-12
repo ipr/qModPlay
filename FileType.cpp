@@ -183,7 +183,8 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	}
 	else if (::memcmp(pBuffer, "PP20", 4) == 0)
 	{
-		// powerpacker
+		// PowerPacker 2.0
+        // TODO: other version also exist?
 		return HEADERTYPE_PP20;
 	}
     else if (::memcmp(pBuffer, "DIGI", 4) == 0)
@@ -204,11 +205,30 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		// Symphonie module
 		return HEADERTYPE_SYMMOD;
 	}
+    else if (::memcmp(pBuffer, "MT20", 4) == 0)
+    {
+        // Mad Tracker 2
+        return HEADERTYPE_MADTRACKER2;
+    }
     else if (::memcmp(pBuffer, "IMPM", 4) == 0)
 	{
 		// ImpulseTracker module
 		return HEADERTYPE_IT;
 	}
+    /*
+    else if (::memcmp(pBuffer, "IMPS", 4) == 0)
+	{
+		// ImpulseTracker sample?
+		return HEADERTYPE_IT;
+	}
+    */
+    /*
+    else if (::memcmp(pBuffer, "SCRM", 4) == 0)
+	{
+		// ScreamTracker ?
+		return HEADERTYPE_S3M;
+	}
+    */
 	else if (::memcmp(pBuffer, "LZX", 3) == 0)
 	{
 		// LZX archive

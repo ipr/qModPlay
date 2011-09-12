@@ -73,6 +73,7 @@ typedef enum tHeaderType
     //HEADERTYPE_FC, // FutureComposer (FC13, FC14)
 
     //HEADERTYPE_MO3, // Module packed with MP3..
+    HEADERTYPE_MADTRACKER2, // Mad Tracker 2
     
 	// audio types, voice/sound
 	HEADERTYPE_8SVX, // 8-bit sound "voice" (sample)(IFF)

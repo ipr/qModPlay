@@ -19,7 +19,12 @@ SOURCES += main.cpp\
     DigiBoosterProPlayer.cpp \
     TfmxPlayer.cpp \
     AhxPlayer.cpp \
-    PlaybackHandler.cpp
+    PlaybackHandler.cpp \
+    MadTracker2Player.cpp \
+    ProTrackerPlayer.cpp \
+    OktalyzerPlayer.cpp \
+    ScreamTrackerPlayer.cpp \
+    ImpulseTrackerPlayer.cpp
 
 HEADERS  += MainWindow.h \
     AnsiFile.h \
@@ -31,9 +36,24 @@ HEADERS  += MainWindow.h \
     TfmxPlayer.h \
     AhxPlayer.h \
     AudioSample.h \
-    PlaybackHandler.h
+    PlaybackHandler.h \
+    MadTracker2Player.h \
+    ProTrackerPlayer.h \
+    OktalyzerPlayer.h \
+    ScreamTrackerPlayer.h \
+    ImpulseTrackerPlayer.h
 
 FORMS    += MainWindow.ui
+
+
+
+
+
+
+
+
+
+
 
 
 

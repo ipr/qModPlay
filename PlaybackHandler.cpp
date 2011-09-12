@@ -22,6 +22,12 @@
 #include "DigiBoosterProPlayer.h"
 #include "SymphoniePlayer.h"
 #include "TfmxPlayer.h"
+#include "AhxPlayer.h"
+#include "OktalyzerPlayer.h"
+#include "ProTrackerPlayer.h"
+#include "ScreamTrackerPlayer.h"
+#include "ImpulseTrackerPlayer.h"
+#include "MadTracker2Player.h"
 
 
 PlaybackHandler::PlaybackHandler(QObject *parent) :
@@ -130,7 +136,7 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
     switch (type.m_enFileType)
     {
     case HEADERTYPE_MOD:
-        //pModPlayer = new CProTrackerPlayer(fileBuffer);
+        pModPlayer = new CProTrackerPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_OCTAMED:
@@ -152,7 +158,7 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
         break;
         
     case HEADERTYPE_AHX:
-        //pModPlayer = new CAhxPlayer(fileBuffer);
+        pModPlayer = new CAhxPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_TFMX:
@@ -160,7 +166,7 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
         break;
         
     case HEADERTYPE_OKTALYZER:
-        //pModPlayer = new COktalyzerPlayer(fileBuffer);
+        pModPlayer = new COktalyzerPlayer(fileBuffer);
         break;
     
         /*
@@ -168,6 +174,22 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
         //pModPlayer = new CNoisetrackerPlayer(fileBuffer);
         break;
         */
+        
+        /*
+    case HEADERTYPE_S3M:
+        pModPlayer = new CScreamTrackerPlayer(fileBuffer);
+        break;
+        */
+        
+        /*
+    case HEADERTYPE_IT:
+        pModPlayer = new CImpulseTrackerPlayer(fileBuffer);
+        break;
+        */
+        
+    case HEADERTYPE_MADTRACKER2:
+        pModPlayer = new CMadTracker2Player(fileBuffer);
+        break;
 
     default:
         // just to silence GCC..

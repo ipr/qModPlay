@@ -25,39 +25,51 @@
 //////////// protected methods
 
 
-bool MadTracker2Player::ParseDrumsDatas(uint8_t *pData, size_t nLen)
+bool CMadTracker2Player::ParseDrumsDatas(uint8_t *pData, size_t nLen)
 {
     return false;
 }
-bool MadTracker2Player::ParseAdditionalDatas(uint8_t *pData, size_t nLen)
+
+// IFF-style chunk structure
+bool CMadTracker2Player::ParseAdditionalDatas(uint8_t *pData, size_t nLen)
+{
+    /*
+    size_t nPos = 0;
+    
+    while (nPos < nLen)
+    {
+        
+    }
+    */
+    
+    return false;
+}
+
+bool CMadTracker2Player::ParsePatterns(uint8_t *pData, size_t nLen)
 {
     return false;
 }
-bool MadTracker2Player::ParsePatterns(uint8_t *pData, size_t nLen)
+bool CMadTracker2Player::ParseDrumsPatterns(uint8_t *pData, size_t nLen)
 {
     return false;
 }
-bool MadTracker2Player::ParseDrumsPatterns(uint8_t *pData, size_t nLen)
+bool CMadTracker2Player::ParseAutomation(uint8_t *pData, size_t nLen)
 {
     return false;
 }
-bool MadTracker2Player::ParseAutomation(uint8_t *pData, size_t nLen)
+bool CMadTracker2Player::ParseInstruments(uint8_t *pData, size_t nLen)
 {
     return false;
 }
-bool MadTracker2Player::ParseInstruments(uint8_t *pData, size_t nLen)
+bool CMadTracker2Player::ParseSamples(uint8_t *pData, size_t nLen)
 {
     return false;
 }
-bool MadTracker2Player::ParseSamples(uint8_t *pData, size_t nLen)
+bool CMadTracker2Player::ParseGroups(uint8_t *pData, size_t nLen)
 {
     return false;
 }
-bool MadTracker2Player::ParseGroups(uint8_t *pData, size_t nLen)
-{
-    return false;
-}
-bool MadTracker2Player::ParseSamplesDatas(uint8_t *pData, size_t nLen)
+bool CMadTracker2Player::ParseSamplesDatas(uint8_t *pData, size_t nLen)
 {
     return false;
 }
@@ -66,7 +78,7 @@ bool MadTracker2Player::ParseSamplesDatas(uint8_t *pData, size_t nLen)
 /////////// public
 
 
-MadTracker2Player::MadTracker2Player(CReadBuffer *pFileData)
+CMadTracker2Player::CMadTracker2Player(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_patternOrders()
     //, m_drumsData()
@@ -74,7 +86,7 @@ MadTracker2Player::MadTracker2Player(CReadBuffer *pFileData)
 {
 }
 
-MadTracker2Player::~MadTracker2Player()
+CMadTracker2Player::~CMadTracker2Player()
 {
     //delete m_drumsData.m_pBuf;
     //delete m_additionalsData.m_pBuf;
@@ -83,13 +95,23 @@ MadTracker2Player::~MadTracker2Player()
 
 /* about fileformat..
 
-   much fixed-length stuff at start.
-   
-   "additionals" has structure pretty close 
-   to IFF-chunk format..
+  Header
+  if (drums) Drums datas
+  Additional datas
+  Patterns (* number of patterns)
+  if (drums) Drums Patterns (* number of drums patterns)
+  Automation (* number of patterns)
+  Instruments (* 255)
+  Samples (* 256)
+  Groups (=parts of instruments that link to samples)
+  Sample datas   
+
+  
+  - "additionals" has structure pretty close 
+  to IFF-chunk format..
    
 */
-bool MadTracker2Player::ParseFileInfo()
+bool CMadTracker2Player::ParseFileInfo()
 {
     if (m_pFileData->NextUI4() != IFFTag("MT20"))
     {

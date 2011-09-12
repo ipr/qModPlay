@@ -23,7 +23,7 @@
 
 #include <string>
 
-class MadTracker2Player : public CModPlayer
+class CMadTracker2Player : public CModPlayer
 {
 protected:
 
@@ -77,8 +77,8 @@ protected:
     bool ParseSamplesDatas(uint8_t *pData, size_t nLen);
     
 public:
-    MadTracker2Player(CReadBuffer *pFileData);
-    virtual ~MadTracker2Player();
+    CMadTracker2Player(CReadBuffer *pFileData);
+    virtual ~CMadTracker2Player();
     
     virtual bool ParseFileInfo();
 };

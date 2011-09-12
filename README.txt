@@ -44,7 +44,7 @@ List below:
   - fileformat maybe half-way there? 
   - no playback
 * TFMX 
-  - maybe 10% of fileformat done?
+  - maybe 5% of fileformat done?
 * AHX 
   - nothing yet (placeholder)
 * OctaMED 
@@ -52,16 +52,16 @@ List below:
 * ProTracker 
   - nothing yet (placeholder)
 * Oktalyzer 
-  - nothing yet (placeholder)
+  - maybe 5% of fileformat done?
 * NoiseTracker? 
   - nothing yet (placeholder)
 * S3M (ScreamTracker 2/3) 
   - nothing yet (placeholder)
-* MTM (MultiTracker)
-  - nothing yet (placeholder)
 * IT (ImpulseTracker) 
   - nothing yet (placeholder)
 * MT2 (Mad Tracker 2) 
+  - maybe 5% of fileformat done?
+* MTM (MultiTracker)
   - nothing yet (placeholder)
 * XM (FastTracker 2)
   - nothing yet (placeholder)
