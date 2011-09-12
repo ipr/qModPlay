@@ -1,8 +1,14 @@
 //////////////////////////////////////
 //
 // CProTrackerPlayer :
+// attempt at creating (yet another) player 
+// for ProTracker modules..
+// 
 //
-// just interface for now
+// Based on documentation by: 
+// Lars Hamre, Steinar Midtskogen, 
+// Norman Lin, Mark Cox, Peter Hanning,
+// Marc Espie, and Thomas Meyer
 //
 //
 // Author: Ilkka Prusi, 2011

@@ -70,6 +70,17 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
             return HEADERTYPE_DIGIBOOSTER;
         }
     }
+
+    if (ulLength >= 18)
+    {
+        if (::memcmp(pBuffer, "Extended module: ", 17) == 0)
+        {
+            // starts with 17 byte string
+            
+            // FastTracker II, DigiTracker..
+            return HEADERTYPE_XM;
+        }
+    }
     
     // LhA, Lzh variations..
     if (ulLength >= 8)
@@ -241,6 +252,11 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		return HEADERTYPE_IT;
 	}
     /*
+    else if (::memcmp(pBuffer, "IMPI", 4) == 0)
+	{
+		// ImpulseTracker instrument?
+		return HEADERTYPE_IT;
+	}
     else if (::memcmp(pBuffer, "IMPS", 4) == 0)
 	{
 		// ImpulseTracker sample?
@@ -453,6 +469,7 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
 		return HEADERCAT_PACKER;
 		
 	case HEADERTYPE_MOD:
+    //case HEADERTYPE_STARTREKKER:
     //case HEADERTYPE_NOISETRACKER:
 	case HEADERTYPE_OCTAMED:
     case HEADERTYPE_OCTAMED_OSS:
@@ -462,12 +479,13 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
     case HEADERTYPE_TFMX:
     case HEADERTYPE_AHX:
     case HEADERTYPE_OKTALYZER:
-	//case HEADERTYPE_XM:
+	case HEADERTYPE_XM:
     case HEADERTYPE_IT:
 	//case HEADERTYPE_S3M:
 	//case HEADERTYPE_S3I:
-    //case HEADERTYPE_MTM:
+    case HEADERTYPE_MTM:
     //case HEADERTYPE_FC:
+    case HEADERTYPE_MADTRACKER2:
 		return HEADERCAT_SOUND_MODULE;
 		
 	case HEADERTYPE_8SVX:

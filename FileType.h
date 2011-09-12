@@ -66,7 +66,7 @@ typedef enum tHeaderType
     HEADERTYPE_TFMX,	 // TFMX, "The Final Musicsystem eXtended"
     HEADERTYPE_AHX, // "Abyss' Highest eXperience" (AHX0, AHX1, was called: THX)
     HEADERTYPE_OKTALYZER, // Oktalyzer
-	//HEADERTYPE_XM, // FastTracker
+	HEADERTYPE_XM, // FastTracker II, DigiTracker..
     HEADERTYPE_IT, // ImpulseTracker
 	//HEADERTYPE_S3M, // ScreamTracker 3
 	//HEADERTYPE_S3I,
