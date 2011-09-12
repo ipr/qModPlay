@@ -39,11 +39,13 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
     if (ulLength >= 1084)
     {
         char *pData = (char*)(pBuffer + 1080);
-        if (::memcmp(pData, "M.K.", 4) == 0)
+        if (::memcmp(pData, "M.K.", 4) == 0
+            || ::memcmp(pData, "M!K!", 4) == 0)
         {
             // should be ProTracker module..
             // could be anything else also..
-            // we just don't know
+            // we just don't know, variations also:
+            // "6CHN", "8CHN"
             return HEADERTYPE_MOD;
         }
         /*
