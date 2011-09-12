@@ -36,6 +36,7 @@ protected:
         FMT_MK64 // 64 samples or more, "M!K!"
         
         /*
+        FMT_CHN4 // "4CHN"
         FMT_CHN6 // "6CHN"
         FMT_CHN8 // "8CHN"
         FMT_FLT4 // Startrekker "FLT4"

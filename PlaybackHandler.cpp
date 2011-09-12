@@ -139,8 +139,11 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
     
     switch (type.m_enFileType)
     {
-    case HEADERTYPE_MOD:
+    case HEADERTYPE_MOD_PROTRACKER:
         pModPlayer = new CProTrackerPlayer(fileBuffer);
+        break;
+    case HEADERTYPE_MOD_NOISETRACKER:
+        //pModPlayer = new CNoisetrackerPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_OCTAMED:
@@ -174,22 +177,14 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
         break;
     
         /*
-    case HEADERTYPE_NOISETRACKER:
-        //pModPlayer = new CNoisetrackerPlayer(fileBuffer);
-        break;
-        */
-        
-        /*
     case HEADERTYPE_S3M:
         pModPlayer = new CScreamTrackerPlayer(fileBuffer);
         break;
         */
         
-        /*
     case HEADERTYPE_IT:
-        pModPlayer = new CImpulseTrackerPlayer(fileBuffer);
+        //pModPlayer = new CImpulseTrackerPlayer(fileBuffer);
         break;
-        */
         
     case HEADERTYPE_MADTRACKER2:
         pModPlayer = new CMadTracker2Player(fileBuffer);

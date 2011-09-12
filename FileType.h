@@ -54,11 +54,13 @@ typedef enum tHeaderType
 	HEADERTYPE_7Z, // 7Z packer (7zip)
 	HEADERTYPE_XZ, // XZ Utils packer (xz)
 
-	// audio types, modules ("trackers")
-	HEADERTYPE_MOD, // ProTracker (and others..)
-    //HEADERTYPE_STARTREKKER, // StarTrekker tracker
-    //HEADERTYPE_NOISETRACKER, // NoiseTracker
-	HEADERTYPE_OCTAMED,	 // OctaMED "classic" (MMD0..3, MED2..4)
+	// audio types, modules ("trackers"),
+    // 
+    //HEADERTYPE_MOD_SOUNDTRACKER, // original SoundTracker format?
+	HEADERTYPE_MOD_PROTRACKER, // ProTracker (and others..)
+    HEADERTYPE_MOD_NOISETRACKER, // NoiseTracker
+    HEADERTYPE_MOD_STARTREKKER, // StarTrekker
+	HEADERTYPE_OCTAMED,	 // OctaMED "classic" (Music EDitor) (MED2..4)
     HEADERTYPE_OCTAMED_OSS,	 // OctaMED SoundStudio (MMD0..3, MED2..4)
 	HEADERTYPE_DIGIBOOSTER,	 // old Digibooster DIGI-module
 	HEADERTYPE_DBMPRO,	 // Digibooster PRO (DBM0)
@@ -66,7 +68,7 @@ typedef enum tHeaderType
     HEADERTYPE_TFMX,	 // TFMX, "The Final Musicsystem eXtended"
     HEADERTYPE_AHX, // "Abyss' Highest eXperience" (AHX0, AHX1, was called: THX)
     HEADERTYPE_OKTALYZER, // Oktalyzer
-	HEADERTYPE_XM, // FastTracker II, DigiTracker..
+	HEADERTYPE_XM, // "eXtended Module", FastTracker II, DigiTracker..
     HEADERTYPE_IT, // ImpulseTracker
 	//HEADERTYPE_S3M, // ScreamTracker 3
 	//HEADERTYPE_S3I,

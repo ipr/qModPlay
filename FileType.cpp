@@ -36,6 +36,7 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	// and add ambigious types to end (such as only two-byte identifiers).
     
     // fuck.. identifier in odd place..
+    // and most common format also..
     if (ulLength >= 1084)
     {
         char *pData = (char*)(pBuffer + 1080);
@@ -46,16 +47,31 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
             // could be anything else also..
             // we just don't know, variations also:
             // "6CHN", "8CHN"
-            return HEADERTYPE_MOD;
+            return HEADERTYPE_MOD_PROTRACKER;
         }
-        /*
+        else if (::memcmp(pData, "N.T.", 4) == 0)
+        {
+            // NoiseTracker variant of MOD..
+            return HEADERTYPE_MOD_NOISETRACKER;
+        }
         else if (::memcmp(pData, "FLT4", 4) == 0)
         {
-            return HEADERTYPE_STARTREKKER;
+            // Startrekker variant of MOD..
+            return HEADERTYPE_MOD_STARTREKKER;
         }
         else if (::memcmp(pData, "FLT8", 4) == 0)
         {
-            return HEADERTYPE_STARTREKKER;
+            // Startrekker variant of MOD..
+            return HEADERTYPE_MOD_STARTREKKER;
+        }
+        /*
+        else
+        {
+            // !! old-style original SoundTracker
+            // did not have identifier here..
+            // how do we detect it??
+            //
+            //HEADERTYPE_MOD_SOUNDTRACKER
         }
         */
     }
@@ -468,9 +484,10 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
 	case HEADERTYPE_XZ:
 		return HEADERCAT_PACKER;
 		
-	case HEADERTYPE_MOD:
-    //case HEADERTYPE_STARTREKKER:
-    //case HEADERTYPE_NOISETRACKER:
+    //case HEADERTYPE_MOD_SOUNDTRACKER:
+	case HEADERTYPE_MOD_PROTRACKER:
+    case HEADERTYPE_MOD_NOISETRACKER:
+    case HEADERTYPE_MOD_STARTREKKER:
 	case HEADERTYPE_OCTAMED:
     case HEADERTYPE_OCTAMED_OSS:
 	case HEADERTYPE_DIGIBOOSTER:
