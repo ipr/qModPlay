@@ -139,11 +139,12 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
     
     switch (type.m_enFileType)
     {
+    //case HEADERTYPE_MOD_SOUNDTRACKER: // original, can we detect?
     case HEADERTYPE_MOD_PROTRACKER:
-        pModPlayer = new CProTrackerPlayer(fileBuffer);
-        break;
     case HEADERTYPE_MOD_NOISETRACKER:
-        //pModPlayer = new CNoisetrackerPlayer(fileBuffer);
+    case HEADERTYPE_MOD_STARTREKKER:
+        // ? maybe share same player for these, check differences
+        pModPlayer = new CProTrackerPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_OCTAMED:
