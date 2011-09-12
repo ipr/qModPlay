@@ -184,7 +184,7 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
         */
         
     case HEADERTYPE_IT:
-        //pModPlayer = new CImpulseTrackerPlayer(fileBuffer);
+        pModPlayer = new CImpulseTrackerPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_MADTRACKER2:
