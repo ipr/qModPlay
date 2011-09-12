@@ -35,23 +35,49 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     }
     else if (chunkID == IFFTag("SAMP"))
     {
-        // sample directory
+        // sample directories
+        
+        size_t nSampleCount = (chunkLen / sizeof(OKTSampleDirectory_t));
+        for (int i = 0; i < nSampleCount; i++)
+        {
+            OKTSampleDirectory_t *pSampleDir = (OKTSampleDirectory_t*)m_pFileData->GetAtCurrent();
+            
+            // ..byteswap & store..
+            
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + sizeof(OKTSampleDirectory_t));
+        }
+        //return true;
     }
     else if (chunkID == IFFTag("SPEE"))
     {
-        // speed
+        // speed (initial tempo)
+        // Vertical blank divisor for speed/tempo of playback ?
+        //
+        m_AmigaVBLDivisor = Swap2(m_pFileData->NextUI2());
+        return true;
     }
     else if (chunkID == IFFTag("SLEN"))
     {
         // song length
+        m_SongLength = Swap2(m_pFileData->NextUI2());
+        return true;
     }
     else if (chunkID == IFFTag("PLEN"))
     {
         // number of pattern positions
+        m_NumPositions = Swap2(m_pFileData->NextUI2());
+        return true;
     }
     else if (chunkID == IFFTag("PATT"))
     {
         // pattern positions
+        // seems to be fixed length chunk?
+        // note: zero *IS* valid for this..
+        m_PatternPositions.m_nLen = chunkLen;
+        m_PatternPositions.m_pBuf = new uint8_t[m_PatternPositions.m_nLen];
+        ::memcpy(m_PatternPositions.m_pBuf, m_pFileData->GetAtCurrent(), m_PatternPositions.m_nLen);
+        
+        return true;
     }
     else if (chunkID == IFFTag("PBOD"))
     {

@@ -20,9 +20,41 @@
 
 #include <string>
 
+// force 1-byte alignment for struct (no padding)
+#pragma pack(push, 1)
+
+struct OKTSampleDirectory_t
+{
+    char Sample_Name[20];
+    uint32_t Sample_Len;
+    uint16_t Repeat_Start;
+    uint16_t Repeat_Len;
+    uint8_t pad1;
+    uint8_t Volume;
+    uint16_t pad2;
+};
+
+
+
+#pragma pack(pop)
+
+
 class COktalyzerPlayer : public CModPlayer
 {
 protected:
+    
+    // PATT chunk
+    bufferedData_t m_PatternPositions;
+
+    // PLEN chunk
+    int16_t m_NumPositions;
+    
+    // SLEN chunk
+    int16_t m_SongLength;
+    
+    // SPEE chunk:
+    // Vertical blank divisor for speed/tempo of playback ?
+    int16_t m_AmigaVBLDivisor; /* InitialTempo */
     
     // CMOD chunk
     uint16_t m_chan_flags[4];
