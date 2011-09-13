@@ -4,15 +4,7 @@
 // player for DigiBooster modules
 // in (mostly) portable C++
 //
-// Based on M68k assembler and E-language source codes..
-// (well, at least there _are_ sources..)
-//
 // Based on documentation by: Claudio Matsuoka
-//
-// NOTE! might need heavy rewrite..
-// see if there's more details somewhere,
-// those fixed-length arrays and fixed offsets seem ridiculous..
-// Until then, this is what is found in documents..
 //
 //
 // Author: Ilkka Prusi, 2011
@@ -81,7 +73,7 @@ bool CDigiBoosterPlayer::ParseFileInfo()
     m_Orders.m_pBuf = new uint8_t[m_Orders.m_nLen];
     ::memcpy(m_Orders.m_pBuf, m_pFileData->GetAt(48), m_Orders.m_nLen);
     
-    // always 31 values ??
+    // always 31 values
     m_pSampleLength = new uint32_t[31];
     m_pSampleLoopStart = new uint32_t[31];
     m_pSampleLoopLength = new uint32_t[31];
@@ -108,10 +100,10 @@ bool CDigiBoosterPlayer::ParseFileInfo()
     pPos = m_pFileData->GetAt(579);
     ::memcpy(m_pSampleFinetunes, pPos, 31);
 
-    // fixed length name for song?    
+    // fixed length name for song
     m_songName.assign((char*)m_pFileData->GetAt(610), 32);
 
-    // also fixed sizes array of fixed-length strings?
+    // fixed sized array of fixed-length strings
     m_pSampleNames = new std::string[31];
     pPos = m_pFileData->GetAt(642);
     for (int i = 0; i < 31; i++)
@@ -120,6 +112,9 @@ bool CDigiBoosterPlayer::ParseFileInfo()
         pPos = (pPos + 30);
     }
 
+    // song data
+    // -> storing similar to protracker?
+    
     /*
     pPos = m_pFileData->GetAt(1572);
     m_SongData.m_nLen = ??;

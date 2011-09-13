@@ -25,13 +25,17 @@ CProTrackerPlayer::CProTrackerPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_enFormat(FMT_Unknown)
     , m_pSampleInfo(nullptr)
+    , m_pPatternData(nullptr)
+    , m_nSampleCount(0)
     , m_songPositions()
+    , m_nPatternCount(0)
 {
 }
 
 CProTrackerPlayer::~CProTrackerPlayer()
 {
     delete m_songPositions.m_pBuf;
+    delete [] m_pPatternData;
     delete [] m_pSampleInfo;
 }
 
@@ -56,18 +60,25 @@ bool CProTrackerPlayer::ParseFileInfo()
     {
         // fixed-size of 31 samples
         m_enFormat = FMT_MK31;
+        m_nSampleCount = 31;
     }
-    /* TODO: must check rest also..
+    /*
     else if (::memcmp(pIdPos, "M!K!", 4) == 0)
     {
-        // 64 samples or more
         m_enFormat = FMT_MK64;
+        m_nSampleCount = 31;
     }
     */
     else
     {
         // .. not ProTracker module?
         // (not supported anyway, at least not yet..)
+        // -> another way to detect which format?
+        
+        // old-style format (soundtracker?)
+        // has fixed-size of 15 samples ?
+        //m_enFormat = FMT_ST15;
+        //m_nSampleCount = 15;
         return false;
     }
     
@@ -80,8 +91,8 @@ bool CProTrackerPlayer::ParseFileInfo()
     // note: may be only 15 if format ID is not given,
     // how to identify fileformat then??
     //
-    m_pSampleInfo = new PTSampleInfo[31];
-    for (int i = 0; i < 31; i++)
+    m_pSampleInfo = new PTSampleInfo[m_nSampleCount];
+    for (int i = 0; i < m_nSampleCount; i++)
     {
         m_pSampleInfo[i].m_name.assign((char*)m_pFileData->GetAtCurrent(), 22);
         m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() +22);
@@ -103,8 +114,21 @@ bool CProTrackerPlayer::ParseFileInfo()
     ::memcpy(m_songPositions.m_pBuf, m_pFileData->GetAtCurrent(), m_songPositions.m_nLen);
     m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_songPositions.m_nLen);
     
+    // locate highest pattern number
+    // (also count of patterns)
+    m_nPatternCount = 0;
+    for (int i = 0; i < m_songPositions.m_nLen; i++)
+    {
+        if (m_songPositions.m_pBuf[i] > m_nPatternCount)
+        {
+            // index to count of patterns
+            m_nPatternCount = (m_songPositions.m_pBuf[i] + 1);
+        }
+    }
     
-    // TODO: continue..
+    // does this way complicate playback..?
+    //m_pPatternData = new PTPatternData[m_nPatternCount];
+    
     
     return true;
 }

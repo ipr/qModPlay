@@ -27,23 +27,27 @@ class CMadTracker2Player : public CModPlayer
 {
 protected:
 
-    /* TODO: parse further..    
     class MT2Drums
     {
     public:
         MT2Drums()
-            : m_data()
+            : m_patternOrder()
         {}
         ~MT2Drums()
-        {}
-        bufferedData_t m_data;
+        {
+            delete m_patternOrder.m_pBuf;
+        }
+        uint16_t m_drumsSampleCount;
+        uint16_t *m_drumsSamples;
+        bufferedData_t m_patternOrder;
     };
-    */
+
+    uint16_t m_drumsPatternCount;
+    MT2Drums *m_pDrumsData;
     
     // TODO: might remove these 
     // and replace with more proper structure..
     bufferedData_t m_patternOrders;
-    //bufferedData_t m_drumsData;
     //bufferedData_t m_additionalsData;
     
     uint16_t m_positionCount;
@@ -66,8 +70,8 @@ protected:
     // 64 char module name
     std::string m_moduleTitle;
     
-    bool ParseDrumsDatas(uint8_t *pData, size_t nLen);
-    bool ParseAdditionalDatas(uint8_t *pData, size_t nLen);
+    bool ParseDrumsDatas(size_t nLen);
+    bool ParseAdditionalDatas(size_t nLen);
     bool ParsePatterns(uint8_t *pData, size_t nLen);
     bool ParseDrumsPatterns(uint8_t *pData, size_t nLen);
     bool ParseAutomation(uint8_t *pData, size_t nLen);

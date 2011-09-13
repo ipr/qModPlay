@@ -25,24 +25,68 @@
 //////////// protected methods
 
 
-bool CMadTracker2Player::ParseDrumsDatas(uint8_t *pData, size_t nLen)
+bool CMadTracker2Player::ParseDrumsDatas(size_t nLen)
 {
-    return false;
-}
-
-// IFF-style chunk structure
-bool CMadTracker2Player::ParseAdditionalDatas(uint8_t *pData, size_t nLen)
-{
-    /*
-    size_t nPos = 0;
+    m_drumsPatternCount = m_pFileData->NextUI2();
     
-    while (nPos < nLen)
+    /*
+    if (nLen / 274 != m_drumsPatternCount)
     {
-        
+        // invalid count or bug?
+        return false;
     }
     */
     
-    return false;
+    m_pDrumsData = new MT2Drums[m_drumsPatternCount];
+    
+    for (int i = 0; i < m_drumsPatternCount; i++)
+    {
+        m_pDrumsData[i].m_drumsSampleCount = 8; // always 8 ??
+        m_pDrumsData[i].m_drumsSamples = new uint16_t[m_pDrumsData[i].m_drumsSampleCount];
+        for (int j = 0; j < m_pDrumsData[i].m_drumsSampleCount; j++)
+        {
+            m_pDrumsData[i].m_drumsSamples[j] = m_pFileData->NextUI2();
+        }
+        
+        m_pDrumsData[i].m_patternOrder.m_nLen = 256; 
+        m_pDrumsData[i].m_patternOrder.m_pBuf = new uint8_t[m_pDrumsData[i].m_patternOrder.m_nLen];
+    
+        ::memcpy(m_pDrumsData[i].m_patternOrder.m_pBuf, m_pFileData->GetAtCurrent(), m_pDrumsData[i].m_patternOrder.m_nLen);
+        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_pDrumsData[i].m_patternOrder.m_nLen);
+    }
+    return true;
+}
+
+// IFF-style chunk structure
+bool CMadTracker2Player::ParseAdditionalDatas(size_t nLen)
+{
+    while (m_pFileData->IsEnd() == false)
+    {
+        // common IFF-tag style chunk ID
+        uint32_t chunkID = m_pFileData->NextUI4();
+        
+        // length always given
+        uint32_t chunkLen = m_pFileData->NextUI4();
+        
+        size_t nPos = m_pFileData->GetCurrentPos();
+        
+        // note!! three byte identifiers??
+        // bug?
+        if (chunkID == IFFTag("TRKS"))
+        {
+        }
+        else if (chunkID == IFFTag("MSG "))
+        {
+        }
+        else if (chunkID == IFFTag("SUM "))
+        {
+        }
+        
+        // if chunk is not supported, skip to next? or fail?
+        m_pFileData->SetCurrentPos(nPos + chunkLen);
+    }
+    
+    return true;
 }
 
 bool CMadTracker2Player::ParsePatterns(uint8_t *pData, size_t nLen)
@@ -81,15 +125,15 @@ bool CMadTracker2Player::ParseSamplesDatas(uint8_t *pData, size_t nLen)
 CMadTracker2Player::CMadTracker2Player(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_patternOrders()
-    //, m_drumsData()
+    , m_pDrumsData(nullptr)
     //, m_additionalsData()
 {
 }
 
 CMadTracker2Player::~CMadTracker2Player()
 {
-    //delete m_drumsData.m_pBuf;
     //delete m_additionalsData.m_pBuf;
+    delete [] m_pDrumsData;
     delete m_patternOrders.m_pBuf;
 }
 
@@ -149,26 +193,26 @@ bool CMadTracker2Player::ParseFileInfo()
     m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_patternOrders.m_nLen);
 
     size_t nLen = 0;
+    size_t nPos = 0;
     
     // has additional structures
     nLen = m_pFileData->NextUI2();
-    ParseDrumsDatas(m_pFileData->GetAtCurrent(), nLen);
-    /*
-    m_drumsData.m_nLen = m_pFileData->NextUI2();
-    m_drumsData.m_pBuf = new uint8_t[m_drumsData.m_nLen];
-    ::memcpy(m_drumsData.m_pBuf, m_pFileData->GetAtCurrent(), m_drumsData.m_nLen);
-    */
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + nLen);
+    nPos = m_pFileData->GetCurrentPos();
+    if (nLen > 0)
+    {
+        ParseDrumsDatas(nLen);
+    }
     
     // has additional structures (IFF-style chunks)
     nLen = m_pFileData->NextUI4();
-    ParseAdditionalDatas(m_pFileData->GetAtCurrent(), nLen);
-    /*
-    m_additionalsData.m_nLen = m_pFileData->NextUI4();
-    m_additionalsData.m_pBuf = new uint8_t[m_additionalsData.m_nLen];
-    ::memcpy(m_additionalsData.m_pBuf, m_pFileData->GetAtCurrent(), m_additionalsData.m_nLen);
-    */
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + nLen);
+    nPos = m_pFileData->GetCurrentPos();
+    if (nLen > 0)
+    {
+        ParseAdditionalDatas(nLen);
+        m_pFileData->SetCurrentPos(nPos + nLen);
+    }
+    
+    // TODO: rest of data..
     
     return true;
 }

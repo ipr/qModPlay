@@ -32,8 +32,9 @@ protected:
     {
         FMT_Unknown, // failed to determine
         
-        FMT_MK31, // 31 samples, "M.K."
-        FMT_MK64 // 64 samples or more, "M!K!"
+        FMT_ST15, // 15 samples, no identification..
+        FMT_MK31, // "M.K.", 31 samples, upto 64 patterns?
+        FMT_MK64 // "M!K!", 31 samples, 64 patterns or more
         
         /*
         FMT_CHN4 // "4CHN"
@@ -45,6 +46,23 @@ protected:
         
     };
     PTModuleFormat m_enFormat;
+
+    class PTPatternData
+    {
+    public:
+        PTPatternData() {}
+        ~PTPatternData() {}
+
+        // keep notes of each channel,        
+        // limited to 4 channels
+        // -> simpler way..
+        /*
+        uint8_t *m_chan1;
+        uint8_t *m_chan2;
+        uint8_t *m_chan3;
+        uint8_t *m_chan4;
+        */
+    };
     
     class PTSampleInfo
     {
@@ -60,13 +78,20 @@ protected:
         uint16_t m_repeatPoint; // note: keep offset in bytes
         uint16_t m_repeatLength; // note: keep offset in bytes
     };
-    
-    // fixed, 31 samples
-    PTSampleInfo *m_pSampleInfo;
-    
+
+    // differs according to variation of the format..
+    // this is determined from song-positions array
+    uint8_t m_nPatternCount;
+    PTPatternData *m_pPatternData;
+
     // actually fixed-length array of 128 bytes
     bufferedData_t m_songPositions;
     
+    // sample-count is usually fixed 31 samples
+    // but variations of same format may different..
+    size_t m_nSampleCount;
+    PTSampleInfo *m_pSampleInfo;
+
     // this is set to 127 usually but NoiseTracker uses for restart point..?
     uint8_t m_mysterybyte; // .. name says it all ..
     

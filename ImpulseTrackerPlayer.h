@@ -22,6 +22,29 @@
 class CImpulseTrackerPlayer : public CModPlayer
 {
 protected:
+    
+    // special case values in orders
+    enum ITOrders
+    {
+        END_OF_SONG = 0xFF,
+        SKIP_TO_NEXT = 0xFE
+    };
+    
+    // size in bytes: m_orderCount*sizeof(uint8_t)
+    uint8_t *m_pOrders;
+
+    // size in bytes: m_instrumentCount*sizeof(uint32_t)
+    uint32_t *m_pInstruments;
+
+    // size in bytes: m_sampleCount*sizeof(uint32_t)
+    uint32_t *m_pSamples;
+
+    // size in bytes: m_patternCount*sizeof(uint32_t)
+    uint32_t *m_pPatterns;
+    
+    // fixed size 64-bytes
+    uint16_t m_channelPanning[64];
+    uint16_t m_channelVolume[64];
 
     uint8_t m_PitchWheelDepth; // MIDI-stuff
     uint8_t m_panningSeparation; // 0..128 
