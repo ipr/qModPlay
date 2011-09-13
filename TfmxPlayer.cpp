@@ -78,12 +78,12 @@ bool CTfmxPlayer::ParseFileInfo()
     m_pSongEndPositions = new uint16_t[32];
     for (int i = 0; i < 32; i++)
     {
-        m_pSongStartPositions[i] = Swap2(m_pFileData->NextUI2());
+        m_pSongEndPositions[i] = Swap2(m_pFileData->NextUI2());
     }
     m_pTempoNumbers = new uint16_t[32];
     for (int i = 0; i < 32; i++)
     {
-        m_pSongStartPositions[i] = Swap2(m_pFileData->NextUI2());
+        m_pTempoNumbers[i] = Swap2(m_pFileData->NextUI2());
     }
     
     // Packed modules:
