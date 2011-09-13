@@ -21,6 +21,10 @@
 // pull this as well
 #include "AudioSample.h"
 
+// for decode/playback status and control,
+// display and keeping track of where playback is..
+#include "DecodeCtx.h"
+
 // fwd. decl.
 class CReadBuffer;
 
@@ -40,6 +44,12 @@ protected:
         size_t m_nLen;
     };
     
+    
+    // implementation must allocate
+    // in case of specifics..
+    //
+    DecodeCtx *m_pDecodeCtx;
+
     
     // byteswap methods, needed everywhere,
     // can't inline when inherited so we lose one function call..
@@ -88,8 +98,16 @@ protected:
 public:
     CModPlayer(CReadBuffer *pFileData) 
         : m_pFileData(pFileData)
+        , m_pDecodeCtx(nullptr)
     {}
-    virtual ~CModPlayer() {}
+    virtual ~CModPlayer() 
+    {
+        if (m_pDecodeCtx != nullptr)
+        {
+            delete m_pDecodeCtx;
+            m_pDecodeCtx = nullptr;
+        }
+    }
     
     // start by determining details from metadata in header
     // before actual decoding (can help guessing buffer sizes etc.)
@@ -102,8 +120,11 @@ public:
     
     // TODO: check details, "decode" in parts to buffer,
     // leave it upto caller to actually output..
+    // player should not handle actual device for any hope of cross-platform support..
     //virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize) = 0;
     
+    // also? playback-position slider control: give DecodeCtx* to caller?
+    //virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize, DecodeCtx*) = 0;
 };
 
 #endif // MODPLAYER_H

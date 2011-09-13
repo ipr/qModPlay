@@ -41,9 +41,11 @@ HEADERS  += MainWindow.h \
     ProTrackerPlayer.h \
     OktalyzerPlayer.h \
     ScreamTrackerPlayer.h \
-    ImpulseTrackerPlayer.h
+    ImpulseTrackerPlayer.h \
+    DecodeCtx.h
 
 FORMS    += MainWindow.ui
+
 
 
 
