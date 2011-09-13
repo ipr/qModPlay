@@ -74,34 +74,22 @@ bool CImpulseTrackerPlayer::ParseFileInfo()
     m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 4);
 
     // 64 bytes: channel panning (for each channel)
-    ::memcpy(m_channelPanning, m_pFileData->GetAtCurrent(), 64);
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 64);
+    m_pFileData->NextArray(m_channelPanning, 64);
 
     // 64 bytes: channel volume (for each channel)
-    ::memcpy(m_channelVolume, m_pFileData->GetAtCurrent(), 64);
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 64);
-    
-    size_t nBytes = 0; // hate repeating myself..
+    m_pFileData->NextArray(m_channelVolume, 64);
     
     m_pOrders = new uint8_t[m_orderCount];
-    nBytes = m_orderCount*sizeof(uint8_t);
-    ::memcpy(m_pOrders, m_pFileData->GetAtCurrent(), nBytes);
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + nBytes);
+    m_pFileData->NextArray(m_pOrders, m_orderCount*sizeof(uint8_t));
     
     m_pInstruments = new uint32_t[m_instrumentCount];
-    nBytes = m_instrumentCount*sizeof(uint32_t);
-    ::memcpy(m_pInstruments, m_pFileData->GetAtCurrent(), nBytes);
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + nBytes);
+    m_pFileData->NextArray(m_pInstruments, m_instrumentCount*sizeof(uint32_t));
     
     m_pSamples = new uint32_t[m_sampleCount];
-    nBytes = m_sampleCount*sizeof(uint32_t);
-    ::memcpy(m_pSamples, m_pFileData->GetAtCurrent(), nBytes);
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + nBytes);
+    m_pFileData->NextArray(m_pSamples, m_sampleCount*sizeof(uint32_t));
     
     m_pPatterns = new uint32_t[m_patternCount];
-    nBytes = m_patternCount*sizeof(uint32_t);
-    ::memcpy(m_pPatterns, m_pFileData->GetAtCurrent(), nBytes);
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + nBytes);
+    m_pFileData->NextArray(m_pPatterns, m_patternCount*sizeof(uint32_t));
     
     
     return true;

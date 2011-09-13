@@ -75,7 +75,7 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         // note: zero *IS* valid for this..
         m_PatternPositions.m_nLen = chunkLen;
         m_PatternPositions.m_pBuf = new uint8_t[m_PatternPositions.m_nLen];
-        ::memcpy(m_PatternPositions.m_pBuf, m_pFileData->GetAtCurrent(), m_PatternPositions.m_nLen);
+        m_pFileData->NextArray(m_PatternPositions.m_pBuf, m_PatternPositions.m_nLen);
         
         return true;
     }

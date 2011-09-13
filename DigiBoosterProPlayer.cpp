@@ -101,7 +101,7 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
             m_pPatternBlocks[patt].m_patternData.m_pBuf = new uint8_t[m_pPatternBlocks[patt].m_patternData.m_nLen];
             
             // copy packed pattern data
-            ::memcpy(m_pPatternBlocks[patt].m_patternData.m_pBuf, m_pFileData->GetAtCurrent(), m_pPatternBlocks[patt].m_patternData.m_nLen);
+            m_pFileData->NextArray(m_pPatternBlocks[patt].m_patternData.m_pBuf, m_pPatternBlocks[patt].m_patternData.m_nLen);
             
             // TODO: unpacking while playing?
         }
@@ -175,8 +175,7 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
             // rest of data..
             m_pVolEnvelopes[env].m_envelopeData.m_nLen = (136 - sizeof(DBMEnvelope_t));
             m_pVolEnvelopes[env].m_envelopeData.m_pBuf = new uint8_t[m_pVolEnvelopes[env].m_envelopeData.m_nLen];
-            ::memcpy(m_pVolEnvelopes[env].m_envelopeData.m_pBuf, m_pFileData->GetAtCurrent(), m_pVolEnvelopes[env].m_envelopeData.m_nLen);
-            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_pVolEnvelopes[env].m_envelopeData.m_nLen);
+            m_pFileData->NextArray(m_pVolEnvelopes[env].m_envelopeData.m_pBuf, m_pVolEnvelopes[env].m_envelopeData.m_nLen);
 
             // for simplicity.. do some parsing&byteswapping for later use
             uint16_t *pEnvPts = (uint16_t*)(m_pVolEnvelopes[env].m_envelopeData.m_pBuf);
@@ -209,8 +208,7 @@ bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
             // rest of data..
             m_pPanEnvelopes[env].m_envelopeData.m_nLen = (136 - sizeof(DBMEnvelope_t));
             m_pPanEnvelopes[env].m_envelopeData.m_pBuf = new uint8_t[m_pPanEnvelopes[env].m_envelopeData.m_nLen];
-            ::memcpy(m_pPanEnvelopes[env].m_envelopeData.m_pBuf, m_pFileData->GetAtCurrent(), m_pPanEnvelopes[env].m_envelopeData.m_nLen);
-            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_pPanEnvelopes[env].m_envelopeData.m_nLen);
+            m_pFileData->NextArray(m_pPanEnvelopes[env].m_envelopeData.m_pBuf, m_pPanEnvelopes[env].m_envelopeData.m_nLen);
 
             // for simplicity.. do some parsing&byteswapping for later use
             uint16_t *pEnvPts = (uint16_t*)(m_pPanEnvelopes[env].m_envelopeData.m_pBuf);

@@ -111,8 +111,7 @@ bool CProTrackerPlayer::ParseFileInfo()
     
     m_songPositions.m_nLen = 128;
     m_songPositions.m_pBuf = new uint8_t[m_songPositions.m_nLen];
-    ::memcpy(m_songPositions.m_pBuf, m_pFileData->GetAtCurrent(), m_songPositions.m_nLen);
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_songPositions.m_nLen);
+    m_pFileData->NextArray(m_songPositions.m_pBuf, m_songPositions.m_nLen);
     
     // locate highest pattern number
     // (also count of patterns)

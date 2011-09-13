@@ -243,6 +243,18 @@ public:
 		return true;
 	}
     
+    size_t NextArray(void *pDest, const size_t nLen)
+    {
+        unsigned char *pSrc = GetNext(nLen);
+        if (pSrc != nullptr)
+        {
+            ::memcpy(pDest, pSrc, nLen);
+            return nLen;
+        }
+        // not copied, not enough remaining (debug-case)
+        return 0;
+    }
+    
     // meh.. do some quick helpers..
     uint32_t NextUI4()
     {

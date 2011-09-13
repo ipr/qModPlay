@@ -51,8 +51,7 @@ bool CMadTracker2Player::ParseDrumsDatas(size_t nLen)
         m_pDrumsData[i].m_patternOrder.m_nLen = 256; 
         m_pDrumsData[i].m_patternOrder.m_pBuf = new uint8_t[m_pDrumsData[i].m_patternOrder.m_nLen];
     
-        ::memcpy(m_pDrumsData[i].m_patternOrder.m_pBuf, m_pFileData->GetAtCurrent(), m_pDrumsData[i].m_patternOrder.m_nLen);
-        m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_pDrumsData[i].m_patternOrder.m_nLen);
+        m_pFileData->NextArray(m_pDrumsData[i].m_patternOrder.m_pBuf, m_pDrumsData[i].m_patternOrder.m_nLen);
     }
     return true;
 }
@@ -189,8 +188,7 @@ bool CMadTracker2Player::ParseFileInfo()
     // fixed length array
     m_patternOrders.m_nLen = 256;
     m_patternOrders.m_pBuf = new uint8_t[m_patternOrders.m_nLen];
-    ::memcpy(m_patternOrders.m_pBuf, m_pFileData->GetAtCurrent(), m_patternOrders.m_nLen);
-    m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + m_patternOrders.m_nLen);
+    m_pFileData->NextArray(m_patternOrders.m_pBuf, m_patternOrders.m_nLen);
 
     size_t nLen = 0;
     size_t nPos = 0;
