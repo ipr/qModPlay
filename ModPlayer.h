@@ -130,6 +130,10 @@ public:
     // TODO: check details, "decode" in parts to buffer,
     // leave it upto caller to actually output..
     // player should not handle actual device for any hope of cross-platform support..
+    //
+    // note: so far expecting only PCM-encoded data to output 
+    // as that is ubiquitous.. would be quite different to use something else..
+    //
     virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize) = 0;
     
     // also? playback-position slider control: give DecodeCtx* to caller?

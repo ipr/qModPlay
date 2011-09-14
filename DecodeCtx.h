@@ -76,12 +76,11 @@ protected:
         m_nFrameCount = (fileSize / m_nFrameSize);
     }
     */
-    // for simplistic buffer estimate:
-    // - filesize in bytes !! replace this with something better..
-    // - sample rate in Hz
-    void setByteRate(const uint64_t fileSize, const double dSampleRate)
+    // for simplistic buffer estimate,
+    // sample rate in Hz
+    void setByteRate(const double dSampleRate)
     {
-        m_dBytesPerSecond = (fileSize / (m_nFrameSize * dSampleRate));
+        m_dBytesPerSecond = (m_nFrameSize * dSampleRate);
     }
     
     //
@@ -91,9 +90,17 @@ protected:
     // some use stuff like CPU jiffies/ticks for timing values..
     // need some cross-platform timing support such that
     // duration = (base-frequency / dividend) .. where duration is some suitable unit..
-    // e.g. dur = 50.0MHz / 2 -> 25.0MHz
+    // e.g. dur = 50.0MHz / 2 -> 25.0MHz ~25us
+    //
+    // Example: AHX format uses Amiga CIA chip speed as base frequency
+    // and timer-value is stored as divisor of that base..
+    // -> convert into frame-time
+    //
+    // In another case divisor is based 
+    // on PAL/NTSC vertical blank/vertical sync timings..
+    // -> convert into frame-time
     // 
-    double VBlankToMicrosec(float baseFrequency, int divisor)
+    double toMicrosec(float baseFrequency, int divisor)
     {
         // something like this needed?
         return (double)(baseFrequency / divisor);
@@ -109,11 +116,20 @@ public:
         , m_dFrameDuration(0)
     {}
     
-    void initialize(const uint64_t fileSize, const size_t nChannels, const size_t nSampleSize, const double dSampleRate)
+    // set initial values for decoder,
+    // note that currently expecting all output to happen in PCM-encoded data
+    // so some simplifications exists..
+    //
+    // expecting parameters:
+    // - channel count in output (two for stereo, >2 for surround-like formats..)
+    // - sample width in bits for output (usually 8 at minimum, 16 likely, maybe even 24..?)
+    // - sample rate in Hz
+    // 
+    void initialize(const size_t nChannels, const size_t nSampleSize, const double dSampleRate)
     {
         setFrameSize(nChannels, nSampleSize);
         //setFrameCount(fileSize);
-        setByteRate(fileSize, dSampleRate);
+        setByteRate(dSampleRate);
     }
 
     // set values to start (same as update(0))
