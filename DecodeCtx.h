@@ -37,10 +37,16 @@ protected:
     // channels * (samplesize/8) 
     // -> single frame in bytes
     size_t m_nFrameSize;
+
+    // something close to total length/size of output?
+    // frequency*framesize?
+    //double m_dTotalSize;
     
     // count of frames:
     // filesize / framesize
-    uint64_t m_nFrameCount;
+    // TODO: drop this, won't know this in all formats
+    // until counting how much played (looping etc.)
+    //uint64_t m_nFrameCount;
     
     // frames per second?
     
@@ -48,10 +54,9 @@ protected:
     // filesize / (framesize * sample rate)
     double m_dBytesPerSecond;
     
-    // TODO:
-    // duration of single frame in fractions of second?
-    // (for timing-conversions?)
-    //double m_dFrameDuration;
+    // duration of single frame in microseconds:
+    // device-independent output resolution
+    double m_dFrameDuration;
 
     // channel count: amount of channels per frame
     // sample size: sample width in bits    
@@ -59,14 +64,16 @@ protected:
     {
         m_nFrameSize = nChannels * (nSampleSize/8);
     }
-    // 
+    /*
+    // drop this..
     void setFrameCount(const uint64_t fileSize)
     {
         m_nFrameCount = (fileSize / m_nFrameSize);
     }
+    */
     // for simplistic buffer estimate:
-    // filesize in bytes
-    // sample rate in Hz
+    // - filesize in bytes !! replace this with something better..
+    // - sample rate in Hz
     void setByteRate(const uint64_t fileSize, const double dSampleRate)
     {
         m_dBytesPerSecond = (fileSize / (m_nFrameSize * dSampleRate));
@@ -81,19 +88,25 @@ protected:
     // duration = (base-frequency / dividend) .. where duration is some suitable unit..
     // e.g. dur = 50.0MHz / 2 -> 25.0MHz
     // 
+    double VBlankToMicrosec(float baseFrequency, int divisor)
+    {
+        // something like this needed?
+        return (double)(baseFrequency / divisor);
+    }
     
 public:
     DecodeCtx() 
         : m_nCurrentFrame(0)
         , m_nFrameSize(0)
-        , m_nFrameCount(0)
+        //, m_nFrameCount(0)
         , m_dBytesPerSecond(0)
+        , m_dFrameDuration(0)
     {}
     
     void initialize(const uint64_t fileSize, const size_t nChannels, const size_t nSampleSize, const double dSampleRate)
     {
         setFrameSize(nChannels, nSampleSize);
-        setFrameCount(fileSize);
+        //setFrameCount(fileSize);
         setByteRate(fileSize, dSampleRate);
     }
 
@@ -154,6 +167,9 @@ public:
     {
         return m_nFrameCount;
     }
+    
+    // allow direct access in playback/decoder implementation..
+    friend class CModPlayer;
 };
 
 

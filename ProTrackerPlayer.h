@@ -101,8 +101,16 @@ protected:
 public:
     CProTrackerPlayer(CReadBuffer *pFileData);
     virtual ~CProTrackerPlayer();
-    
+
     virtual bool ParseFileInfo();
+
+    // TODO: check parameters later..    
+    virtual DecodeCtx *PrepareDecoder();
+    
+    // something like this to decode into buffer
+    // for device-independent output in playback
+    virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize);
+    
 };
 
 #endif // PROTRACKERPLAYER_H

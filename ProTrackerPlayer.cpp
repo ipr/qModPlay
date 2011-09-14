@@ -132,3 +132,36 @@ bool CProTrackerPlayer::ParseFileInfo()
     return true;
 }
 
+DecodeCtx *CProTrackerPlayer::PrepareDecoder()
+{
+    // use default implementation for now..
+    // see need for specifics later
+    //
+    m_pDecodeCtx = new DecodeCtx();
+    
+    // for some quick hack, force output format to use..
+    size_t nChannels = 4; // should mix to two, no surround you know..
+    //size_t nSampleRate = ??; // based on playback-rate.. (jiffies/ticks/vblank timing..) calculate this
+    size_t nSampleSize = 8; // 8-bit samples min. at output, same used in modules?
+    
+    // TODO:
+    // also count frame-duration (maybe based on VBlank/VSync timing..)
+    // for device-independent output-timing to decoding..
+    
+    
+    // give caller interface for status&control..
+    return m_pDecodeCtx;
+}
+
+// something like this to decode into buffer
+// for device-independent output in playback
+size_t CProTrackerPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
+{
+    // convert hardware-timings to frame-timings (see PrepareDecoder())
+    // for device-independency,
+    // steps in frame duration,
+    // decode and mix into output buffer for playback,
+    // caller will push into actual output-device..
+
+    return 0;    
+}

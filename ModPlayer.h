@@ -45,12 +45,6 @@ protected:
     };
     
     
-    // implementation must allocate
-    // in case of specifics..
-    //
-    DecodeCtx *m_pDecodeCtx;
-
-    
     // byteswap methods, needed everywhere,
     // can't inline when inherited so we lose one function call..
     //
@@ -93,7 +87,13 @@ protected:
 
     
     // original file data
+    //
     CReadBuffer *m_pFileData;
+    
+    // implementation must allocate
+    // in case of specifics..
+    //
+    DecodeCtx *m_pDecodeCtx;
     
 public:
     CModPlayer(CReadBuffer *pFileData) 
@@ -118,12 +118,22 @@ public:
     // or use "forced" format?
     //virtual QAudioFormat GetOutputFormat() = 0;
     
+    // initialize and setup decoding for playback:
+    // set counters etc. and give descriptor of it to caller.
+    //
+    // TODO:? virtual DecodeCtx *PrepareDecoder(QAudioFormat &outputFormat) = 0;
+    // or? virtual DecodeCtx *PrepareDecoder(QAudioDeviceInfo &device, QAudioFormat &outputFormat) = 0;
+    // 
+    // take shortcut for now..
+    virtual DecodeCtx *PrepareDecoder() = 0;
+    
     // TODO: check details, "decode" in parts to buffer,
     // leave it upto caller to actually output..
     // player should not handle actual device for any hope of cross-platform support..
-    //virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize) = 0;
+    virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize) = 0;
     
     // also? playback-position slider control: give DecodeCtx* to caller?
+    // -> no need if given init ?
     //virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize, DecodeCtx*) = 0;
 };
 
