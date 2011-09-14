@@ -100,11 +100,35 @@ protected:
     // on PAL/NTSC vertical blank/vertical sync timings..
     // -> convert into frame-time
     // 
+    /*
     double toMicrosec(float baseFrequency, int divisor)
     {
         // something like this needed?
         return (double)(baseFrequency / divisor);
     }
+    */
+    
+    // the usual framerates..
+    // additional scan time also?
+    // note: sync needed still..?
+    /*
+    enum DisplayFrameRate
+    {
+        PAL = 24,
+        PALHI = 25, // 
+        NTSC = 
+    };
+    */
+    
+    // here framerate can be non-standard for exceptional cases..
+    /*
+    double toMicrosec(int frameRate, int divisor)
+    {
+        double d = (1/frameRate);
+        // also some scan-time needed..?
+        return (d/divisor);
+    }
+    */
     
 public:
     DecodeCtx() 
