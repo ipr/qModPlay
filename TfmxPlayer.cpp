@@ -66,20 +66,26 @@ bool CTfmxPlayer::ParseFileInfo()
     // - 1st 32 are song start positions
     // - 2nd 32 are song end positions
     // - 3rd 32 are tempo numbers
-    // -- if greater than 15 -> beats-per-minute, 
-    //    a beat taking 24 jiffies
-    // -- otherwise divide-by-value into frequency of 50Hz
-    //    (0=50Hz, 1=25Hz, 2=16.7 Hz...)
+    
+    // song start positions
     m_pSongStartPositions = new uint16_t[32];
     for (int i = 0; i < 32; i++)
     {
         m_pSongStartPositions[i] = Swap2(m_pFileData->NextUI2());
     }
+    
+    // song end positions
     m_pSongEndPositions = new uint16_t[32];
     for (int i = 0; i < 32; i++)
     {
         m_pSongEndPositions[i] = Swap2(m_pFileData->NextUI2());
     }
+    
+    // tempo numbers
+    // - if greater than 15 -> beats-per-minute, 
+    //    a beat taking 24 jiffies
+    // - otherwise divide-by-value into frequency of 50Hz
+    //    (0=50Hz, 1=25Hz, 2=16.7 Hz...)
     m_pTempoNumbers = new uint16_t[32];
     for (int i = 0; i < 32; i++)
     {
@@ -95,6 +101,49 @@ bool CTfmxPlayer::ParseFileInfo()
     // Unpacked modules:
     // three longwords at $1D0 are null
     // Fixed offsets of $600,$200,$400 apply.
+    
+    // $1D0
+    m_trackStepPtr = Swap4(m_pFileData->NextUI4());
+    // $1D4
+    m_patternDataPtr = Swap4(m_pFileData->NextUI4());
+    // $1D8
+    m_macroDataPtr = Swap4(m_pFileData->NextUI4());
+    
+    // keep position..
+    size_t nPos = m_pFileData->GetCurrentPos();
+    
+    m_bIsPacked = true; // assume packed
+    if (m_trackStepPtr == 0 && m_patternDataPtr == 0 && m_macroDataPtr == 0)
+    {
+        // null -> not packed
+        m_bIsPacked = false;
+    }
+    if (m_trackStepPtr == 0)
+    {
+        m_trackStepPtr = 0x600;
+    }
+    if (m_patternDataPtr == 0)
+    {
+        m_patternDataPtr = 0x200;
+    }
+    if (m_macroDataPtr == 0)
+    {
+        m_macroDataPtr = 0x400;
+    }
+    
+    // get trackstep data
+    m_pFileData->SetCurrentPos(m_trackStepPtr);
+    for (int i = 0; i < 8; i++)
+    {
+        m_trackStepData[i] = Swap2(m_pFileData->NextUI2());
+    }
+
+    // get pattern data:
+    // 32-bit offsets to MDAT-file
+    m_pFileData->SetCurrentPos(m_patternDataPtr);
+
+    // get macro data
+    m_pFileData->SetCurrentPos(m_macroDataPtr);
     
     return true;
 }

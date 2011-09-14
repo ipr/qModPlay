@@ -33,6 +33,21 @@ protected:
     uint16_t *m_pSongEndPositions;
     uint16_t *m_pTempoNumbers;
     
+    bool m_bIsPacked;
+
+    // offsets to file    
+    uint32_t m_trackStepPtr;
+    uint32_t m_patternDataPtr;
+    uint32_t m_macroDataPtr;
+
+    // 
+    uint16_t m_trackStepData[8];
+
+    //
+    bufferedData_t m_patternData;
+    
+
+    
 public:
     CTfmxPlayer(CReadBuffer *pFileData);
     virtual ~CTfmxPlayer();
