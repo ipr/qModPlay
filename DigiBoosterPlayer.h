@@ -23,7 +23,8 @@ class CDigiBoosterPlayer : public CModPlayer
 protected:
     
     // actual song data?
-    bufferedData_t m_SongData;
+    bufferedData_t m_songData;
+    uint8_t m_eventMasks[64]; // masks for events in this pattern
     
     // always fixed-size array of fixed-length strings?
     std::string *m_pSampleNames;
@@ -41,7 +42,7 @@ protected:
     
     // 128 bytes of data,
     // is it always? or m_orderCount?
-    bufferedData_t m_Orders;
+    bufferedData_t m_orders;
     
     uint8_t m_channelCount;
     uint8_t m_patternsCount;
@@ -52,6 +53,8 @@ protected:
     
     char m_versionName[4]; // version as string
     uint8_t m_versionNumber; // version as byte
+    
+    void OnPackedPattern();
     
 public:
     CDigiBoosterPlayer(CReadBuffer *pFileData);

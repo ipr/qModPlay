@@ -23,9 +23,47 @@
 
 #include <string>
 
+// force 1-byte alignment for struct (no padding)
+#pragma pack(push, 1)
+
+// note: just guessing alignment to be 1,
+// test&debug if it's true..
+//
+struct MT2TracksDatas_t
+{
+    uint16_t m_trackVolume;            // 
+    uint8_t m_effectBuffer;            // 
+    uint8_t m_outputTrack;             // 
+    uint16_t m_trackEffectID;          // 
+    uint16_t m_trackParameters[8];     // 
+};
+
+/* TODO: handle rest of data..
+  
+struct MT2PatternData_t
+{};
+
+struct MT2DrumsPatterns_t
+{};
+*/
+
+#pragma pack(pop)
+
+
 class CMadTracker2Player : public CModPlayer
 {
 protected:
+    
+    class MT2TracksData
+    {
+    public:
+        MT2TracksData()
+        {}
+        ~MT2TracksData()
+        {}
+        
+        MT2TracksDatas_t m_trackData;
+    };
 
     class MT2Drums
     {
@@ -44,6 +82,17 @@ protected:
 
     uint16_t m_drumsPatternCount;
     MT2Drums *m_pDrumsData;
+
+    // additional datas, tracks
+    uint16_t m_masterVolume;
+    //size_t m_trackCount; // already in m_trackCount..?
+    MT2TracksData *m_pTracksData;
+    
+    uint8_t m_summaryMask[6];
+    bufferedData_t m_summaryContent;
+    
+    uint8_t m_showMessage; // read anyway..
+    std::string m_messageText;
     
     // TODO: might remove these 
     // and replace with more proper structure..

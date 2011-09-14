@@ -69,16 +69,37 @@ bool CMadTracker2Player::ParseAdditionalDatas(size_t nLen)
         
         size_t nPos = m_pFileData->GetCurrentPos();
         
-        // note!! three byte identifiers??
-        // bug?
+        // note!! three byte identifiers also!!
+        // force NULL instead of space into identifier where only three characters!
+        // this is not true IFF as it should be space..
+        //
         if (chunkID == IFFTag("TRKS"))
         {
+            m_masterVolume = m_pFileData->NextUI2();
+            
+            // assuming there's more than one instance here (one per track..)
+            // should be same as m_trackCount in file header?
+            //size_t nTracks = ((chunkLen - 2) / sizeof(MT2TracksDatas_t));
+            //MT2TracksDatas_t *pTrkData = (MT2TracksDatas_t*)m_pFileData->GetAtCurrent();
+
+            // quick simple copy for parsing later..
+            m_pTracksData = new MT2TracksData[m_trackCount];
+            for (int i = 0; i < m_trackCount; i++)
+            {
+                m_pFileData->NextArray(&(m_pTracksData[i].m_trackData), sizeof(MT2TracksDatas_t));
+            }
         }
-        else if (chunkID == IFFTag("MSG "))
+        else if (chunkID == IFFTag("MSG\0"))
         {
+            m_showMessage = m_pFileData->NextUI1();
+            m_messageText.assign((char*)m_pFileData->GetAtCurrent(), chunkLen-1);
         }
-        else if (chunkID == IFFTag("SUM "))
+        else if (chunkID == IFFTag("SUM\0"))
         {
+            m_pFileData->NextArray(m_summaryMask, 6);
+            m_summaryContent.m_nLen = (chunkLen - 6);
+            m_summaryContent.m_pBuf = new uint8_t[m_summaryContent.m_nLen];
+            m_pFileData->NextArray(m_summaryContent.m_pBuf, m_summaryContent.m_nLen);
         }
         
         // if chunk is not supported, skip to next? or fail?
@@ -125,13 +146,17 @@ CMadTracker2Player::CMadTracker2Player(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_patternOrders()
     , m_pDrumsData(nullptr)
+    , m_pTracksData(nullptr)
     //, m_additionalsData()
+    , m_summaryContent()
 {
 }
 
 CMadTracker2Player::~CMadTracker2Player()
 {
+    delete m_summaryContent.m_pBuf;
     //delete m_additionalsData.m_pBuf;
+    delete [] m_pTracksData;
     delete [] m_pDrumsData;
     delete m_patternOrders.m_pBuf;
 }

@@ -226,7 +226,7 @@ public:
 		m_nCurrentPos = nCurrentPos;
 	}
 	
-	// copy given, start at current
+	// copy given data to this, start at current
 	bool Append(const unsigned char *pData, const size_t nSize)
 	{
 		if (nSize > (m_nReadBufferSize - m_nCurrentPos))
@@ -243,12 +243,15 @@ public:
 		return true;
 	}
     
+    // copy n bytes to caller buffer
     size_t NextArray(void *pDest, const size_t nLen)
     {
-        unsigned char *pSrc = GetNext(nLen);
+        //unsigned char *pSrc = GetNext(nLen);
+        unsigned char *pSrc = GetAt(m_nCurrentPos);
         if (pSrc != nullptr)
         {
             ::memcpy(pDest, pSrc, nLen);
+            m_nCurrentPos += nLen;
             return nLen;
         }
         // not copied, not enough remaining (debug-case)

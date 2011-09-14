@@ -17,10 +17,48 @@
 // for buffer-wrapper..
 #include "AnsiFile.h"
 
+
+//////////// protected methods
+
+// note: where is this in file?
+// similar to protracker except at offset 1572 ?
+//
+// (spec is rather vague here..)
+// -> see protracker format for details and get back to this..
+//
+void CDigiBoosterPlayer::OnPackedPattern()
+{
+    // song data (patterns?)
+    // -> storing similar to protracker?
+
+    // fixed positions so far..
+    //auto pPos = m_pFileData->GetAt(1572);
+    m_pFileData->SetCurrentPos(1572);
+    
+    // size of data?
+    //m_channelCount * m_patternsCount * sizeof(pattern) ??
+    
+    // starts with size of pattern data
+    uint16_t patternDataSize = Swap2(m_pFileData->NextUI2());
+
+    // fixed-size array of bitmasks
+    m_pFileData->NextArray(m_eventMasks, 64);
+    
+    m_songData.m_nLen = (patternDataSize - 64);
+    m_pFileData->NextArray(m_songData.m_pBuf, m_songData.m_nLen);
+
+    // next position?
+    //m_pFileData->SetCurrentPos(1572 + patternDataSize + 2);
+    
+}
+
+
+/////////// public
+
 CDigiBoosterPlayer::CDigiBoosterPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
-    , m_Orders()
-    , m_SongData()
+    , m_orders()
+    , m_songData()
     , m_pSampleLength(nullptr)
     , m_pSampleLoopStart(nullptr)
     , m_pSampleLoopLength(nullptr)
@@ -40,8 +78,8 @@ CDigiBoosterPlayer::~CDigiBoosterPlayer()
     delete m_pSampleVolumes;
     delete m_pSampleFinetunes;
     
-    delete m_SongData.m_pBuf;
-    delete m_Orders.m_pBuf;
+    delete m_songData.m_pBuf;
+    delete m_orders.m_pBuf;
 }
 
 bool CDigiBoosterPlayer::ParseFileInfo()
@@ -71,7 +109,8 @@ bool CDigiBoosterPlayer::ParseFileInfo()
     // should use value from above?
     m_Orders.m_nLen = 128;
     m_Orders.m_pBuf = new uint8_t[m_Orders.m_nLen];
-    ::memcpy(m_Orders.m_pBuf, m_pFileData->GetAt(48), m_Orders.m_nLen);
+    ::memcpy(m_orders.m_pBuf, m_pFileData->GetAt(48), m_orders.m_nLen);
+    m_pFileData->SetCurrentPos(48 + m_orders.m_nLen); // position, even if not really used in here..
     
     // always 31 values
     m_pSampleLength = new uint32_t[31];
@@ -111,16 +150,21 @@ bool CDigiBoosterPlayer::ParseFileInfo()
         m_pSampleNames[i].assign((char*)pPos, 30);
         pPos = (pPos + 30);
     }
+    // past fixed-sized name-area
+    m_pFileData->SetCurrentPos(642 + 31*30);
 
     // song data
     // -> storing similar to protracker?
     
+    // verify position (not updated constantly..)
     /*
-    pPos = m_pFileData->GetAt(1572);
-    m_SongData.m_nLen = ??;
-    m_SongData.m_pBuf = new uint8_t[m_SongData.m_nLen];
-    ::memcpy(m_SongData.m_pBuf, pPos, m_SongData.m_nLen);
+    if (m_pFileData->GetCurrentPos() != 1572)
+    {
+        // bug?? offsets&sizes don't match?
+    }
     */
+    
+    OnPackedPattern();
     
     return true;    
 }
