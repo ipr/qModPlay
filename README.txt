@@ -50,15 +50,16 @@ List below:
 * OctaMED 
   - nothing yet (placeholder)
 * ProTracker 
-  - maybe 5% of fileformat done?
+  - maybe 5-10% of fileformat done?
 * Oktalyzer 
-  - maybe 5% of fileformat done?
+  - maybe 5-10% of fileformat done?
 * NoiseTracker? 
   - nothing yet (placeholder)
 * S3M (ScreamTracker 2/3) 
   - nothing yet (placeholder)
 * IT (ImpulseTracker) 
-  - nothing yet (placeholder)
+  - maybe 10-20% of fileformat, without samples/instruments
+  - no playback
 * MT2 (Mad Tracker 2) 
   - maybe 5% of fileformat done?
 * MTM (MultiTracker)

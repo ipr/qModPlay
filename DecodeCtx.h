@@ -30,6 +30,11 @@ protected:
     
     // TODO: check for necessary helpers during playback..
     
+    // could use looping normally
+    // but must disable for dumping to a file..?
+    // -> user interface option must control..
+    bool m_bIsLoopingPlayback;
+    
     // current frame position in decode/playback
     uint64_t m_nCurrentFrame;
     
@@ -96,7 +101,8 @@ protected:
     
 public:
     DecodeCtx() 
-        : m_nCurrentFrame(0)
+        : m_bIsLoopingPlayback(false)
+        , m_nCurrentFrame(0)
         , m_nFrameSize(0)
         //, m_nFrameCount(0)
         , m_dBytesPerSecond(0)
