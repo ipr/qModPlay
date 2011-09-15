@@ -46,17 +46,19 @@ List below:
 * TFMX 
   - maybe 5% of fileformat done?
 * AHX 
-  - nothing yet (placeholder)
+  - fileformat close to finishing even..?
+  - no playback
 * OctaMED 
   - nothing yet (placeholder)
 * ProTracker 
   - maybe 5-10% of fileformat done?
 * Oktalyzer 
-  - maybe 5-10% of fileformat done?
+  - maybe 5-15% of fileformat done?
 * NoiseTracker? 
   - nothing yet (placeholder)
 * S3M (ScreamTracker 2/3) 
-  - nothing yet (placeholder)
+  - maybe 10-20% of fileformat, without samples/instruments
+  - no playback
 * IT (ImpulseTracker) 
   - maybe 10-20% of fileformat, without samples/instruments
   - no playback

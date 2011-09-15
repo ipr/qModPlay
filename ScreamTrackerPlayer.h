@@ -2,7 +2,8 @@
 //
 // CScreamTrackerPlayer :
 //
-// just interface for now
+// Based on documentation by unknown..
+// (sorry, no name on the file..)
 //
 //
 // Author: Ilkka Prusi, 2011
