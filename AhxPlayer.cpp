@@ -71,7 +71,8 @@ bool CAhxPlayer::ParseFileInfo()
         return false;
     }
     
-    // actually, don't use this as offset..
+    // offset to songtitle and samplenames:
+    // actually, don't use this as it is usually invalid..
     uint16_t byteskip = ReadBEUI16();
     
     // byte at offset 0x6
@@ -90,9 +91,14 @@ bool CAhxPlayer::ParseFileInfo()
     // bottom-half of 0x6 and byte at offset 0x7
     // will be: LEN
     m_posListLen = ((n6 & 0xF) << 4);
-    m_posListLen += ReadUI8();
+    m_posListLen += ReadUI8(); // -> LEN
+    if (m_posListLen == 0 || m_posListLen > 999)
+    {
+        // out of range (debug-case)
+        return false;
+    }
     
-    m_restartPoint = ReadBEUI16();
+    m_restartPoint = ReadBEUI16(); // RES
     if (m_restartPoint > (m_posListLen-1))
     {
         // out of range (debug-case)
@@ -101,8 +107,16 @@ bool CAhxPlayer::ParseFileInfo()
     
     m_trackLen = ReadUI8(); // TRL
     m_trackCount = ReadUI8(); // TRK
-    m_sampleCount = ReadUI8();
-    m_subsongCount = ReadUI8();
+    m_sampleCount = ReadUI8(); // SMP
+    m_subsongCount = ReadUI8(); // SS
+    
+    if (m_trackLen == 0 
+        || m_trackLen > 64
+        || m_sampleCount > 63)
+    {
+        // out of range (debug-case)
+        return false;
+    }
     
     // subsong list
     if (m_subsongCount > 0)
