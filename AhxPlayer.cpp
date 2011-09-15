@@ -20,6 +20,8 @@
 // use buffer only, can switch implementation easily then..
 CAhxPlayer::CAhxPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
+    , m_enAhxFormat(Unknown)
+    , m_positionList(nullptr)
     , m_trackZero(nullptr)
     , m_trackListData(nullptr)
 {
@@ -32,17 +34,31 @@ CAhxPlayer::~CAhxPlayer()
 {
     delete m_trackListData;
     delete m_trackZero;
+    delete m_positionList;
 }
 
 bool CAhxPlayer::ParseFileInfo()
 {
-    // check fourth byte also? (AHX0, AHX1)
-    if (::memcmp(m_pFileData->GetBegin(), "THX", 3) != 0)
+    m_pFileData->SetCurrentPos(0);
+    uint8_t *pBuf = m_pFileData->GetNext(4);
+    if (pBuf[0] == 'T' && pBuf[1] == 'H' && pBuf[2] == 'X')
+    {
+        // check fourth byte also (AHX0, AHX1)
+        if (pBuf[3] == 0x00)
+        {
+            m_enAhxFormat = AHX0;
+        }
+        else if (pBuf[3] == 0x01)
+        {
+            m_enAhxFormat = AHX1;
+        }
+    }
+    
+    if (m_enAhxFormat == Unknown)
     {
         // unsupported format
         return false;
     }
-    m_pFileData->SetCurrentPos(4);
     
     // actually, don't use this as offset..
     uint16_t byteskip = ReadBEUI16();
@@ -66,11 +82,12 @@ bool CAhxPlayer::ParseFileInfo()
     {
     }
     
-    // TODO:
     // position list
+    m_positionList = new AHXPositionEntry_t[m_posListLen];
     for (int i = 0; i < m_posListLen; i++)
     {
-        // 8 bytes, 4 sets (for each audiochannel)
+        // 8 bytes, 4 sets (for each audiochannel), pair of bytes in each set
+        m_positionList[i].setFromArray(m_pFileData->GetNext(8));
     }
     
     // track list (zero count is valid also)
@@ -79,8 +96,7 @@ bool CAhxPlayer::ParseFileInfo()
         m_trackListData = new AHXTrackEntry_t[m_trackCount*m_trackLen];
         for (int i = 0; i < m_trackCount*m_trackLen; i++)
         {
-            m_trackListData[i].setFromArray(m_pFileData->GetAtCurrent());
-            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 3);
+            m_trackListData[i].setFromArray(m_pFileData->GetNext(3));
         }
     }
     

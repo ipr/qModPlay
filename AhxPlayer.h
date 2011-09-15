@@ -16,7 +16,47 @@
 
 #include "ModPlayer.h"
 
-// TRL-count of these on track format..
+// channel in position list entry
+struct AHXPositionChannel_t
+{
+    uint8_t m_track;
+    int8_t m_transpose;
+    
+    // constructor
+    AHXPositionChannel_t()
+    {
+        m_track = 0;
+        m_transpose = 0;
+    }
+    
+    void setFromArray(uint8_t *data)
+    {
+        m_track = data[0];
+        m_transpose = data[1];
+    }
+};
+
+// position list entry
+struct AHXPositionEntry_t
+{
+    AHXPositionChannel_t m_channels[4];
+    
+    // constructor
+    AHXPositionEntry_t()
+    {}
+    
+    // keep values the eight bytes
+    void setFromArray(uint8_t *data)
+    {
+        m_channels[0].setFromArray(data);
+        m_channels[1].setFromArray(data + 2);
+        m_channels[2].setFromArray(data + 4);
+        m_channels[3].setFromArray(data + 6);
+    }
+};
+
+
+// TRL-count of these on each track..
 struct AHXTrackEntry_t
 {
     // note: stored in three bytes,
@@ -51,9 +91,24 @@ struct AHXTrackEntry_t
     }
 };
 
+/* TODO?
+struct AHXSample_t
+{
+};
+*/
+
 class CAhxPlayer : public CModPlayer
 {
 protected:
+    
+    // this is used in which commands are available later
+    enum AhxFormat
+    {
+        Unknown = 0,
+        AHX0,
+        AHX1
+    };
+    AhxFormat m_enAhxFormat;
     
     uint8_t m_trackSave;
     uint8_t m_playSpeed; // SPD (frequency multiplier for speed)
@@ -68,10 +123,8 @@ protected:
     // amount of subsongs in mod
     uint8_t m_subsongCount; // SS, 0..255
     
-    // TODO: array of structs with these..
-    // entry is 8 bytes with 4 sets (one for each audiochannel),
-    // each set has track to play and transpose value (single bytes)
-    uint8_t m_positionListEntry[8];
+    // see m_posListLen
+    AHXPositionEntry_t *m_positionList;
     
     // 192 bytes of cleared memory for TRK 0
     uint8_t *m_trackZero;
