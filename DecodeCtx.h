@@ -93,7 +93,7 @@ protected:
     // e.g. dur = 50.0MHz / 2 -> 25.0MHz ~25us
     //
     // Example: AHX format uses Amiga CIA chip speed as base frequency
-    // and timer-value is stored as divisor of that base..
+    // and timer-value is stored as multiplier of that base..
     // -> convert into frame-time
     //
     // In another case divisor is based 

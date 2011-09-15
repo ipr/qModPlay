@@ -71,14 +71,14 @@ bool CTfmxPlayer::ParseFileInfo()
     m_pSongStartPositions = new uint16_t[32];
     for (int i = 0; i < 32; i++)
     {
-        m_pSongStartPositions[i] = Swap2(m_pFileData->NextUI2());
+        m_pSongStartPositions[i] = ReadBEUI16();
     }
     
     // song end positions
     m_pSongEndPositions = new uint16_t[32];
     for (int i = 0; i < 32; i++)
     {
-        m_pSongEndPositions[i] = Swap2(m_pFileData->NextUI2());
+        m_pSongEndPositions[i] = ReadBEUI16();
     }
     
     // tempo numbers
@@ -89,7 +89,7 @@ bool CTfmxPlayer::ParseFileInfo()
     m_pTempoNumbers = new uint16_t[32];
     for (int i = 0; i < 32; i++)
     {
-        m_pTempoNumbers[i] = Swap2(m_pFileData->NextUI2());
+        m_pTempoNumbers[i] = ReadBEUI16();
     }
     
     // Packed modules:
@@ -103,11 +103,11 @@ bool CTfmxPlayer::ParseFileInfo()
     // Fixed offsets of $600,$200,$400 apply.
     
     // $1D0
-    m_trackStepPtr = Swap4(m_pFileData->NextUI4());
+    m_trackStepPtr = ReadBEUI32();
     // $1D4
-    m_patternDataPtr = Swap4(m_pFileData->NextUI4());
+    m_patternDataPtr = ReadBEUI32();
     // $1D8
-    m_macroDataPtr = Swap4(m_pFileData->NextUI4());
+    m_macroDataPtr = ReadBEUI32();
     
     // keep position..
     size_t nPos = m_pFileData->GetCurrentPos();
@@ -135,7 +135,7 @@ bool CTfmxPlayer::ParseFileInfo()
     m_pFileData->SetCurrentPos(m_trackStepPtr);
     for (int i = 0; i < 8; i++)
     {
-        m_trackStepData[i] = Swap2(m_pFileData->NextUI2());
+        m_trackStepData[i] = ReadBEUI16();
     }
 
     // get pattern data:

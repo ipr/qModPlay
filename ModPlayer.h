@@ -84,7 +84,82 @@ protected:
         tmp |= ((uint32_t)(buf[0]));
         return tmp;
     }
+    
+    // TODO: wrap for more cross-platform support?
+    // (i.e. support build on both big/little endian systems)
+    
+    uint32_t ReadBEUI32()
+    {
+        // data: BE UI4
+        uint32_t *pval = (uint32_t*)m_pFileData->GetNext(4);
+        if (m_bBigEndian)
+        {
+            return (*pval);
+        }
+        return Swap4(*pval);
+    }
+    
+    uint32_t ReadLEUI32()
+    {
+        // data: LE UI4
+        uint32_t *pval = (uint32_t*)m_pFileData->GetNext(4);
+        if (m_bBigEndian)
+        {
+            return Swap4(*pval);
+        }
+        return (*pval);
+    }
+    
+    uint16_t ReadBEUI16()
+    {
+        // data: BE UI2
+        uint16_t *pval = (uint16_t*)m_pFileData->GetNext(2);
+        if (m_bBigEndian)
+        {
+            return (*pval);
+        }
+        return Swap2(*pval);
+    }
+    
+    uint16_t ReadLEUI16()
+    {
+        // data: LE UI2
+        uint16_t *pval = (uint16_t*)m_pFileData->GetNext(2);
+        if (m_bBigEndian)
+        {
+            return Swap2(*pval);
+        }
+        return (*pval);
+    }
+    
+    uint8_t ReadUI8()
+    {
+        // data: UI1
+        return (m_pFileData->GetNext(1)[0]);
+    }
 
+    float ReadBEF32()
+    {
+        // data: BE F4
+        float *pf = (float*)m_pFileData->GetNext(4);
+        if (m_bBigEndian)
+        {
+            return (*pf);
+        }
+        return SwapF(*pf);
+    }
+    
+    float ReadLEF32()
+    {
+        // data: LE F4
+        float *pf = (float*)m_pFileData->GetNext(4);
+        if (m_bBigEndian)
+        {
+            return SwapF(*pf);
+        }
+        return (*pf);
+    }
+    
     
     // original file data
     //
@@ -94,12 +169,27 @@ protected:
     // in case of specifics..
     //
     DecodeCtx *m_pDecodeCtx;
+
+    // use runtime-detection instead of compile-time?
+    // (catch bi-endian machines where determined when booting..?)
+    //
+    bool m_bBigEndian;
+
     
 public:
     CModPlayer(CReadBuffer *pFileData) 
         : m_pFileData(pFileData)
         , m_pDecodeCtx(nullptr)
-    {}
+        , m_bBigEndian(false)
+    {
+        // TODO: endianess detection at runtime 
+        // instead of compile-time??
+#ifdef BIGEND
+        m_bBigEndian = true;
+#else
+        m_bBigEndian = false;
+#endif
+    }
     virtual ~CModPlayer() 
     {
         if (m_pDecodeCtx != nullptr)
@@ -132,7 +222,8 @@ public:
     // player should not handle actual device for any hope of cross-platform support..
     //
     // note: so far expecting only PCM-encoded data to output 
-    // as that is ubiquitous.. would be quite different to use something else..
+    // as that is ubiquitous.. would be quite different to use something else,
+    // like PDM or PWM which isn't commonly used..
     //
     virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize) = 0;
     

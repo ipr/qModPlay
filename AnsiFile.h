@@ -273,12 +273,6 @@ public:
     {
         return GetNext(1)[0];
     }
-    float NextF4()
-    {
-        float *pf = (float*)GetNext(4);
-        return (*pf);
-    }
-    
 };
 
 
