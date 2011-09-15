@@ -127,7 +127,7 @@ public:
 	}
 
     // "attach" to existing buffer
-    CReadBuffer(const unsigned char *pBuffer, const size_t nMinsize) 
+    CReadBuffer(unsigned char *pBuffer, const size_t nMinsize) 
         : m_pReadBuffer(pBuffer)
 		, m_nReadBufferSize(nMinsize)
         , m_bConstBuffer(true)

@@ -50,12 +50,17 @@ void MainWindow::on_actionPlay_triggered()
 {
     // get selection from list
     QListWidgetItem *pItem = ui->listWidget->currentItem();
-    if (pItem == NULL)
+    if (pItem == NULL
+        && ui->listWidget->count() > 0)
     {
-        return;
+        // get first
+        pItem = ui->listWidget->item(0);
     }
     
-    m_playbackHandler->playFile(pItem->text());
+    if (pItem != NULL)
+    {
+        m_playbackHandler->playFile(pItem->text());
+    }
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -89,6 +94,18 @@ void MainWindow::on_actionFiles_triggered()
 void MainWindow::onPlaybackStopped()
 {
     // show that we have stopped/move to next file
+    // (placeholder)
+    int currentRow = ui->listWidget->currentRow() +1;
+    if (currentRow < ui->listWidget->count())
+    {
+        ui->listWidget->setCurrentRow(currentRow);
+        
+        QListWidgetItem *pItem = ui->listWidget->currentItem();
+        if (pItem != NULL)
+        {
+            m_playbackHandler->playFile(pItem->text());
+        }
+    }
 }
 
 void MainWindow::onError(QString message)

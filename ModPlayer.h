@@ -18,6 +18,9 @@
 // use standard defines, fuck old typedefs
 #include <stdint.h>
 
+// needed here for CReadBuffer now..
+#include "AnsiFile.h"
+
 // pull this as well
 #include "AudioSample.h"
 
@@ -26,7 +29,7 @@
 #include "DecodeCtx.h"
 
 // fwd. decl.
-class CReadBuffer;
+//class CReadBuffer;
 
 class CModPlayer
 {
@@ -215,7 +218,7 @@ public:
     // or? virtual DecodeCtx *PrepareDecoder(QAudioDeviceInfo &device, QAudioFormat &outputFormat) = 0;
     // 
     // take shortcut for now..
-    virtual DecodeCtx *PrepareDecoder() = 0;
+    //virtual DecodeCtx *PrepareDecoder() = 0;
     
     // TODO: check details, "decode" in parts to buffer,
     // leave it upto caller to actually output..
@@ -225,7 +228,7 @@ public:
     // as that is ubiquitous.. would be quite different to use something else,
     // like PDM or PWM which isn't commonly used..
     //
-    virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize) = 0;
+    //virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize) = 0;
     
     // also? playback-position slider control: give DecodeCtx* to caller?
     // -> no need if given init ?

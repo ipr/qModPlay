@@ -165,6 +165,7 @@ public:
     // step forwards n frames
     void stepFwd(int64_t i64Count = 0)
     {
+        /*
         if ((m_nCurrentFrame + i64Count) < m_nFrameCount)
         {
             m_nCurrentFrame += i64Count;
@@ -174,6 +175,7 @@ public:
             // just set to end
             m_nCurrentFrame = m_nFrameCount;
         }
+        */
     }
     
     // step backwards n frames
@@ -193,7 +195,7 @@ public:
     // set values to start (same as update(length()))
     void setEnd()
     {
-        m_nCurrentFrame = m_nFrameCount;
+        //m_nCurrentFrame = m_nFrameCount;
     }
     
     // force absolute position
@@ -209,10 +211,12 @@ public:
     }
     
     // total length in frames
+    /*
     uint64_t length()
     {
         return m_nFrameCount;
     }
+    */
     
     // allow direct access in playback/decoder implementation..
     friend class CModPlayer;

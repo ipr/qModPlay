@@ -105,12 +105,13 @@ bool CDigiBoosterPlayer::ParseFileInfo()
     
     m_patternsCount = (m_pFileData->GetAt(46)[0]) -1;
     m_orderCount = (m_pFileData->GetAt(47)[0]) -1;
-
+    
     // should use value from above?
-    m_Orders.m_nLen = 128;
-    m_Orders.m_pBuf = new uint8_t[m_Orders.m_nLen];
-    ::memcpy(m_orders.m_pBuf, m_pFileData->GetAt(48), m_orders.m_nLen);
-    m_pFileData->SetCurrentPos(48 + m_orders.m_nLen); // position, even if not really used in here..
+    m_orders.m_nLen = 128;
+    m_orders.m_pBuf = new uint8_t[m_orders.m_nLen];
+    
+    m_pFileData->SetCurrentPos(48); // fixed offset..
+    m_pFileData->NextArray(m_orders.m_pBuf, m_orders.m_nLen);
     
     // always 31 values
     m_pSampleLength = new uint32_t[31];
