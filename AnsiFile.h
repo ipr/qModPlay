@@ -61,8 +61,6 @@ private:
 	size_t m_nReadBufferSize;
 	
 	//size_t m_nMaxBufferSize; // limit of growing buffer..
-	//bool m_bKeepExisting; // keep existing data if growing buffer..
-	//bool m_bPageAlign; // page-size aligned allocations
 
 	inline void CreateBuffer(const size_t nMinSize)
 	{
@@ -100,16 +98,20 @@ private:
 	}
 	
 protected:
-	// helpers for users:
+    
+    //bool m_bKeepExisting; // keep existing data if growing buffer..
+	//bool m_bPageAlign; // page-size aligned allocations
+    bool m_bConstBuffer; // disable alterations (when attached to another), memory-mapped file even..?
+    
 	// user-defined position in buffer
 	// (read/write position)
-	//
 	size_t m_nCurrentPos;
 
 public:
 	CReadBuffer(void) 
 		: m_pReadBuffer(nullptr)
 		, m_nReadBufferSize(0)
+        , m_bConstBuffer(false)
 		, m_nCurrentPos(0)
 	{
 		CreateBuffer(INITIAL_READ_BUFFER_SIZE);
@@ -118,28 +120,44 @@ public:
 	CReadBuffer(const size_t nMinsize) 
 		: m_pReadBuffer(nullptr)
 		, m_nReadBufferSize(0)
+        , m_bConstBuffer(false)
 		, m_nCurrentPos(0)
 	{
 		CreateBuffer(nMinsize);
 	}
-	
+
+    // "attach" to existing buffer
+    CReadBuffer(const unsigned char *pBuffer, const size_t nMinsize) 
+        : m_pReadBuffer(pBuffer)
+		, m_nReadBufferSize(nMinsize)
+        , m_bConstBuffer(true)
+		, m_nCurrentPos(0)
+    {
+    }
+    
 	~CReadBuffer(void) 
 	{
-		if (m_pReadBuffer != nullptr)
+		if (m_pReadBuffer != nullptr
+            && m_bConstBuffer == false)
 		{
 			delete m_pReadBuffer;
 		}
 	}
 
 	// allocate or grow if necessary
-	void PrepareBuffer(const size_t nMinSize, bool bKeepData = true)
+	bool PrepareBuffer(const size_t nMinSize, bool bKeepData = true)
 	{
+        if (m_bConstBuffer == true)
+        {
+            return false;
+        }
+        
 		if (m_pReadBuffer == nullptr
 			|| m_nReadBufferSize == 0)
 		{
 			// must create new
 			CreateBuffer(nMinSize);
-			return;
+			return true;
 		}
 
 		// growing buffer if existing is smaller
@@ -151,6 +169,7 @@ public:
 			// otherwise just clear existing (keep existing)
 			::memset(m_pReadBuffer, 0, m_nReadBufferSize);
 		}
+        return true;
 	}
 
 
@@ -229,6 +248,11 @@ public:
 	// copy given data to this, start at current
 	bool Append(const unsigned char *pData, const size_t nSize)
 	{
+        if (m_bConstBuffer == true)
+        {
+            return false;
+        }
+        
 		if (nSize > (m_nReadBufferSize - m_nCurrentPos))
 		{
 			// not enough space in buffer
