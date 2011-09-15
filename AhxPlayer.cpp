@@ -171,16 +171,13 @@ bool CAhxPlayer::ParseFileInfo()
     if (m_sampleCount > 0)
     {
         m_sampleNames = new std::string[m_sampleCount];
-        int i = 0;
-        while ((nLen - nPos) > 1)
+        for (int i = 0; i < m_sampleCount && (nLen - nPos) > 1; i++)
         {
             nPos = m_pFileData->GetCurrentPos();
-            
             m_sampleNames[i] = (char*)m_pFileData->GetAtCurrent();
-            nPos += m_sampleNames[i].length();
             
+            nPos += (m_sampleNames[i].length() +1); // + NULL
             m_pFileData->SetCurrentPos(nPos);
-            i++;
         }
     }
     return true;
