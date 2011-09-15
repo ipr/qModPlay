@@ -177,14 +177,12 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
         pModPlayer = new COktalyzerPlayer(fileBuffer);
         break;
     
-        /*
-    case HEADERTYPE_S3M:
-        pModPlayer = new CScreamTrackerPlayer(fileBuffer);
-        break;
-        */
-        
     case HEADERTYPE_IT:
         pModPlayer = new CImpulseTrackerPlayer(fileBuffer);
+        break;
+        
+    case HEADERTYPE_S3M:
+        pModPlayer = new CScreamTrackerPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_MADTRACKER2:

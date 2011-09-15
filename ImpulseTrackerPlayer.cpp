@@ -114,6 +114,8 @@ bool CImpulseTrackerPlayer::ParseFileInfo()
         }
     }
     
+    // TODO: sample/instrument handling etc.
+    
     return true;
 }
 

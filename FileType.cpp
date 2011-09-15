@@ -76,6 +76,16 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
         */
     }
     
+    if (ulLength >= 48)
+    {
+        char *pData = (char*)(pBuffer + 44);
+        if (::memcmp(pData, "SCRM", 4) == 0)
+        {
+            // ScreamTracker 3
+            return HEADERTYPE_S3M;
+        }
+    }
+    
     if (ulLength >= 20)
     {
         if (::memcmp(pBuffer, "DIGI Booster module\0", 20) == 0)
@@ -277,13 +287,6 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 	{
 		// ImpulseTracker sample?
 		return HEADERTYPE_IT;
-	}
-    */
-    /*
-    else if (::memcmp(pBuffer, "SCRM", 4) == 0)
-	{
-		// ScreamTracker ?
-		return HEADERTYPE_S3M;
 	}
     */
 	else if (::memcmp(pBuffer, "LZX", 3) == 0)
@@ -498,7 +501,7 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
     case HEADERTYPE_OKTALYZER:
 	case HEADERTYPE_XM:
     case HEADERTYPE_IT:
-	//case HEADERTYPE_S3M:
+	case HEADERTYPE_S3M:
 	//case HEADERTYPE_S3I:
     case HEADERTYPE_MTM:
     //case HEADERTYPE_FC:

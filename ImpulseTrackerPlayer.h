@@ -43,8 +43,8 @@ protected:
     uint32_t *m_pPatterns;
     
     // fixed size 64-bytes
-    uint16_t m_channelPanning[64];
-    uint16_t m_channelVolume[64];
+    uint8_t m_channelPanning[64];
+    uint8_t m_channelVolume[64];
 
     uint8_t m_PitchWheelDepth; // MIDI-stuff
     uint8_t m_panningSeparation; // 0..128 

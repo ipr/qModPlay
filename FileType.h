@@ -70,10 +70,11 @@ typedef enum tHeaderType
     HEADERTYPE_OKTALYZER, // Oktalyzer
 	HEADERTYPE_XM, // "eXtended Module", FastTracker II, DigiTracker..
     HEADERTYPE_IT, // ImpulseTracker
-	//HEADERTYPE_S3M, // ScreamTracker 3
+	HEADERTYPE_S3M, // ScreamTracker 3
 	//HEADERTYPE_S3I,
     HEADERTYPE_MTM, // MultiTracker
     //HEADERTYPE_FC, // FutureComposer (FC13, FC14)
+    //HEADERTYPE_BUZZ, // BuzzTracker ?
 
     //HEADERTYPE_MO3, // Module packed with MP3..
     HEADERTYPE_MADTRACKER2, // Mad Tracker 2
