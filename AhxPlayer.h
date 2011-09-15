@@ -202,13 +202,15 @@ protected:
         AHX1
     };
     AhxFormat m_enAhxFormat;
-    
+
     // if track zero is saved in file:
     // might not be if it is empty (use m_trackZero then),
     // otherwise read trackcount +1
     uint8_t m_trackZeroSaved;
     
     uint8_t m_playSpeed; // SPD (frequency multiplier for speed)
+    uint16_t m_effectivePlaySpeed; // SPD-multiplier based result
+    
     uint16_t m_posListLen; // LEN, 1..999
     uint16_t m_restartPoint; // RES 0..(LEN-1)
     uint8_t m_trackLen; // TRL, 1..64

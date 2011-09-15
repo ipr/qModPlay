@@ -74,16 +74,30 @@ bool CAhxPlayer::ParseFileInfo()
     // actually, don't use this as offset..
     uint16_t byteskip = ReadBEUI16();
     
-    // some flags
-    uint8_t temp = ReadUI8();
+    // byte at offset 0x6
+    uint8_t n6 = ReadUI8();
     
-    // if track zero is saved in file or not
+    // if track zero is saved in file or not,
+    // uppermost-bit of upper-nibble (half-byte)
     // note: must be 1/0 for later..
-    m_trackZeroSaved = ((temp & 0xF0) ? 1 : 0);
-    m_playSpeed = (temp & 0x0F);
+    m_trackZeroSaved = ((n6 & 0x80) ? 1 : 0);
     
-    m_posListLen = (ReadBEUI16() & 0xFF); // LEN
+    // playspeed: multiplier for Amiga CIA chip speed,
+    // values 0..3: 0=50Hz, 1=100Hz, 2=150Hz, 3=200Hz
+    m_playSpeed = ((n6 & 0x70) >> 4);
+    m_effectivePlaySpeed = (50 + (m_playSpeed * 50));
+
+    // bottom-half of 0x6 and byte at offset 0x7
+    // will be: LEN
+    m_posListLen = ((n6 & 0xF) << 4);
+    m_posListLen += ReadUI8();
+    
     m_restartPoint = ReadBEUI16();
+    if (m_restartPoint > (m_posListLen-1))
+    {
+        // out of range (debug-case)
+        return false;
+    }
     
     m_trackLen = ReadUI8(); // TRL
     m_trackCount = ReadUI8(); // TRK
