@@ -17,9 +17,6 @@
 
 #include "TfmxPlayer.h"
 
-// for buffer-wrapper..
-#include "AnsiFile.h"
-
 
 CTfmxPlayer::CTfmxPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
@@ -139,10 +136,15 @@ bool CTfmxPlayer::ParseFileInfo()
     }
 
     // get pattern data:
-    // 32-bit offsets to MDAT-file
+    // 32-bit offsets to MDAT-file,
+    // max. 128 patterns per song-file
     m_pFileData->SetCurrentPos(m_patternDataPtr);
+    //
+    // each pattern is 32-bit command:
+    // upper-most byte as command id, three bytes as parameter..
 
-    // get macro data
+    // get macro data (similar to pattern data):
+    // 32-bit offsets to 32-bit command-values
     m_pFileData->SetCurrentPos(m_macroDataPtr);
     
     return true;

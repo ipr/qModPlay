@@ -77,6 +77,10 @@ public:
     virtual ~CImpulseTrackerPlayer();
     
     virtual bool ParseFileInfo();
+    
+    virtual DecodeCtx *PrepareDecoder();
+    
+    virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize);
 };
 
 #endif // IMPULSETRACKERPLAYER_H

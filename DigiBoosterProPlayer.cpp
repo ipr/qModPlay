@@ -14,12 +14,8 @@
 
 #include "DigiBoosterProPlayer.h"
 
-// for buffer-wrapper..
-#include "AnsiFile.h"
-
 
 //////////// protected methods
-
 
 bool CDigiBoosterProPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
 {
@@ -334,6 +330,16 @@ bool CDigiBoosterProPlayer::ParseFileInfo()
     
     return true;
 }
+
+DecodeCtx *CDigiBoosterProPlayer::PrepareDecoder()
+{
+    // use default implementation for now..
+    m_pDecodeCtx = new DecodeCtx();
+    
+    
+    return m_pDecodeCtx;
+}
+
 
 // TODO:
 size_t CDigiBoosterProPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)

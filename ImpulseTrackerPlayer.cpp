@@ -13,30 +13,32 @@
 
 #include "ImpulseTrackerPlayer.h"
 
-// for buffer-wrapper..
-#include "AnsiFile.h"
-
 
 CImpulseTrackerPlayer::CImpulseTrackerPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_pOrders(nullptr)
+    , m_pInstruments(nullptr)
+    , m_pSamples(nullptr)
+    , m_pPatterns(nullptr)
 {
 }
 
 CImpulseTrackerPlayer::~CImpulseTrackerPlayer()
 {
+    delete m_pPatterns;
+    delete m_pSamples;
+    delete m_pInstruments;
     delete m_pOrders;
 }
 
 /*
- note: originates on x86 PC so uses little-endian 
- byteorder in files??
- (verify..)
+ note: originates on x86 PC and uses little-endian 
+ byteorder in files..
+ 
 */
-
 bool CImpulseTrackerPlayer::ParseFileInfo()
 {
-    if (m_pFileData->NextUI4() != IFFTag("IMPM"))
+    if (ReadLEUI32() != IFFTag("IMPM"))
     {
         // not impulsetracker module
         return false;
@@ -46,29 +48,29 @@ bool CImpulseTrackerPlayer::ParseFileInfo()
     m_songName.assign((char*)m_pFileData->GetAtCurrent(), 26);
     m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 26);
  
-    m_patternRowHighlight = m_pFileData->NextUI2();
+    m_patternRowHighlight = ReadLEUI16();
 
-    m_orderCount = m_pFileData->NextUI2();
-    m_instrumentCount = m_pFileData->NextUI2();
-    m_sampleCount = m_pFileData->NextUI2();
-    m_patternCount = m_pFileData->NextUI2();
+    m_orderCount = ReadLEUI16();
+    m_instrumentCount = ReadLEUI16();
+    m_sampleCount = ReadLEUI16();
+    m_patternCount = ReadLEUI16();
     
-    m_Cwtv = m_pFileData->NextUI2();
-    m_Cmwt = m_pFileData->NextUI2();
+    m_Cwtv = ReadLEUI16();
+    m_Cmwt = ReadLEUI16();
 
-    m_flags = m_pFileData->NextUI2();
-    m_special = m_pFileData->NextUI2();
+    m_flags = ReadLEUI16();
+    m_special = ReadLEUI16();
 
-    m_globalVolume = m_pFileData->NextUI1();
-    m_mixVolume = m_pFileData->NextUI1();
-    m_initialSpeed = m_pFileData->NextUI1();
-    m_initialTempo = m_pFileData->NextUI1();
+    m_globalVolume = ReadUI8();
+    m_mixVolume = ReadUI8();
+    m_initialSpeed = ReadUI8();
+    m_initialTempo = ReadUI8();
 
-    m_panningSeparation = m_pFileData->NextUI1();
-    m_PitchWheelDepth = m_pFileData->NextUI1();
+    m_panningSeparation = ReadUI8();
+    m_PitchWheelDepth = ReadUI8();
     
-    uint16_t msgLen = m_pFileData->NextUI2();
-    uint32_t msgOffset = m_pFileData->NextUI4();
+    uint16_t msgLen = ReadLEUI16();
+    uint32_t msgOffset = ReadLEUI32();
 
     // skip four bytes (reserved)
     m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + 4);
@@ -84,14 +86,49 @@ bool CImpulseTrackerPlayer::ParseFileInfo()
     
     m_pInstruments = new uint32_t[m_instrumentCount];
     m_pFileData->NextArray(m_pInstruments, m_instrumentCount*sizeof(uint32_t));
+    if (m_bBigEndian)
+    {
+        for (int i = 0; i < m_instrumentCount; i++)
+        {
+            m_pInstruments[i] = Swap4(m_pInstruments[i]);
+        }
+    }
     
     m_pSamples = new uint32_t[m_sampleCount];
     m_pFileData->NextArray(m_pSamples, m_sampleCount*sizeof(uint32_t));
+    if (m_bBigEndian)
+    {
+        for (int i = 0; i < m_sampleCount; i++)
+        {
+            m_pSamples[i] = Swap4(m_pSamples[i]);
+        }
+    }
     
     m_pPatterns = new uint32_t[m_patternCount];
     m_pFileData->NextArray(m_pPatterns, m_patternCount*sizeof(uint32_t));
-    
+    if (m_bBigEndian)
+    {
+        for (int i = 0; i < m_patternCount; i++)
+        {
+            m_pPatterns[i] = Swap4(m_pPatterns[i]);
+        }
+    }
     
     return true;
+}
+
+DecodeCtx *CImpulseTrackerPlayer::PrepareDecoder()
+{
+    // use default implementation for now..
+    m_pDecodeCtx = new DecodeCtx();
+    
+    
+    return m_pDecodeCtx;
+}
+
+// TODO:
+size_t CImpulseTrackerPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
+{
+    return 0;
 }
 

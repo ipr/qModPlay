@@ -18,12 +18,8 @@
 
 #include "MadTracker2Player.h"
 
-// for buffer-wrapper..
-#include "AnsiFile.h"
-
 
 //////////// protected methods
-
 
 bool CMadTracker2Player::ParseDrumsDatas(size_t nLen)
 {
@@ -111,10 +107,19 @@ bool CMadTracker2Player::ParseAdditionalDatas(size_t nLen)
 
 bool CMadTracker2Player::ParsePatterns(uint8_t *pData, size_t nLen)
 {
+    uint16_t lineCount = m_pFileData->NextUI2();
+    uint32_t datalength = m_pFileData->NextUI4();
+    if (datalength > 0)
+    {
+        
+    }
+    
     return false;
 }
 bool CMadTracker2Player::ParseDrumsPatterns(uint8_t *pData, size_t nLen)
 {
+    uint16_t reserved = m_pFileData->NextUI2();
+    
     return false;
 }
 bool CMadTracker2Player::ParseAutomation(uint8_t *pData, size_t nLen)

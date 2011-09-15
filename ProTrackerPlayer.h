@@ -34,7 +34,7 @@ protected:
         
         FMT_ST15, // 15 samples, no identification..
         FMT_MK31, // "M.K.", 31 samples, upto 64 patterns?
-        FMT_MK64 // "M!K!", 31 samples, 64 patterns or more
+        FMT_MK64 // "M!K!", 31 samples, over 64 patterns..
         
         /*
         FMT_CHN4 // "4CHN"

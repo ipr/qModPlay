@@ -197,6 +197,8 @@ public:
     virtual ~CDigiBoosterProPlayer();
     
     virtual bool ParseFileInfo();
+
+    virtual DecodeCtx *PrepareDecoder();
     
     // TODO:
     virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize);

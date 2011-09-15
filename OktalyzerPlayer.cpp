@@ -2,8 +2,6 @@
 //
 // COktalyzerPlayer :
 //
-// just interface for now
-//
 // Based on documentation by: Harald Zappe
 // (Date: Wed, 6 Apr 94 19:48:56 +0200)
 //
@@ -15,11 +13,22 @@
 
 #include "OktalyzerPlayer.h"
 
-// for buffer-wrapper..
-#include "AnsiFile.h"
-
 
 //////////// protected methods
+
+/*
+ period table:
+ same as used for SoundTracker, ProTracker, NoiseTracker etc. modules
+ 
+ direct copy from documentation..
+*/
+static short pertab[] =
+{
+/*  C    C#     D    D#      E     F    F#     G    G#      A    A#     B */
+ 0x358,0x328,0x2FA,0x2D0, 0x2A6,0x280,0x25C,0x23A, 0x21A,0x1FC,0x1E0,0x1C5,
+ 0x1AC,0x194,0x17D,0x168, 0x153,0x140,0x12E,0x11D, 0x10D, 0xFE, 0xF0, 0xE2,
+  0xD6, 0xCA, 0xBE, 0xB4,  0xAA, 0xA0, 0x97, 0x8F,  0x87, 0x7F, 0x78, 0x71
+};
 
 
 bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
@@ -37,16 +46,23 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     {
         // sample directories
         
-        size_t nSampleCount = (chunkLen / sizeof(OKTSampleDirectory_t));
-        for (int i = 0; i < nSampleCount; i++)
+        m_nSampleCount = (chunkLen / sizeof(OKTSampleDirectory_t));
+        m_pSampleData = new OKTSampleDirectory_t[m_nSampleCount];
+        for (int i = 0; i < m_nSampleCount; i++)
         {
+            // byteswap & keep values
+            
             OKTSampleDirectory_t *pSampleDir = (OKTSampleDirectory_t*)m_pFileData->GetAtCurrent();
             
-            // ..byteswap & store..
+            ::memcpy(m_pSampleData[i].Sample_Name, pSampleDir->Sample_Name, 20);
+            m_pSampleData[i].Sample_Len = Swap4(pSampleDir->Sample_Len);
+            m_pSampleData[i].Repeat_Start = Swap2(pSampleDir->Repeat_Start);
+            m_pSampleData[i].Repeat_Len = Swap2(pSampleDir->Repeat_Len);
+            m_pSampleData[i].Volume = pSampleDir->Volume;
             
             m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + sizeof(OKTSampleDirectory_t));
         }
-        //return true;
+        return true;
     }
     else if (chunkID == IFFTag("SPEE"))
     {
@@ -58,21 +74,26 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     }
     else if (chunkID == IFFTag("SLEN"))
     {
-        // song length
+        // song length: count of patterns in module,
+        // use same for number of "PBODY" chunks
+        //
         m_SongLength = Swap2(m_pFileData->NextUI2());
+        
+        //m_pPatternBody = new OKTPatternData[m_SongLength];
         return true;
     }
     else if (chunkID == IFFTag("PLEN"))
     {
-        // number of pattern positions
-        m_NumPositions = Swap2(m_pFileData->NextUI2());
+        // number of pattern positions (see "PATT" chunk)
+        m_NumPatternPositions = Swap2(m_pFileData->NextUI2());
         return true;
     }
     else if (chunkID == IFFTag("PATT"))
     {
         // pattern positions
         // seems to be fixed length chunk?
-        // note: zero *IS* valid for this..
+        // just byte* position
+        
         m_PatternPositions.m_nLen = chunkLen;
         m_PatternPositions.m_pBuf = new uint8_t[m_PatternPositions.m_nLen];
         m_pFileData->NextArray(m_PatternPositions.m_pBuf, m_PatternPositions.m_nLen);
@@ -81,11 +102,34 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     }
     else if (chunkID == IFFTag("PBOD"))
     {
-        // pattern body 1
+        // TODO: index next body-chunk
+        // or replace with nodelist..?
+        size_t n; // = ??
+        
+        // pattern body 1..n (multiple in single module),
+        // multiple lines (one for each channel?)
+        //
+        m_pPatternBody[n].num_pattern_lines = Swap2(m_pFileData->NextUI2());
+        m_pPatternBody[n].pattern_lines = new OKTPatternLine_t[m_pPatternBody[n].num_pattern_lines];
+        
+        for (int i = 0; i < m_pPatternBody[n].num_pattern_lines; i++)
+        {
+            // pattern line
+            OKTPatternLine_t *pLine = (OKTPatternLine_t*)m_pFileData->GetAtCurrent();
+            
+            m_pPatternBody[n].pattern_lines[i].newnote = pLine->newnote;
+            m_pPatternBody[n].pattern_lines[i].instrument = pLine->instrument;
+            m_pPatternBody[n].pattern_lines[i].effect = pLine->effect;
+            m_pPatternBody[n].pattern_lines[i].data = pLine->data;
+            
+            m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + sizeof(OKTPatternLine_t));
+        }
     }
     else if (chunkID == IFFTag("SBOD"))
     {
-        // sample body 1 
+        // sample body 1..n (multiple in single module)
+        
+        // just byte* sample_data
     }
 
     // not finished yet..    
@@ -98,11 +142,15 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
 
 COktalyzerPlayer::COktalyzerPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
+    , m_pSampleData(nullptr)
+    , m_pPatternBody(nullptr)
 {
 }
 
 COktalyzerPlayer::~COktalyzerPlayer()
 {
+    delete [] m_pPatternBody;
+    delete [] m_pSampleData;
 }
 
 /*

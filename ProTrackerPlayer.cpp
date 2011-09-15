@@ -18,8 +18,6 @@
 
 #include "ProTrackerPlayer.h"
 
-// for buffer-wrapper..
-#include "AnsiFile.h"
 
 CProTrackerPlayer::CProTrackerPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
@@ -62,13 +60,11 @@ bool CProTrackerPlayer::ParseFileInfo()
         m_enFormat = FMT_MK31;
         m_nSampleCount = 31;
     }
-    /*
     else if (::memcmp(pIdPos, "M!K!", 4) == 0)
     {
         m_enFormat = FMT_MK64;
         m_nSampleCount = 31;
     }
-    */
     else
     {
         // .. not ProTracker module?
@@ -97,17 +93,17 @@ bool CProTrackerPlayer::ParseFileInfo()
         m_pSampleInfo[i].m_name.assign((char*)m_pFileData->GetAtCurrent(), 22);
         m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() +22);
         
-        m_pSampleInfo[i].m_length = Swap2(m_pFileData->NextUI2());
-        m_pSampleInfo[i].m_finetune = (int8_t)(m_pFileData->NextUI1() & 0x0F); // signed nibble
-        m_pSampleInfo[i].m_volume = m_pFileData->NextUI1();
+        m_pSampleInfo[i].m_length = ReadBEUI16();
+        m_pSampleInfo[i].m_finetune = (int8_t)(ReadUI8() & 0x0F); // signed nibble
+        m_pSampleInfo[i].m_volume = ReadUI8();
 
         // note: keep offset in bytes for simplicity later
-        m_pSampleInfo[i].m_repeatPoint = Swap2(m_pFileData->NextUI2()) * 2;
-        m_pSampleInfo[i].m_repeatLength = Swap2(m_pFileData->NextUI2()) * 2;
+        m_pSampleInfo[i].m_repeatPoint = ReadBEUI16() * 2;
+        m_pSampleInfo[i].m_repeatLength = ReadBEUI16() * 2;
     }
 
-    m_songLength = m_pFileData->NextUI1();
-    m_mysterybyte = m_pFileData->NextUI1(); // NoiseTracker uses for restart position?
+    m_songLength = ReadUI8();
+    m_mysterybyte = ReadUI8(); // NoiseTracker uses for restart position?
     
     m_songPositions.m_nLen = 128;
     m_songPositions.m_pBuf = new uint8_t[m_songPositions.m_nLen];

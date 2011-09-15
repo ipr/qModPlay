@@ -18,9 +18,6 @@
 
 #include "AhxPlayer.h"
 
-// for buffer-wrapper..
-#include "AnsiFile.h"
-
 
 // use buffer only, can switch implementation easily then..
 CAhxPlayer::CAhxPlayer(CReadBuffer *pFileData)
