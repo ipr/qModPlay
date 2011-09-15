@@ -16,6 +16,19 @@
 
 #include "ModPlayer.h"
 
+// entry in subsong list
+struct AHXSubsongEntry_t
+{
+    // just a value?
+    uint16_t m_song;
+    
+    // constructor
+    AHXSubsongEntry_t()
+    {
+        m_song = 0;
+    }
+};
+
 // channel in position list entry
 struct AHXPositionChannel_t
 {
@@ -91,11 +104,40 @@ struct AHXTrackEntry_t
     }
 };
 
-/* TODO?
-struct AHXSample_t
+// single entry in playlist
+struct AHXPlaylistEntry_t
 {
+    
+    // constructor
+    AHXPlaylistEntry_t()
+    {
+    }
 };
-*/
+
+
+// data of single sample
+struct AHXSampleEntry_t
+{
+    // all values in sample..
+    uint8_t m_data[22];
+    
+    // constructor
+    AHXSampleEntry_t()
+    {
+        ::memset(m_data, 0, 22);
+    }
+    
+    void setFromArray(uint8_t *data)
+    {
+        ::memcpy(m_data, data, 22);
+    }
+    
+    uint8_t getPlaylistLen()
+    {
+        return m_data[21];
+    }
+};
+
 
 class CAhxPlayer : public CModPlayer
 {
@@ -117,21 +159,29 @@ protected:
     uint8_t m_trackLen; // TRL, 1..64
     uint8_t m_trackCount; // TRK, 0..255
 
-    // count of samples in mod
+    // count of samples
     uint8_t m_sampleCount; // SMP, 0..63
 
-    // amount of subsongs in mod
+    // amount of subsongs
     uint8_t m_subsongCount; // SS, 0..255
+    
+    // see m_subsongCount
+    AHXSubsongEntry_t *m_subsongList;
     
     // see m_posListLen
     AHXPositionEntry_t *m_positionList;
-    
-    // 192 bytes of cleared memory for TRK 0
-    uint8_t *m_trackZero;
-    
+
     // see m_trackCount and m_trackLen
     // also check m_trackSave (if TRK 0 was saved in file)
     AHXTrackEntry_t *m_trackListData;
+    
+    // 192 bytes of cleared memory for TRK 0,
+    // see if this is needed..
+    uint8_t *m_trackZero;
+
+    // see m_sampleCount
+    AHXSampleEntry_t *m_sampleData;
+    
     
 public:
     CAhxPlayer(CReadBuffer *pFileData);

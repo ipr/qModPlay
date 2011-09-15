@@ -21,9 +21,11 @@
 CAhxPlayer::CAhxPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_enAhxFormat(Unknown)
+    , m_subsongList(nullptr)
     , m_positionList(nullptr)
-    , m_trackZero(nullptr)
     , m_trackListData(nullptr)
+    , m_trackZero(nullptr)
+    , m_sampleData(nullptr)
 {
     // needed anyway?
     m_trackZero = new uint8_t[192];
@@ -32,9 +34,11 @@ CAhxPlayer::CAhxPlayer(CReadBuffer *pFileData)
 
 CAhxPlayer::~CAhxPlayer()
 {
-    delete m_trackListData;
+    delete [] m_sampleData;
     delete m_trackZero;
-    delete m_positionList;
+    delete [] m_trackListData;
+    delete [] m_positionList;
+    delete [] m_subsongList;
 }
 
 bool CAhxPlayer::ParseFileInfo()
@@ -76,10 +80,15 @@ bool CAhxPlayer::ParseFileInfo()
     m_sampleCount = ReadUI8();
     m_subsongCount = ReadUI8();
     
-    // TODO:
     // subsong list
-    for (int i = 0; i < m_subsongCount; i++)
+    if (m_subsongCount > 0)
     {
+        m_subsongList = AHXSubsongEntry_t[0];
+        for (int i = 0; i < m_subsongCount; i++)
+        {
+            // just a value, nothing more to it?
+            m_subsongList[i].m_song = ReadBEUI16();
+        }
     }
     
     // position list
@@ -93,17 +102,29 @@ bool CAhxPlayer::ParseFileInfo()
     // track list (zero count is valid also)
     if (m_trackCount > 0)
     {
-        m_trackListData = new AHXTrackEntry_t[m_trackCount*m_trackLen];
-        for (int i = 0; i < m_trackCount*m_trackLen; i++)
+        size_t n = m_trackCount*m_trackLen;
+        m_trackListData = new AHXTrackEntry_t[n];
+        for (int i = 0; i < n; i++)
         {
             m_trackListData[i].setFromArray(m_pFileData->GetNext(3));
         }
     }
     
     // samples
-    for (int i = 0; i < m_sampleCount; i++)
+    if (m_sampleCount > 0)
     {
+        m_sampleData = AHXSampleEntry_t[m_sampleCount];
+        for (int i = 0; i < m_sampleCount; i++)
+        {
+            m_sampleData[i].setFromArray(m_pFileData->GetNext(22));
+            
+            // get length of playlist
+            uint8_t playlistLen = m_sampleData[i].getPlaylistLen();
+            
+            // TODO: playlist data..
+        }
     }
+    
     
     return true;
 }
