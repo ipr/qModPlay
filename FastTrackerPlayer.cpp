@@ -66,7 +66,10 @@ bool CFastTrackerPlayer::ParseFileInfo()
     m_moduleName.assign((char*)m_pFileData->GetNext(20), 20);
     m_mystery = ReadUI8(); // $1a
     m_trackerName.assign((char*)m_pFileData->GetNext(20), 20);
-    m_version = ReadLEUI16();
+    
+    // keep individual bytes..
+    m_version = ReadUI8();
+    m_revision = ReadUI8();
     
     // no need to keep, just for debugging now..
     m_headerSize = ReadLEUI32(); 

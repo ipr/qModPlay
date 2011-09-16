@@ -17,6 +17,7 @@
 
 #include <QObject>
 #include <QtMultimedia/QAudioOutput>
+#include <QFile>
 
 
 class CModPlayer;
@@ -47,6 +48,8 @@ protected:
     void PlayFile(QString &filename);
     
 private:
+    QFile *m_pFile;
+    
     CReadBuffer *m_pFileBuffer;
     CModPlayer *m_pModPlayer;
     

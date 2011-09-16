@@ -159,6 +159,9 @@ void COktalyzerPlayer::OnEffect(OKTPatternLine_t &pattern, uint8_t *pOutbuf, con
     
     switch (pattern.effect)
     {
+    case 0: // noop?
+        break;
+    
     case 1: // portamento down
         // decrease period of current sample by 'data' once every 50Hz clock tick
         // (see PrepareDecoder(), conversion to frame-time)
@@ -223,6 +226,10 @@ void COktalyzerPlayer::OnEffect(OKTPatternLine_t &pattern, uint8_t *pOutbuf, con
         else if (pattern.data > 0x70 && pattern.data <= 0x80)
         {
         }
+        break;
+        
+    default:
+        // silence GCC..
         break;
     }
 }

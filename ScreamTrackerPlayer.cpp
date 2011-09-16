@@ -95,7 +95,8 @@ bool CScreamTrackerPlayer::ParseFileInfo()
     }
     m_pOrders = new uint8_t[nSize];
     m_pFileData->NextArray(m_pOrders, nSize);
-    
+
+    // actually, "parapointers" which are just weird offsets to file..
     m_pInstruments = new uint16_t[m_instrumentCount];
     m_pFileData->NextArray(m_pInstruments, m_instrumentCount*sizeof(uint16_t));
     if (m_bBigEndian)
@@ -106,6 +107,7 @@ bool CScreamTrackerPlayer::ParseFileInfo()
         }
     }
     
+    // actually, "parapointers" which are just weird offsets to file..
     m_pPatterns = new uint16_t[m_patternCount];
     m_pFileData->NextArray(m_pPatterns, m_patternCount*sizeof(uint16_t));
     if (m_bBigEndian)

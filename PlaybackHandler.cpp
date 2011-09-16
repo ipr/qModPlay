@@ -33,6 +33,7 @@
 
 PlaybackHandler::PlaybackHandler(QObject *parent) :
     QObject(parent),
+    m_pFile(nullptr),
     m_pFileBuffer(nullptr),
     m_pModPlayer(nullptr),
     m_pDecodeBuffer(nullptr),
@@ -40,8 +41,8 @@ PlaybackHandler::PlaybackHandler(QObject *parent) :
 {
     // we can adjust size later,
     // also reusable with suffcient buffer size
+    //m_pFileBuffer = new CReadBuffer();
     m_pDecodeBuffer = new CReadBuffer();
-    m_pFileBuffer = new CReadBuffer();
 }
 
 PlaybackHandler::~PlaybackHandler()
@@ -60,8 +61,9 @@ PlaybackHandler::~PlaybackHandler()
         delete m_pModPlayer;
         m_pModPlayer = nullptr;
     }
-    delete m_pFileBuffer;
     delete m_pDecodeBuffer;
+    delete m_pFileBuffer;
+    delete m_pFile;
 }
 
 void PlaybackHandler::playFile(QString filename)
@@ -204,8 +206,25 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
 void PlaybackHandler::PlayFile(QString &filename)
 {
     // TODO: different thread for module handling?
+    
+    // destroy old (if any)
+    delete m_pFileBuffer;
+    delete m_pFile;
+
+    // open file and use memory-mapping
+    // (leave buffering to OS)
+    //
+    m_pFile = new QFile(filename);
+    qint64 nSize = m_pFile->size();
+    uchar *pView = m_pFile->map(0, nSize);
+    
+    // use as interface to accessing memory-mapped file:
+    // OS will generate pagefaults as needed
+    //
+    m_pFileBuffer = new CReadBuffer(pView, nSize);
 
     // note: change to memory-mapped files later..
+    /*
     CAnsiFile file(filename.toStdString());
     if (file.IsOk() == false)
     {
@@ -221,6 +240,7 @@ void PlaybackHandler::PlayFile(QString &filename)
         return;
     }
     file.Close(); // can close already
+    */
 
     // keep as member also..
     m_pModPlayer = GetPlayer(m_pFileBuffer);

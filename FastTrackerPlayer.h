@@ -18,6 +18,7 @@
 
 #include <string>
 
+// TODO: should be CFastTracker2Player.. old is more protracker-like file..
 class CFastTrackerPlayer : public CModPlayer
 {
 protected:
@@ -75,7 +76,9 @@ protected:
     uint32_t m_headerSize;
     
     uint8_t m_mystery;
-    uint16_t m_version;
+    //uint16_t m_version;
+    uint8_t m_version;
+    uint8_t m_revision;
     
     std::string m_moduleName;
     std::string m_trackerName;

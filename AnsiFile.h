@@ -137,12 +137,22 @@ public:
     
 	~CReadBuffer(void) 
 	{
-		if (m_pReadBuffer != nullptr
+        Release();
+	}
+    
+    // allow "detach" before destroying/closing
+    // related buffer/memory-mapped file
+    void Release()
+    {
+        if (m_pReadBuffer != nullptr
             && m_bConstBuffer == false)
 		{
 			delete m_pReadBuffer;
 		}
-	}
+        // disallow second time..
+        m_pReadBuffer = nullptr;
+        m_nCurrentPos = 0;
+    }
 
 	// allocate or grow if necessary
 	bool PrepareBuffer(const size_t nMinSize, bool bKeepData = true)
@@ -188,6 +198,11 @@ public:
 	}
 
 	// reduce repeated code -> count to given offset from start
+    // and get data there:
+    // just buffer-access with "old-style" files,
+    // otherwise we generate pagefault
+    // and OS "magically" retrieves the chunk of file for us..
+    // 
 	unsigned char *GetAt(const size_t nOffset)
 	{
 		return m_pReadBuffer + nOffset;

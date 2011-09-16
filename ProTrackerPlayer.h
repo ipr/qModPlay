@@ -37,6 +37,7 @@ protected:
         FMT_MK64 // "M!K!", 31 samples, over 64 patterns..
         
         /*
+        // also old FastTracker used ProTracker-like mod-files?
         FMT_CHN4 // "4CHN"
         FMT_CHN6 // "6CHN"
         FMT_CHN8 // "8CHN"
