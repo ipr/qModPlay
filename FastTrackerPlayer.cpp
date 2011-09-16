@@ -14,6 +14,35 @@
 
 #include "FastTrackerPlayer.h"
 
+
+//////////// protected methods
+
+
+// TODO: check needed parameters and where to call..
+void CFastTrackerPlayer::OnPatternData()
+{
+    // TODO: can we just loop through each pattern?
+    // (check storage)
+    for (int i = 0; i < m_channelCount; i++)
+    {
+        // we should know channel count by now..
+        m_patterns[i].m_packedSize = (m_channelCount*64);
+        
+        // TODO: check if this is empty and skip data if so (not stored)
+        
+        m_patterns[i].m_patternHeaderLen = ReadLEUI32();
+        m_patterns[i].m_packingType = ReadUI8();
+        m_patterns[i].m_rowCount = ReadLEUI16();
+        m_patterns[i].m_packedSize = ReadLEUI16();
+        
+        // ..actual pattern data follows?
+    }
+}
+
+
+/////////// public
+
+
 CFastTrackerPlayer::CFastTrackerPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_patternOrders()
@@ -54,6 +83,11 @@ bool CFastTrackerPlayer::ParseFileInfo()
     m_patternOrders.m_nLen = 256;
     m_patternOrders.m_pBuf = new uint8_t[m_patternOrders.m_nLen];
     m_pFileData->NextArray(m_patternOrders.m_pBuf, m_patternOrders.m_nLen);
+    
+    // TODO: this is wrong? (should be by patterncount instead of channelcount..?)
+    // allocate area for pattern data, including empty patterns (which aren't saved):
+    // size amount of channels, each pattern at least 64 bytes
+    m_patterns = new FTPattern[m_channelCount];
     
     
     return true;

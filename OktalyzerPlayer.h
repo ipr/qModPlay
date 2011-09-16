@@ -98,7 +98,8 @@ protected:
     int16_t m_SongLength;
     
     // SPEE chunk:
-    // Vertical blank divisor for speed/tempo of playback ?
+    // Vertical blank divisor for speed/tempo of playback,
+    // divisor of VBlank interrupt rate..
     int16_t m_AmigaVBLDivisor; /* InitialTempo */
     
     // SAMP chunk

@@ -15,11 +15,6 @@
 
 #include "SymphoniePlayer.h"
 
-// for buffer-wrapper..
-#include "AnsiFile.h"
-
-#include <string>
-
 
 //////////// protected methods
 
@@ -408,7 +403,6 @@ bool CSymphoniePlayer::OnSongPositions(uint8_t *pData, const size_t nLen)
     
     return true;
 }
-
 
 
 /////////// public

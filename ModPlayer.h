@@ -43,6 +43,19 @@ protected:
             m_pBuf = nullptr;
             m_nLen = 0;
         }
+        
+        /* fix use-cases first..
+        ~bufferedData_t()
+        {
+            if (m_pBuf != nullptr)
+            {
+                delete m_pBuf;
+                m_pBuf = nullptr;
+            }
+            m_nLen = 0;
+        }
+        */
+        
         uint8_t *m_pBuf;
         size_t m_nLen;
     };

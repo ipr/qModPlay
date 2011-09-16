@@ -89,8 +89,11 @@ protected:
     // which need to be converted for playback on entirely different hardware..
     // some use stuff like CPU jiffies/ticks for timing values..
     // need some cross-platform timing support such that
-    // duration = (base-frequency / dividend) .. where duration is some suitable unit..
+    // frameduration = (base-frequency / dividend) .. where duration is some suitable unit..
     // e.g. dur = 50.0MHz / 2 -> 25.0MHz ~25us
+    //
+    // Also, when timer interrupts occur at programmable rate,
+    // we need to know that rate for cases..
     //
     // Example: AHX format uses Amiga CIA chip speed as base frequency
     // and timer-value is stored as multiplier of that base..
@@ -98,6 +101,7 @@ protected:
     //
     // In another case divisor is based 
     // on PAL/NTSC vertical blank/vertical sync timings..
+    // (usually tempo is defined for certain blankrate only)
     // -> convert into frame-time
     // 
     /*
