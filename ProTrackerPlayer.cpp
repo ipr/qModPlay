@@ -136,13 +136,25 @@ DecodeCtx *CProTrackerPlayer::PrepareDecoder()
     m_pDecodeCtx = new DecodeCtx();
     
     // for some quick hack, force output format to use..
-    size_t nChannels = 4; // should mix to two, no surround you know..
+    size_t nChannels = 2; // should mix to two, no surround you know.. tracker can have more (-> 256)
     //size_t nSampleRate = ??; // based on playback-rate.. (jiffies/ticks/vblank timing..) calculate this
     size_t nSampleSize = 8; // 8-bit samples min. at output, same used in modules?
     
     // TODO:
     // also count frame-duration (maybe based on VBlank/VSync timing..)
     // for device-independent output-timing to decoding..
+    
+    // now we can preprocess sample-data (if we want to..)
+    // such as this pseudocode:
+    /*
+    foreach (sample in samples)
+    {
+        new CAudioSample().setWidth(8).setFrequency(44100)
+                .setChannels(2) // in stereo..
+                .setLength(...);
+        ->GenerateSample() using periodtable..
+    }
+    */
     
     
     // give caller interface for status&control..
