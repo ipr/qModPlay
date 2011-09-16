@@ -66,16 +66,14 @@ typedef enum tHeaderType
 	HEADERTYPE_DBMPRO,	 // Digibooster PRO (DBM0)
 	HEADERTYPE_SYMMOD,	 // Symphonie mod (SYMMOD)
     HEADERTYPE_TFMX,	 // TFMX, "The Final Musicsystem eXtended"
-    HEADERTYPE_AHX, // "Abyss' Highest eXperience" (AHX0, AHX1, was called: THX)
+    HEADERTYPE_AHX, // "Abyss' Highest eXperience" (AHX0, AHX1)
     HEADERTYPE_OKTALYZER, // Oktalyzer
 	HEADERTYPE_XM, // "eXtended Module", FastTracker II, DigiTracker..
     HEADERTYPE_IT, // ImpulseTracker
 	HEADERTYPE_S3M, // ScreamTracker 3
-	//HEADERTYPE_S3I,
     HEADERTYPE_MTM, // MultiTracker
     //HEADERTYPE_FC, // FutureComposer (FC13, FC14)
-    //HEADERTYPE_BUZZ, // BuzzTracker ?
-
+    //HEADERTYPE_BUZZ, // BuzzMachine ?
     //HEADERTYPE_MO3, // Module packed with MP3..
     HEADERTYPE_MADTRACKER2, // Mad Tracker 2
     

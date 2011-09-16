@@ -26,6 +26,7 @@
 #include "OktalyzerPlayer.h"
 #include "ProTrackerPlayer.h"
 #include "ScreamTrackerPlayer.h"
+#include "FastTrackerPlayer.h"
 #include "ImpulseTrackerPlayer.h"
 #include "MadTracker2Player.h"
 
@@ -183,6 +184,10 @@ CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
         
     case HEADERTYPE_S3M:
         pModPlayer = new CScreamTrackerPlayer(fileBuffer);
+        break;
+        
+    case HEADERTYPE_XM:
+        pModPlayer = new CFastTrackerPlayer(fileBuffer);
         break;
         
     case HEADERTYPE_MADTRACKER2:

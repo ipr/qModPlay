@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     ProTrackerPlayer.cpp \
     OktalyzerPlayer.cpp \
     ScreamTrackerPlayer.cpp \
-    ImpulseTrackerPlayer.cpp
+    ImpulseTrackerPlayer.cpp \
+    FastTrackerPlayer.cpp
 
 HEADERS  += MainWindow.h \
     AnsiFile.h \
@@ -42,9 +43,12 @@ HEADERS  += MainWindow.h \
     OktalyzerPlayer.h \
     ScreamTrackerPlayer.h \
     ImpulseTrackerPlayer.h \
-    DecodeCtx.h
+    DecodeCtx.h \
+    FastTrackerPlayer.h
 
 FORMS    += MainWindow.ui
+
+
 
 
 
