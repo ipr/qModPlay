@@ -47,17 +47,15 @@ class COktalyzerPlayer : public CModPlayer
 {
 protected:
 
-    /*
     class OKTSampleData
     {
     public:
         OKTSampleData()
         {}
     };
-    */
     
     // SBODY, upto 255 samples possible, usually limited to 36
-    //OKTSampleData *m_pSampleBody;
+    OKTSampleData *m_pSampleBody;
     
     class OKTPatternData
     {
@@ -95,18 +93,24 @@ protected:
     
     // SAMP chunk
     size_t m_nSampleCount;
-    OKTSampleDirectory_t *m_pSampleData;
+    OKTSampleDirectory_t *m_pSampleInfo;
     
     // CMOD chunk
     uint16_t m_chan_flags[4];
     
     bool OnChunk(uint32_t chunkID, const uint32_t chunkLen);
     
+    void OnEffect(OKTPatternLine_t &pattern, uint8_t *pOutbuf, const size_t nLen);
+    
 public:
     COktalyzerPlayer(CReadBuffer *pFileData);
     virtual ~COktalyzerPlayer();
     
     virtual bool ParseFileInfo();
+
+    virtual DecodeCtx *PrepareDecoder();
+    
+    virtual size_t DecodePlay(void *pBuffer, const size_t nBufSize);
 };
 
 #endif // OKTALYZERPLAYER_H

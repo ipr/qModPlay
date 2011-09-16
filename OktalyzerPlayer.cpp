@@ -47,18 +47,18 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         // sample directories
         
         m_nSampleCount = (chunkLen / sizeof(OKTSampleDirectory_t));
-        m_pSampleData = new OKTSampleDirectory_t[m_nSampleCount];
+        m_pSampleInfo = new OKTSampleDirectory_t[m_nSampleCount];
         for (int i = 0; i < m_nSampleCount; i++)
         {
             // byteswap & keep values
             
             OKTSampleDirectory_t *pSampleDir = (OKTSampleDirectory_t*)m_pFileData->GetAtCurrent();
             
-            ::memcpy(m_pSampleData[i].Sample_Name, pSampleDir->Sample_Name, 20);
-            m_pSampleData[i].Sample_Len = Swap4(pSampleDir->Sample_Len);
-            m_pSampleData[i].Repeat_Start = Swap2(pSampleDir->Repeat_Start);
-            m_pSampleData[i].Repeat_Len = Swap2(pSampleDir->Repeat_Len);
-            m_pSampleData[i].Volume = pSampleDir->Volume;
+            ::memcpy(m_pSampleInfo[i].Sample_Name, pSampleDir->Sample_Name, 20);
+            m_pSampleInfo[i].Sample_Len = Swap4(pSampleDir->Sample_Len);
+            m_pSampleInfo[i].Repeat_Start = Swap2(pSampleDir->Repeat_Start);
+            m_pSampleInfo[i].Repeat_Len = Swap2(pSampleDir->Repeat_Len);
+            m_pSampleInfo[i].Volume = pSampleDir->Volume;
             
             m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + sizeof(OKTSampleDirectory_t));
         }
@@ -78,8 +78,6 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         // use same for number of "PBODY" chunks
         //
         m_SongLength = Swap2(m_pFileData->NextUI2());
-        
-        //m_pPatternBody = new OKTPatternData[m_SongLength];
         return true;
     }
     else if (chunkID == IFFTag("PLEN"))
@@ -102,9 +100,15 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     }
     else if (chunkID == IFFTag("PBOD"))
     {
+        // first pattern body -> allocate all..
+        if (m_pPatternBody == nullptr)
+        {
+            m_pPatternBody = new OKTPatternData[m_SongLength];
+        }
+
         // TODO: index next body-chunk
         // or replace with nodelist..?
-        size_t n; // = ??
+        size_t n; // current index ?
         
         // pattern body 1..n (multiple in single module),
         // multiple lines (one for each channel?)
@@ -124,16 +128,95 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
             
             m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + sizeof(OKTPatternLine_t));
         }
+        return true;
     }
     else if (chunkID == IFFTag("SBOD"))
     {
         // sample body 1..n (multiple in single module)
-        
+        // use m_nSampleCount counted in "SAMP" ?
+        //
         // just byte* sample_data
     }
 
     // not finished yet..    
     return false;
+}
+
+// effects given in sample-data..
+void COktalyzerPlayer::OnEffect(OKTPatternLine_t &pattern, uint8_t *pOutbuf, const size_t nLen)
+{
+    // values in decimal
+    // note: format uses 50Hz clock tick for effects
+    // -> count in frame-time
+    
+    switch (pattern.effect)
+    {
+    case 1: // portamento down
+        // decrease period of current sample by 'data' once every 50Hz clock tick
+        // (see PrepareDecoder(), conversion to frame-time)
+        break;
+    case 2: // portamento up
+        
+        // increase period of current sample by 'data' once every 50Hz clock tick
+        // (see PrepareDecoder(), conversion to frame-time)
+        break;
+        
+    case 10: // Arpeggio 3
+        break;
+    case 11: // Arpeggio 4
+        break;
+    case 12: // Arpeggio 5
+        break;
+        
+    case 13:
+        // decrease note number by 'data' once per tick
+        break;
+    case 17:
+        // increase note number by 'data' once per tick
+        break;
+        
+    case 21:
+        // decrease note number by 'data' once per line
+        break;
+    case 30:
+        // increase note number by 'data' once per line
+        break;
+        
+    case 15:
+        // Amiga low-pass filter control: 'data' indicates new setting
+        break;
+        
+    case 25:
+        // position jump: jump to pattern in 'data' 
+        break;
+        
+    case 27:
+        // release: start playing release phase
+        break;
+
+    case 28:
+        // set speed to 50Hz ticks in 'data'
+        break;
+        
+    case 31:
+        // volume control: 
+        if (pattern.data <= 0x40)
+        {
+        }
+        else if (pattern.data > 0x40 && pattern.data <= 0x50)
+        {
+        }
+        else if (pattern.data > 0x50 && pattern.data <= 0x60)
+        {
+        }
+        else if (pattern.data > 0x60 && pattern.data <= 0x70)
+        {
+        }
+        else if (pattern.data > 0x70 && pattern.data <= 0x80)
+        {
+        }
+        break;
+    }
 }
 
 
@@ -142,15 +225,17 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
 
 COktalyzerPlayer::COktalyzerPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
-    , m_pSampleData(nullptr)
+    , m_pSampleInfo(nullptr)
     , m_pPatternBody(nullptr)
+    , m_pSampleBody(nullptr)
 {
 }
 
 COktalyzerPlayer::~COktalyzerPlayer()
 {
+    delete [] m_pSampleBody;
     delete [] m_pPatternBody;
-    delete [] m_pSampleData;
+    delete [] m_pSampleInfo;
 }
 
 /*
@@ -202,5 +287,22 @@ bool COktalyzerPlayer::ParseFileInfo()
     }
     
     return true;
+}
+
+DecodeCtx *COktalyzerPlayer::PrepareDecoder()
+{
+    // use default implementation for now..
+    m_pDecodeCtx = new DecodeCtx();
+    
+    // uses 50Hz ticks for timing?
+    // -> convert to frametime (check samplerate)
+    
+    return m_pDecodeCtx;
+}
+
+// TODO:
+size_t COktalyzerPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
+{
+    return 0;
 }
 
