@@ -51,11 +51,21 @@ protected:
     {
     public:
         OKTSampleData()
-        {}
+            : m_sampleData()
+        {
+        }
+        ~OKTSampleData()
+        {
+            delete m_sampleData.m_pBuf;
+        }
+        
+        // SBODY chunk
+        bufferedData_t m_sampleData;
+        
+        // SAMP chunk
+        OKTSampleDirectory_t m_sampleInfo;
     };
-    
-    // SBODY, upto 255 samples possible, usually limited to 36
-    OKTSampleData *m_pSampleBody;
+    OKTSampleData *m_pSamples;
     
     class OKTPatternData
     {
@@ -92,8 +102,7 @@ protected:
     int16_t m_AmigaVBLDivisor; /* InitialTempo */
     
     // SAMP chunk
-    size_t m_nSampleCount;
-    OKTSampleDirectory_t *m_pSampleInfo;
+    size_t m_nSampleCount; // count of samples in module
     
     // CMOD chunk
     uint16_t m_chan_flags[4];

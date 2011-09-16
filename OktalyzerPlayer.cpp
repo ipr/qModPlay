@@ -47,18 +47,20 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         // sample directories
         
         m_nSampleCount = (chunkLen / sizeof(OKTSampleDirectory_t));
-        m_pSampleInfo = new OKTSampleDirectory_t[m_nSampleCount];
+        
+        // first sample body -> allocate all..
+        m_pSamples = new OKTSampleData[m_nSampleCount];
         for (int i = 0; i < m_nSampleCount; i++)
         {
             // byteswap & keep values
             
             OKTSampleDirectory_t *pSampleDir = (OKTSampleDirectory_t*)m_pFileData->GetAtCurrent();
             
-            ::memcpy(m_pSampleInfo[i].Sample_Name, pSampleDir->Sample_Name, 20);
-            m_pSampleInfo[i].Sample_Len = Swap4(pSampleDir->Sample_Len);
-            m_pSampleInfo[i].Repeat_Start = Swap2(pSampleDir->Repeat_Start);
-            m_pSampleInfo[i].Repeat_Len = Swap2(pSampleDir->Repeat_Len);
-            m_pSampleInfo[i].Volume = pSampleDir->Volume;
+            ::memcpy(m_pSamples[i].m_sampleInfo.Sample_Name, pSampleDir->Sample_Name, 20);
+            m_pSamples[i].m_sampleInfo.Sample_Len = Swap4(pSampleDir->Sample_Len);
+            m_pSamples[i].m_sampleInfo.Repeat_Start = Swap2(pSampleDir->Repeat_Start);
+            m_pSamples[i].m_sampleInfo.Repeat_Len = Swap2(pSampleDir->Repeat_Len);
+            m_pSamples[i].m_sampleInfo.Volume = pSampleDir->Volume;
             
             m_pFileData->SetCurrentPos(m_pFileData->GetCurrentPos() + sizeof(OKTSampleDirectory_t));
         }
@@ -136,6 +138,12 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
         // use m_nSampleCount counted in "SAMP" ?
         //
         // just byte* sample_data
+        
+        size_t n; // current index ?
+        m_pSamples[n].m_sampleData.m_nLen = chunkLen;
+        m_pSamples[n].m_sampleData.m_pBuf = new uint8_t[m_pSamples[n].m_sampleData.m_nLen];
+        m_pFileData->NextArray(m_pSamples[n].m_sampleData.m_pBuf, m_pSamples[n].m_sampleData.m_nLen);
+        return true;
     }
 
     // not finished yet..    
@@ -225,17 +233,17 @@ void COktalyzerPlayer::OnEffect(OKTPatternLine_t &pattern, uint8_t *pOutbuf, con
 
 COktalyzerPlayer::COktalyzerPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
-    , m_pSampleInfo(nullptr)
+    //, m_pSampleInfo(nullptr)
     , m_pPatternBody(nullptr)
-    , m_pSampleBody(nullptr)
+    , m_pSamples(nullptr)
 {
 }
 
 COktalyzerPlayer::~COktalyzerPlayer()
 {
-    delete [] m_pSampleBody;
+    delete [] m_pSamples;
     delete [] m_pPatternBody;
-    delete [] m_pSampleInfo;
+    //delete [] m_pSampleInfo;
 }
 
 /*
