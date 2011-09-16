@@ -46,7 +46,8 @@ protected:
     //
     bufferedData_t m_patternData;
     
-
+    void OnPatternCommand(uint32_t command, uint8_t *pOutBuf, const size_t nLen);
+    void OnMacroCommand(uint32_t command, uint8_t *pOutBuf, const size_t nLen);
     
 public:
     CTfmxPlayer(CReadBuffer *pFileData);

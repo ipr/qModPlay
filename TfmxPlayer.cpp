@@ -18,6 +18,146 @@
 #include "TfmxPlayer.h"
 
 
+//////////// protected methods
+
+
+// process command/note from pattern data
+void CTfmxPlayer::OnPatternCommand(uint32_t command, uint8_t *pOutBuf, const size_t nLen)
+{
+    // decode command and parameters
+    // note: following now expects little-endian byteorder,
+    // fix it later ;)
+    
+    switch (command & 0xFF000000)
+    {
+    case 0xF0:
+        // end pattern, advance trackstep
+        break;
+        
+    case 0xF1:
+        // loop repeat block
+        {
+            uint8_t count = (command & 0x00FF0000);
+            uint16_t blockStart = (command & 0x0000FFFF);
+            //CommandRepeatBlock(count, blockStart);
+        }
+        break;
+        
+    case 0xF2:
+        // jump into pattern
+        {
+            uint8_t pattern = (command & 0x00FF0000);
+            uint16_t point = (command & 0x0000FFFF);
+            //CommandJumpIntoPattern(pattern, point);
+        }
+        break;
+        
+    case 0xF3:
+        {
+            uint8_t jiffies = (command & 0x00FF0000);
+            // insert empty on output ?
+            //WaitFor(jiffies+1);
+        }
+        break;
+        
+    case 0xF4:
+        // stop, disable track
+        break;
+        
+    case 0xF5:
+        // set flag in voice
+        //uint8_t v = ..
+        break;
+        
+    case 0xF6:
+        // vibrato
+        break;
+        
+    case 0xF7:
+        // envelope
+        break;
+        
+    case 0xF8:
+        // gosub
+        break;
+        
+    case 0xF9:
+        // restore program counter and continue execution
+        break;
+        
+    case 0xFA:
+        // fade master volume
+        break;
+        
+    case 0xFB:
+        // play pattern
+        break;
+        
+    case 0xFC:
+        // portamento
+        break;
+        
+    case 0xFD:
+        // lock channel for n ticks
+        {
+            uint8_t channel = (command & 0x00FF0000);
+            uint16_t ticks = (command & 0x0000FFFF);
+            //Command..(channel, ticks);
+        }
+        break;
+        
+    case 0xFE:
+        // stop custom pattern (see 0xF4)
+        break;
+        
+    case 0xFF:
+        // noop
+        break;
+        
+    default:
+        // silence GCC..
+        break;
+    }
+    
+}
+
+// process macro command
+void CTfmxPlayer::OnMacroCommand(uint32_t command, uint8_t *pOutBuf, const size_t nLen)
+{
+    // decode command and parameters
+    // note: following now expects little-endian byteorder,
+    // fix it later ;)
+    
+    switch (command & 0xFF000000)
+    {
+    case 0x00:
+        // DMAoff : stop all effects, kill voice
+        break;
+        
+    case 0x01:
+        // DMAon : start voice
+        break;
+        
+    case 0x02:
+        // set begin
+        {
+            uint32_t value = (command & 0x00FFFFFF);
+        }
+        break;
+        
+        // ...
+        
+    default:
+        // silence GCC..
+        break;
+    }
+    
+}
+
+
+/////////// public
+
+
 CTfmxPlayer::CTfmxPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_pSongStartPositions(nullptr)
