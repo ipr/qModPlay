@@ -157,10 +157,12 @@ bool CAhxPlayer::ParseFileInfo()
         {
             m_sampleData[i].setFromArray(m_pFileData->GetNext(22));
             
-            // get length of playlist
+            // get length of playlist for sample
+			// TODO: size in bytes or playlist entries?
+			//
             uint8_t playlistLen = m_sampleData[i].getPlaylistLen();
-            
-            // playlist data..
+			
+            // playlist data, each 4 bytes
             m_sampleData[i].m_playlist = new AHXPlaylistEntry_t[playlistLen];
             for (int j = 0; j < playlistLen; j++)
             {

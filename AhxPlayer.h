@@ -110,11 +110,35 @@ struct AHXTrackEntry_t
 // single entry in playlist
 struct AHXPlaylistEntry_t
 {
+	// The playlist FX commands are:
+	// 0 - null or set filter (data $00-$3F valid, only $00 valid in AHX0)
+	// 1 - slide up (data $00-$FF valid)
+	// 2 - slide down (data $00-$FF valid)
+	// 3 - init square (data $00-$3F valid)
+	// 4 - toggle mod (data $00, $01, $0F, $10, $11, $1F, $F0, $F1, $FF valid. 
+	//     Only $00 valid in AHX0)
+	// 5 - position jump (data 0 to PLEN-1 valid)
+	// 6 - aka 'C' - set volume (data $0-$40, $50-$90, $A0-$E0 valid)
+	// 7 - aka 'F' - set speed (data $00-$FF valid)
+	//
     uint8_t m_fx2Command;
     uint8_t m_fx1Command;
+	
+	// waveform: 
+	// 0=hold previous
+	// 1=triangle
+	// 2=sawtooth
+	// 3=square
+	// 4=noise
+	// 5,6,7=invalid
     uint8_t m_waveForm;
+	
+	// fix note? 1=note fixed, 0=note varies
     uint8_t m_fixNote;
+	
+	// note data from 0 (no note) to 60 (B-5)
     uint8_t m_noteData;
+	
     uint8_t m_fx2Data;
     uint8_t m_fx1Data;
     
@@ -157,7 +181,10 @@ struct AHXSampleEntry_t
     // all values in sample..
     // TODO: write "open" or add accessors?
     uint8_t m_data[22];
-    
+
+	//uint8_t m_filterModulationSpeed;
+	uint8_t m_waveLength;
+	
     // playlist of sample, PLEN count
     // per-sample, right ?
     AHXPlaylistEntry_t *m_playlist;
@@ -175,6 +202,11 @@ struct AHXSampleEntry_t
     
     void setFromArray(uint8_t *data)
     {
+		// just bottom 5 bits, rest 3 in other bytes..
+		//m_filterModulationSpeed = ((data[0] & 0xF8) >> 3);
+		
+		m_waveLength = (data[0] & 0x7);
+		
         ::memcpy(m_data, data, 22);
     }
     
@@ -186,6 +218,11 @@ struct AHXSampleEntry_t
     uint8_t getPlaylistDefaultSpeed()
     {
         return m_data[20];
+    }
+	
+	uint8_t getMasterVolume()
+    {
+        return m_data[0];
     }
 };
 
