@@ -44,6 +44,7 @@ private:
     PlaybackHandler *m_playbackHandler;
     
     QString m_lastPath;
+	QString m_baseTitle;
     
 };
 

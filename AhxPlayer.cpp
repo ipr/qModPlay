@@ -198,14 +198,56 @@ DecodeCtx *CAhxPlayer::PrepareDecoder()
 {
     // use default implementation for now..
     m_pDecodeCtx = new DecodeCtx();
-    
+
+	// TODO: finish this..
+	//m_pDecodeCtx->initialize();
     
     return m_pDecodeCtx;
 }
 
 size_t CAhxPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
 {
-    // 
-
-    return 0;    
+	// TODO: simplify, make public for simpler use?
+	
+    // get last position before next..
+	uint64_t frame = m_pDecodeCtx->position();
+	double duration = m_pDecodeCtx->frameduration();
+	size_t frameSize = m_pDecodeCtx->frameSize();
+	
+	// current time in playback:
+	// see pattern/track speed/tempo,
+	// keep track of sample/effect length etc.. timing stuff
+	//
+	double frameTime = frame*duration;
+	
+	// count amount of whole frames fitting to given buffer
+	size_t outFrames = (nBufSize/frameSize);
+	
+	// write to buffer as much as there fits
+	for (size_t n = 0; n < outFrames; n++)
+	{
+		// on each track&entry..
+		// (tracklist..)
+		
+		// decode note/command, write to buffer..
+		
+		// get next command.. (AHXTrackEntry_t.m_command)
+		// note: AHX0 and AHX1 command differences
+		//
+		uint8_t ahxCommand = 0;
+		switch (ahxCommand)
+		{
+		case 0x0:
+			// see 0xB
+			break;
+		}
+		
+	}
+	
+	// keep which frame we finished on
+	m_pDecodeCtx->updatePosition(frame + outFrames);
+	
+	// return bytes written to buffer:
+	// same amount will be written to audiodevice
+    return (outFrames*frameSize);
 }

@@ -160,6 +160,18 @@ public:
         setByteRate(dSampleRate);
     }
 
+	// audio-frame duration in microsec (or millisec..?)	
+	double frameduration()
+	{
+		return m_dFrameDuration;
+	}
+	
+	// size of single audio-frame for buffer counting
+	size_t frameSize()
+	{
+		return m_nFrameSize;
+	}
+
     // set values to start (same as update(0))
     void setBegin()
     {
@@ -202,8 +214,8 @@ public:
         //m_nCurrentFrame = m_nFrameCount;
     }
     
-    // force absolute position
-    void updatePos(const int64_t i64Pos)
+    // force absolute position (keep track of playback)
+    void updatePosition(const int64_t i64Pos)
     {
         m_nCurrentFrame = i64Pos;
     }

@@ -104,13 +104,13 @@ void PlaybackHandler::onAudioState(QAudio::State enState)
     if (enState == QAudio::ActiveState)
 	{
         // show that we are playing
-		emit status("Playback started");
+		emit status("Playing: " + m_currentFilename);
 	}
 	else if (enState == QAudio::StoppedState)
 	{
 		// show that we stopped
         // cleanup
-		emit status("Playback stopped");
+		emit status("Stopped");
 	}
 }
 
@@ -121,7 +121,8 @@ void PlaybackHandler::onPlayNotify()
 
 	// continue more into buffer..
 	// TODO: also check how much actually was written before overwriting..
-	m_nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetSize());
+	//
+	m_nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin() + m_nInBuf, m_pDecodeBuffer->GetSize() - m_nInBuf);
 	
     qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), m_nInBuf);
 	if (nWritten == -1)
@@ -130,7 +131,47 @@ void PlaybackHandler::onPlayNotify()
 		return;
 	}
 	m_Written += nWritten;
+
+	// if all did not fit to output,
+	// keep rest until playing again
+	if (m_nInBuf > nWritten)
+	{
+		m_nInBuf = (m_nInBuf - nWritten);
+		
+		// this should support overlapped move
+		::memmove(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetBegin() + nWritten, m_nInBuf);
+	}
+	
 }
+
+// first write to output device
+bool PlaybackHandler::initialOutput()
+{
+	// inital data to playback-buffer
+	m_nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetSize());
+	
+	// initial write to device-buffer
+	qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), m_nInBuf);
+	if (nWritten == -1)
+	{
+		// failed
+		return false;
+	}
+	m_Written += nWritten;
+
+	// if all did not fit to output,
+	// keep rest until playing again
+	if (m_nInBuf > nWritten)
+	{
+		m_nInBuf = (m_nInBuf - nWritten);
+		
+		// this should support overlapped move
+		::memmove(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetBegin() + nWritten, m_nInBuf);
+	}
+	
+	return true;
+}
+
 
 CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
 {
@@ -219,6 +260,10 @@ void PlaybackHandler::PlayFile(QString &filename)
 	delete m_pModPlayer;
     delete m_pFile;
 
+	// keep for debugging etc.
+	//m_currentFilename = filename.right(filename.size() - filename.lastIndexOf('/'));
+	m_currentFilename = filename;
+	
     // open file and use memory-mapping
     // (leave buffering to OS)
     //
@@ -287,9 +332,6 @@ void PlaybackHandler::PlayFile(QString &filename)
     size_t nBuffer = (format.sampleRate() * format.channels() * (format.sampleSize()/8));
     m_pDecodeBuffer->PrepareBuffer(nBuffer, false);
 
-	// inital data to playback-buffer
-	m_nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetSize());
-	
 	// get device for output
 	m_pAudioOut = new QAudioOutput(format, this);
 	connect(m_pAudioOut, SIGNAL(stateChanged(QAudio::State)), this, SLOT(onAudioState(QAudio::State)));
@@ -304,19 +346,13 @@ void PlaybackHandler::PlayFile(QString &filename)
 	// push-mode (we decode to buffer and push to device),
 	// we might need different thread for no-gaps playback..
 	m_pDevOut = m_pAudioOut->start();
-	
-	// initial write to device-buffer
-	qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), m_nInBuf);
-	if (nWritten == -1)
+
+	if (initialOutput() == false)
 	{
 		// failed, cleanup
 		stopPlay(); // status message
-		emit error("Failed to start playing" + filename);
-		return;
+		emit error("Failed on audiodevice write(): " + filename);
 	}
-	m_Written += nWritten;
-	
-	//emit status("Playing: " + filename);
 }	
     
  

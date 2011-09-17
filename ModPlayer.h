@@ -176,6 +176,10 @@ protected:
         return (*pf);
     }
     
+	// TODO: some support for mixing
+	// n tracks/channels to 2/4 PCM-channels?
+	// (reduce repetition..)
+	
     
     // original file data
     //

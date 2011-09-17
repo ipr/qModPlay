@@ -46,11 +46,13 @@ private slots:
 	void onPlayNotify();
     
 protected:
+	bool initialOutput();
     CModPlayer *GetPlayer(CReadBuffer *fileBuffer) const;
     void PlayFile(QString &filename);
     
 private:
     QFile *m_pFile;
+	QString m_currentFilename;
     
     CReadBuffer *m_pFileBuffer;
     CModPlayer *m_pModPlayer;

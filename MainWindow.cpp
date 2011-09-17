@@ -31,9 +31,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_playbackHandler(nullptr),
-    m_lastPath()
+    m_lastPath(),
+	m_baseTitle()
 {
     ui->setupUi(this);
+	
+	m_baseTitle = this->windowTitle();
     
     m_playbackHandler = new PlaybackHandler(this);
     connect(m_playbackHandler, SIGNAL(playbackFinished()), this, SLOT(onPlaybackStopped()));
@@ -88,6 +91,12 @@ void MainWindow::on_actionFiles_triggered()
     foreach (QString file, files)
     {
         // (temp)
+		// TODO: make better playlist later..
+
+		// fix pathname, even Windows supports correct way now
+		// -> no reason to use that old shit anywhere
+		//
+		file.replace('\\', "/");
 		ui->listWidget->addItem(new QListWidgetItem(file));
     }
 }
@@ -111,7 +120,8 @@ void MainWindow::onPlaybackStopped()
 
 void MainWindow::onStatus(QString message)
 {
-	ui->statusBar->showMessage(message);
+	setWindowTitle(m_baseTitle + " - " + message);
+	//ui->statusBar->showMessage(message);
 }
 
 void MainWindow::onError(QString message)

@@ -170,6 +170,10 @@ size_t CProTrackerPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
     // steps in frame duration,
     // decode and mix into output buffer for playback,
     // caller will push into actual output-device..
+	
+	// for each pattern
+	// for each channel
+	// write to output
 
     return 0;    
 }
