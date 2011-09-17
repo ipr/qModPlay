@@ -34,10 +34,12 @@ protected:
     uint8_t *m_pOrders;
     
     // size in bytes: m_instrumentCount*sizeof(uint16_t)
-    uint16_t *m_pInstruments;
+	// (actually just fileoffsets in "parapointer" format)
+    //uint16_t *m_pInstruments;
 
     // size in bytes: m_patternCount*sizeof(uint16_t)
-    uint16_t *m_pPatterns;
+	// (actually just fileoffsets in "parapointer" format)
+    //uint16_t *m_pPatterns;
     
     // fixed size 32-bytes
     uint8_t m_channelSettings[32];
@@ -59,8 +61,17 @@ protected:
 
     std::string m_songName;
     
+	// see if this is correct..
+	// should be simpler
+	inline uint32_t ParaPtrToOffset(uint16_t para)
+	{
+		uint32_t offset = (para << 4);
+		return offset;
+	}
+	
     // TODO: implement
-    void ParseSampleData();
+    void ReadInstrumentData(size_t nOffset);
+    void ReadPatternData(size_t nOffset);
     
 public:
     CScreamTrackerPlayer(CReadBuffer *pFileData);

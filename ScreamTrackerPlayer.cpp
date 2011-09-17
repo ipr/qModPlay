@@ -17,7 +17,12 @@
 //////////// protected methods
 
 // TODO: implement
-void CScreamTrackerPlayer::ParseSampleData()
+void CScreamTrackerPlayer::ReadInstrumentData(size_t nOffset)
+{
+}
+
+// TODO: read packed pattern
+void CScreamTrackerPlayer::ReadPatternData(size_t nOffset)
 {
 }
 
@@ -27,15 +32,15 @@ void CScreamTrackerPlayer::ParseSampleData()
 CScreamTrackerPlayer::CScreamTrackerPlayer(CReadBuffer *pFileData)
     : CModPlayer(pFileData)
     , m_pOrders(nullptr)
-    , m_pInstruments(nullptr)
-    , m_pPatterns(nullptr)
+    //, m_pInstruments(nullptr)
+    //, m_pPatterns(nullptr)
 {
 }
 
 CScreamTrackerPlayer::~CScreamTrackerPlayer()
 {
-    delete m_pPatterns;
-    delete m_pInstruments;
+    //delete m_pPatterns;
+    //delete m_pInstruments;
     delete m_pOrders;
 }
 
@@ -103,52 +108,27 @@ bool CScreamTrackerPlayer::ParseFileInfo()
     nHeaderEnd += (m_patternCount*sizeof(uint16_t));
 
     // actually, "parapointers" which are just weird offsets to file..
-    /*
-    m_pInstruments = new uint16_t[m_instrumentCount];
-    m_pFileData->NextArray(m_pInstruments, m_instrumentCount*sizeof(uint16_t));
-    if (m_bBigEndian)
-    {
-        for (int i = 0; i < m_instrumentCount; i++)
-        {
-            m_pInstruments[i] = Swap2(m_pInstruments[i]);
-        }
-    }
-    */
+	// 16-bit PC crap?
 
     // handle "parapointers" for instruments
-    for (int i = 0; i < m_patternCount; i++)
+    for (int i = 0; i < m_instrumentCount; i++)
     {
         // read instruments offset
-        uint32_t offset = ReadLEUI16();
-        
-        // should be relative to end of fileheader,
-        // which fields are included in header?
-        //offset -= sizeof(header);
-        
-        // weird way in spec.. is this correct?
-        // just odd hack to bypass PC limitations?
-        offset = ((nHeaderEnd-offset) / 16);
-        
-        // more likely something from file start
-        // in 16-bit value -> count true 32-bit offset instead
-        //offset -= nHeaderEnd;
-        
+        uint32_t offset = ParaPtrToOffset(ReadLEUI16());
+
+        ReadInstrumentData(offset);        
     }
     
     // actually, "parapointers" which are just weird offsets to file..
-    //m_pPatterns = new uint16_t[m_patternCount];
-    //m_pFileData->NextArray(m_pPatterns, m_patternCount*sizeof(uint16_t));
+	// 16-bit PC crap?
     
     // handle "parapointers" for patterns
     for (int i = 0; i < m_patternCount; i++)
     {
         // read pattern offset
-        uint32_t offset = ReadLEUI16();
-        
-        // weird way in spec.. is this correct?
-        // just odd hack to bypass PC limitations?
-        offset = ((nHeaderEnd-offset) / 16);
-        
+		uint32_t offset = ParaPtrToOffset(ReadLEUI16());
+
+        ReadPatternData(offset);        
     }
     
     
