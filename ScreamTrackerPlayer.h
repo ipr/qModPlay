@@ -18,6 +18,26 @@
 
 #include <string>
 
+// unpacked format of pattern..
+// note: not stored this way..
+struct ST3Pattern_t
+{
+	// constructor
+	ST3Pattern_t()
+	{
+		m_note = 0;
+		m_instrument = 0;
+		m_volume = 0;
+		m_command = 0;
+		m_info = 0;
+	}
+	
+	uint8_t m_note;
+	uint8_t m_instrument;
+	uint8_t m_volume;
+	uint8_t m_command;
+	uint8_t m_info; // command info/data
+};
 
 class CScreamTrackerPlayer : public CModPlayer
 {
@@ -29,6 +49,21 @@ protected:
         OLD_SIGNED_SAMPLES = 1,
         STANDARD_UNSIGNED_SAMPLES = 2
     };
+	
+	// for each channel, 64 patterns (rows)
+	class ST3Channel
+	{
+	public:
+		ST3Channel()
+		{
+		}
+					   
+		// 64 rows
+		ST3Pattern_t m_patterns[64];
+	};
+	
+	// for 32 channels
+	ST3Channel *m_channels;
  
     // size in bytes: m_orderCount*sizeof(uint8_t)
     uint8_t *m_pOrders;
