@@ -23,6 +23,7 @@
 class CModPlayer;
 //class CFileType;
 class CReadBuffer;
+class DecodeCtx;
 
 class PlaybackHandler : public QObject
 {
@@ -33,6 +34,7 @@ public:
 
 signals:
     void playbackFinished();
+	void status(QString message);
     void error(QString message);
 
 public slots:
@@ -54,9 +56,13 @@ private:
     CModPlayer *m_pModPlayer;
     
     CReadBuffer *m_pDecodeBuffer;
+	DecodeCtx *m_pCtx;
 
     QAudioOutput *m_pAudioOut;
 	QIODevice *m_pDevOut;
+	
+	size_t m_nInBuf; // amount waiting in buffer
+	qint64 m_Written; // amount written to output device buffer
 };
 
 #endif // PLAYBACKHANDLER_H

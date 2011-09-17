@@ -231,7 +231,16 @@ public:
     // or? virtual DecodeCtx *PrepareDecoder(QAudioDeviceInfo &device, QAudioFormat &outputFormat) = 0;
     // 
     // take shortcut for now..
-    //virtual DecodeCtx *PrepareDecoder() = 0;
+	// implementation should initialize derived or default
+	// instance of this..
+	//virtual DecodeCtx *PrepareDecoder() = 0;
+    virtual DecodeCtx *PrepareDecoder()
+	{
+		// use default implementation for now,
+		// change back later..
+		m_pDecodeCtx = new DecodeCtx();
+		return m_pDecodeCtx;
+	}
     
     // TODO: check details, "decode" in parts to buffer,
     // leave it upto caller to actually output..

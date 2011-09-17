@@ -46,6 +46,7 @@ bool COktalyzerPlayer::OnChunk(uint32_t chunkID, const uint32_t chunkLen)
     {
         // sample directories
         
+		// should be 36 samples? (32 bytes each)
         m_nSampleCount = (chunkLen / sizeof(OKTSampleDirectory_t));
         
         // first sample body -> allocate all..

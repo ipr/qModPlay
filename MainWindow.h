@@ -36,6 +36,7 @@ private slots:
 
     // playback finished by player (end of file)
     void onPlaybackStopped();
+	void onStatus(QString message);
     void onError(QString message);
     
 private:

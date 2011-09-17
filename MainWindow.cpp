@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     
     m_playbackHandler = new PlaybackHandler(this);
     connect(m_playbackHandler, SIGNAL(playbackFinished()), this, SLOT(onPlaybackStopped()));
+	connect(m_playbackHandler, SIGNAL(status(QString)), this, SLOT(onStatus(QString)));
     connect(m_playbackHandler, SIGNAL(error(QString)), this, SLOT(onError(QString)));
 }
 
@@ -108,8 +109,13 @@ void MainWindow::onPlaybackStopped()
     }
 }
 
+void MainWindow::onStatus(QString message)
+{
+	ui->statusBar->showMessage(message);
+}
+
 void MainWindow::onError(QString message)
 {
-    ui->statusBar->showMessage(message);
+    ui->statusBar->showMessage("Error: " + message);
 }
 

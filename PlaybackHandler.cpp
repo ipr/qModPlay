@@ -93,6 +93,8 @@ void PlaybackHandler::stopPlay()
         delete m_pModPlayer;
         m_pModPlayer = nullptr;
     }
+	
+	//emit status("Playback stopped");
 }
 
 
@@ -102,11 +104,13 @@ void PlaybackHandler::onAudioState(QAudio::State enState)
     if (enState == QAudio::ActiveState)
 	{
         // show that we are playing
+		emit status("Playback started");
 	}
 	else if (enState == QAudio::StoppedState)
 	{
 		// show that we stopped
         // cleanup
+		emit status("Playback stopped");
 	}
 }
 
@@ -115,14 +119,17 @@ void PlaybackHandler::onPlayNotify()
     // trigger in certaing intervals from audiodevice
     // to write into buffer more data so no gaps occur
 
-    /*    
-    qint64 nWritten = m_pDevOut->write(m_pSampleData, m_nSampleDataSize);
+	// continue more into buffer..
+	// TODO: also check how much actually was written before overwriting..
+	m_nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetSize());
+	
+    qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), m_nInBuf);
 	if (nWritten == -1)
 	{
-		on_actionStop_triggered();
+		stopPlay();
 		return;
 	}
-    */
+	m_Written += nWritten;
 }
 
 CModPlayer *PlaybackHandler::GetPlayer(CReadBuffer *fileBuffer) const
@@ -223,26 +230,8 @@ void PlaybackHandler::PlayFile(QString &filename)
     //
     m_pFileBuffer = new CReadBuffer(pView, nSize);
 
-    // note: change to memory-mapped files later..
-    /*
-    CAnsiFile file(filename.toStdString());
-    if (file.IsOk() == false)
-    {
-        emit error("Failed to open file: " + filename);
-        return;
-    }
-
-    // clear&reuse or allocate new if necessary
-    m_pFileBuffer->PrepareBuffer(file.GetSize(), false);
-    if (file.Read(m_pFileBuffer->GetBegin(), file.GetSize()) == false)
-    {
-        emit error("Failed to read file: " + filename);
-        return;
-    }
-    file.Close(); // can close already
-    */
-
-    // keep as member also..
+	// format-specific handling,
+	// fileformat, playback-to-buffer etc.
     m_pModPlayer = GetPlayer(m_pFileBuffer);
     if (m_pModPlayer == nullptr)
     {
@@ -255,48 +244,78 @@ void PlaybackHandler::PlayFile(QString &filename)
         emit error("File could not be handled");
         return;
     }
+	
+	// get decoding context: 
+	// player should keep position/status information,
+	// we want it to control position (if possible..)
+	m_pCtx = m_pModPlayer->PrepareDecoder();
     
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+    // TODO: get info on what is suitable format for playing..
+    // (what is supported by player/format/module..)
+    //QAudioFormat format = pModPlayer->GetOutputFormat();
+	// placeholder.. set output format
+	// these will need changing later:
+	// due to module-format support
+	// and device-support we may need something or other..
+    QAudioFormat format;
+	format.setByteOrder(QAudioFormat::LittleEndian);
+	format.setCodec("audio/pcm");
+	//format.setFrequency(m_pAudioFile->sampleRate());
+	format.setSampleRate(44100);
+	//format.setChannels(m_pAudioFile->channelCount());
+	format.setChannels(2);
+    //format.setSampleSize(m_pAudioFile->sampleSize());
+	format.setSampleSize(8);
+	format.setSampleType(QAudioFormat::SignedInt);
+
+	QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
     if (info.isNull() == true)
     {
         emit error("Failed to get default audio output");
 		return;
     }
-    
-    // TODO: get info on what is suitable format for playing..
-    // (what is supported by player/format/module..)
-    //QAudioFormat format = pModPlayer->GetOutputFormat();
+	if (info.isFormatSupported(format) == false)
+	{
+		emit error("Output format not supported");
+		return;
+	}
 
-    /*
-    // placeholder..
-    QAudioFormat format;
-    m_pAudioOut = new QAudioOutput(format, this);
-    
-    // TODO: change&notify handlers (push new data when enough has played)
-	//connect(m_pAudioOut, SIGNAL(stateChanged(QAudio::State)), this, SLOT(onAudioState(QAudio::State)));
-	//connect(m_pAudioOut, SIGNAL(notify()), this, SLOT(onPlayNotify()));
-    
-    // count size of buffer for decoding:
-    // channels, samplesize, frequency etc.
-    // just guess for now: 
-    // expect 2-channels and 16-bit samples at 44.1kHz,
-    // get proper values later
-    int64_t nBuffer = ( 2 * 2 * 44100);
+	// expect 2-channels and 8-bit samples at 44.1kHz,
+    // get proper values later,
+	// estimate size for our "decoding" buffer for playback..
+    size_t nBuffer = (format.sampleRate() * format.channels() * (format.sampleSize()/8));
+    m_pDecodeBuffer->PrepareBuffer(nBuffer, false);
 
-    int iBufSize = m_pAudioOut->bufferSize();
-	if (iBufSize < nBuffer)
+	// inital data to playback-buffer
+	m_nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetSize());
+	
+	// get device for output
+	m_pAudioOut = new QAudioOutput(format, this);
+	connect(m_pAudioOut, SIGNAL(stateChanged(QAudio::State)), this, SLOT(onAudioState(QAudio::State)));
+	connect(m_pAudioOut, SIGNAL(notify()), this, SLOT(onPlayNotify()));
+
+	if (m_pAudioOut->bufferSize() < nBuffer)
 	{
 		m_pAudioOut->setBufferSize(nBuffer);
 	}
     m_pAudioOut->setNotifyInterval(250); // 250ms
+
+	// push-mode (we decode to buffer and push to device),
+	// we might need different thread for no-gaps playback..
+	m_pDevOut = m_pAudioOut->start();
+	
+	// initial write to device-buffer
+	qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), m_nInBuf);
+	if (nWritten == -1)
+	{
+		// failed, cleanup
+		stopPlay(); // status message
+		emit error("Failed to start playing" + filename);
+		return;
+	}
+	m_Written += nWritten;
+	
+	//emit status("Playing: " + filename);
+}	
     
-    // create buffer for decoding 
-    //QByteArray decodeBuffer();
-    //CReadBuffer decodeBuffer(nBuffer);
-    m_pDecodeBuffer->PrepareBuffer(nBuffer, false);
-    
-    // placeholder..
-    //size_t nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin(), m_pDecodeBuffer->GetSize());
-    //qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), nInBuf);
-    */
-}
+ 

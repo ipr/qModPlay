@@ -30,6 +30,8 @@ struct OKTSampleDirectory_t
     uint8_t pad1;
     uint8_t Volume;
     uint16_t pad2;
+	
+	/* sample mode should exist here?? */
 };
 
 struct OKTPatternLine_t
