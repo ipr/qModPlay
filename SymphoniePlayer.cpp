@@ -491,6 +491,14 @@ bool CSymphoniePlayer::ParseFileInfo()
 // when playing module
 size_t CSymphoniePlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
 {
+	
+	// TODO: check if we can implement 
+	// generic mixing routines in base-class,
+	// for example: 
+	// 256 tracker channels into 2 stereo output channels..
+	//
+	// (PCM-output, 2/4 output channels usually without surround in 8 channels..)
+	
     return 0;
 }
 

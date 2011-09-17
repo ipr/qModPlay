@@ -200,7 +200,9 @@ DecodeCtx *CAhxPlayer::PrepareDecoder()
     m_pDecodeCtx = new DecodeCtx();
 
 	// TODO: finish this..
-	//m_pDecodeCtx->initialize();
+	// for now, assume output format:
+	// must get device capabilities also..
+	m_pDecodeCtx->initialize(2, 8, 44100);
     
     return m_pDecodeCtx;
 }
@@ -208,7 +210,6 @@ DecodeCtx *CAhxPlayer::PrepareDecoder()
 size_t CAhxPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
 {
 	// TODO: simplify, make public for simpler use?
-	
     // get last position before next..
 	uint64_t frame = m_pDecodeCtx->position();
 	double duration = m_pDecodeCtx->frameduration();

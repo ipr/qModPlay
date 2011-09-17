@@ -336,6 +336,7 @@ DecodeCtx *CDigiBoosterProPlayer::PrepareDecoder()
     // use default implementation for now..
     m_pDecodeCtx = new DecodeCtx();
     
+	//m_pDecodeCtx->initialize();
     
     return m_pDecodeCtx;
 }
@@ -344,6 +345,36 @@ DecodeCtx *CDigiBoosterProPlayer::PrepareDecoder()
 // TODO:
 size_t CDigiBoosterProPlayer::DecodePlay(void *pBuffer, const size_t nBufSize)
 {
-    return 0;
+	// get last position before next..
+	uint64_t frame = m_pDecodeCtx->position();
+	double duration = m_pDecodeCtx->frameduration();
+	size_t frameSize = m_pDecodeCtx->frameSize();
+	
+	// current time in playback:
+	// see pattern/track speed/tempo,
+	// keep track of sample/effect length etc.. timing stuff
+	//
+	double frameTime = frame*duration;
+	
+	// count amount of whole frames fitting to given buffer
+	size_t outFrames = (nBufSize/frameSize);
+
+
+	// write to buffer as much as there fits
+	for (size_t n = 0; n < outFrames; n++)
+	{
+		// TODO: count correct pattern where we continue
+		// since we can't write entire song at single time to output..
+		//DBMPattern *pPatt = m_pPatternBlocks[0];
+		
+		
+	}
+	
+	// keep which frame we finished on
+	m_pDecodeCtx->updatePosition(frame + outFrames);
+	
+	// return bytes written to buffer:
+	// same amount will be written to audiodevice
+    return (outFrames*frameSize);
 }
 

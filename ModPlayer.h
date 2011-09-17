@@ -180,6 +180,11 @@ protected:
 	// n tracks/channels to 2/4 PCM-channels?
 	// (reduce repetition..)
 	
+	// TODO: generic way to keep each channel here?
+	// if we can keep each "encoded" tracker-channel
+	// here, we could simplify mixing to output-channels
+	// when writing to output-buffer..
+	
     
     // original file data
     //

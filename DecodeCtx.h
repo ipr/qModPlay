@@ -53,22 +53,39 @@ protected:
     // until counting how much played (looping etc.)
     //uint64_t m_nFrameCount;
     
+	// these are output-format description,
+	// tracker may have lots more channels
+	size_t m_nSampleSize;
+	size_t m_nChannelCount;
+	size_t m_nSampleRate;
+	
     // frames per second?
-    
+	//
     // bytes per second:
     // filesize / (framesize * sample rate)
-    double m_dBytesPerSecond;
+	// not needed?
+    //double m_dBytesPerSecond;
     
     // duration of single frame in microseconds:
     // device-independent output resolution
     double m_dFrameDuration;
+	
+	// TODO: pattern-row counter here also?
+	// for player/decode needs only..?
+	// or display also?
+	size_t m_nCurrentPattern;
+	size_t m_nCurrentTrack;
+	size_t m_nCurrentSubsong;
+	// ..
 
     // channel count: amount of channels per frame
     // sample size: sample width in bits    
+	/*
     void setFrameSize(const size_t nChannels, const size_t nSampleSize)
     {
         m_nFrameSize = nChannels * (nSampleSize/8);
     }
+	*/
     /*
     // drop this..
     void setFrameCount(const uint64_t fileSize)
@@ -78,10 +95,12 @@ protected:
     */
     // for simplistic buffer estimate,
     // sample rate in Hz
+	/* not needed?
     void setByteRate(const double dSampleRate)
     {
         m_dBytesPerSecond = (m_nFrameSize * dSampleRate);
     }
+	*/
     
     //
     // TODO: helper conversions?
@@ -140,8 +159,11 @@ public:
         , m_nCurrentFrame(0)
         , m_nFrameSize(0)
         //, m_nFrameCount(0)
-        , m_dBytesPerSecond(0)
+        //, m_dBytesPerSecond(0)
         , m_dFrameDuration(0)
+		, m_nSampleSize(0)
+		, m_nChannelCount(0)
+		, m_nSampleRate(0)
     {}
     
     // set initial values for decoder,
@@ -153,13 +175,21 @@ public:
     // - sample width in bits for output (usually 8 at minimum, 16 likely, maybe even 24..?)
     // - sample rate in Hz
     // 
-    void initialize(const size_t nChannels, const size_t nSampleSize, const double dSampleRate)
+    void initialize(const size_t nChannels, const size_t nSampleSize, const size_t nSampleRate)
     {
-        setFrameSize(nChannels, nSampleSize);
+		m_nSampleSize = nSampleSize;
+		m_nChannelCount = nChannels;
+		m_nSampleRate = nSampleRate;
+		
+		// one sample from each channel in a single frame
+		// (output channel)
+		m_nFrameSize = nChannels * (nSampleSize/8);
+		
+        //setFrameSize(nChannels, nSampleSize);
         //setFrameCount(fileSize);
-        setByteRate(dSampleRate);
+        //setByteRate(dSampleRate);
     }
-
+	
 	// audio-frame duration in microsec (or millisec..?)	
 	double frameduration()
 	{
@@ -172,6 +202,20 @@ public:
 		return m_nFrameSize;
 	}
 
+	// temp until something better shows up..
+	size_t sampleSize()
+	{
+		return m_nSampleSize;
+	}
+	size_t channelCount()
+	{
+		return m_nChannelCount;
+	}
+	size_t sampleRate()
+	{
+		return m_nSampleRate;
+	}
+	
     // set values to start (same as update(0))
     void setBegin()
     {

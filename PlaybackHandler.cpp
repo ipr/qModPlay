@@ -294,6 +294,12 @@ void PlaybackHandler::PlayFile(QString &filename)
 	// get decoding context: 
 	// player should keep position/status information,
 	// we want it to control position (if possible..)
+	//
+	// TODO: determine how we are able to output
+	// (e.g. 256 tracker channels -> 2 channels in stereo,
+	// 8/16-bit width?)
+	// and check that device supports what is possible..
+	//
 	m_pCtx = m_pModPlayer->PrepareDecoder();
     
     // TODO: get info on what is suitable format for playing..
@@ -306,12 +312,9 @@ void PlaybackHandler::PlayFile(QString &filename)
     QAudioFormat format;
 	format.setByteOrder(QAudioFormat::LittleEndian);
 	format.setCodec("audio/pcm");
-	//format.setFrequency(m_pAudioFile->sampleRate());
-	format.setSampleRate(44100);
-	//format.setChannels(m_pAudioFile->channelCount());
-	format.setChannels(2);
-    //format.setSampleSize(m_pAudioFile->sampleSize());
-	format.setSampleSize(8);
+	format.setSampleRate(m_pCtx->sampleRate());
+	format.setChannels(m_pCtx->channelCount());
+	format.setSampleSize(m_pCtx->sampleSize());
 	format.setSampleType(QAudioFormat::SignedInt);
 
 	QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
@@ -327,8 +330,8 @@ void PlaybackHandler::PlayFile(QString &filename)
 	}
 
 	// expect 2-channels and 8-bit samples at 44.1kHz,
-    // get proper values later,
-	// estimate size for our "decoding" buffer for playback..
+    // get proper values later, expecting 1s buffer to be enough for now..
+	//
     size_t nBuffer = (format.sampleRate() * format.channels() * (format.sampleSize()/8));
     m_pDecodeBuffer->PrepareBuffer(nBuffer, false);
 
