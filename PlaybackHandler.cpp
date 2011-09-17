@@ -216,6 +216,7 @@ void PlaybackHandler::PlayFile(QString &filename)
     
     // destroy old (if any)
     delete m_pFileBuffer;
+	delete m_pModPlayer;
     delete m_pFile;
 
     // open file and use memory-mapping
