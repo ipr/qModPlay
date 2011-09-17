@@ -16,10 +16,43 @@
 
 //////////// protected methods
 
+#pragma pack(push, 1)
+
+// obsolete stuff, just convert to something..
+struct ST3adlibSample_t
+{
+	uint8_t m_type;
+	char m_filename[12]; // msdos-shit..
+	uint8_t m_pad1;
+	uint8_t m_pad2;
+	uint8_t m_pad3;
+	
+	uint8_t m_instrumentSpec[12];
+	
+	uint8_t m_vol;
+	uint8_t m_dsk;
+	
+	uint8_t m_reserved1;
+	uint8_t m_reserved2;
+
+	uint16_t m_freq; // weird format in this..
+	uint16_t m_freqHi; // weird format in this..
+	
+	uint8_t m_reserved[12];
+	
+	uint8_t m_sampleName[28];
+	
+	char m_fccId[4]; // "SCRI"
+};
+
+#pragma pack(pop)
+
+
 // TODO: implement
 void CScreamTrackerPlayer::ReadInstrumentData(size_t nOffset)
 {
 	// parse&convert?
+	ST3adlibSample_t *adlibSample = m_pFileData->GetAt(nOffset);
 	//CAudioSample *pSample = CAdlibSample::ParseSample(m_pFileData->GetAt(nOffset), ??);
 }
 
@@ -75,8 +108,9 @@ void CScreamTrackerPlayer::ReadPatternData(size_t nOffset, int index)
 			pChannel->m_patterns[index].m_command = ReadUI8();
 			pChannel->m_patterns[index].m_info = ReadUI8();
 		}
+		
+		nPos = m_pFileData->GetCurrentPos();
 	}
-	
 }
 
 

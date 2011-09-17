@@ -38,9 +38,12 @@ bool CIff8svxSample::ParseSample(uint8_t *pData, size_t nLen)
 	size_t nPos = 0;
 
 	// starts with full file header?
-	if (MakeTag("FORM") == (*((uint32_t*)pData)))
+	if (MakeTag("FORM") == ((pData[0] << 24)
+							| (pData[1] << 16)
+							| (pData[2] << 8)
+							| (pData[3])));
 	{
-		//nPos = 
+		nPos += 8; // skip
 	}
 	
 	// chunkID & chunkLen must fit,
