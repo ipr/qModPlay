@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     OktalyzerPlayer.cpp \
     ScreamTrackerPlayer.cpp \
     ImpulseTrackerPlayer.cpp \
-    FastTrackerPlayer.cpp
+    FastTrackerPlayer.cpp \
+    AudioSample.cpp
 
 HEADERS  += MainWindow.h \
     AnsiFile.h \
@@ -47,6 +48,7 @@ HEADERS  += MainWindow.h \
     FastTrackerPlayer.h
 
 FORMS    += MainWindow.ui
+
 
 
 

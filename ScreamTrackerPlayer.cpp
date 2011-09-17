@@ -19,11 +19,12 @@
 // TODO: implement
 void CScreamTrackerPlayer::ReadInstrumentData(size_t nOffset)
 {
-	m_pFileData->SetCurrentPos(nOffset);
+	// parse&convert?
+	//CAudioSample *pSample = CAdlibSample::ParseSample(m_pFileData->GetAt(nOffset), ??);
 }
 
 // TODO: read packed pattern
-void CScreamTrackerPlayer::ReadPatternData(size_t nOffset)
+void CScreamTrackerPlayer::ReadPatternData(size_t nOffset, int index)
 {
 	// start at given offset
 	m_pFileData->SetCurrentPos(nOffset);
@@ -32,12 +33,15 @@ void CScreamTrackerPlayer::ReadPatternData(size_t nOffset)
 	//ST3Pattern_t pattern;
 
 	// TODO: somekinda current pattern counter..
-	size_t nrow; // = ??;
+	//size_t nrow; // = ??;
 	
 	uint16_t patternLen = ReadLEUI16();
 	
-	// TODO: loop until read entirely..
-	for (int i = 0; i < patternLen; i++)
+	size_t nPos = m_pFileData->GetCurrentPos();
+	
+	// loop until read entirely..
+	//
+	while ((nPos-nOffset) < patternLen)
 	{
 		uint8_t packbyte = ReadUI8();
 		if (packbyte == 0)
@@ -59,17 +63,17 @@ void CScreamTrackerPlayer::ReadPatternData(size_t nOffset)
 		
 		if ((packbyte & 32) != 0)
 		{
-			pChannel->m_patterns[nrow].m_note = ReadUI8();
-			pChannel->m_patterns[nrow].m_instrument = ReadUI8();
+			pChannel->m_patterns[index].m_note = ReadUI8();
+			pChannel->m_patterns[index].m_instrument = ReadUI8();
 		}
 		if ((packbyte & 64) != 0)
 		{
-			pChannel->m_patterns[nrow].m_volume = ReadUI8();
+			pChannel->m_patterns[index].m_volume = ReadUI8();
 		}
 		if ((packbyte & 128) != 0)
 		{
-			pChannel->m_patterns[nrow].m_command = ReadUI8();
-			pChannel->m_patterns[nrow].m_info = ReadUI8();
+			pChannel->m_patterns[index].m_command = ReadUI8();
+			pChannel->m_patterns[index].m_info = ReadUI8();
 		}
 	}
 	
@@ -189,7 +193,7 @@ bool CScreamTrackerPlayer::ParseFileInfo()
 		size_n nPos = m_pFileData->GetCurrentPos();
 		
 		// read pattern at given offset
-        ReadPatternData(offset);
+        ReadPatternData(offset, i);
 		m_pFileData->SetCurrentPos(nPos); // continue this list
     }
     

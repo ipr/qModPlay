@@ -58,6 +58,18 @@ protected:
     double m_dFrequency; // sampling rate (such as 44.1kHz)
     double m_dDuration; // sample duration (in millisec? microsec?)
     
+	
+	uint32_t MakeTag(const unsigned char *buf) const
+    {
+		// note byteorder.. (little-endian CPU)
+        uint32_t tmp = 0;
+        tmp |= (((uint32_t)(buf[3])) << 24);
+        tmp |= (((uint32_t)(buf[2])) << 16);
+        tmp |= (((uint32_t)(buf[1])) << 8);
+        tmp |= ((uint32_t)(buf[0]));
+        return tmp;
+    }
+	
 public:
     CAudioSample()
         : m_data(nullptr)
@@ -88,7 +100,7 @@ public:
     
     // for processing "recorded" sample
     // from file/buffer
-    //
+    // (check)
     virtual bool ParseSample(uint8_t *pData, size_t nLen) { return true; }
 };
 
@@ -102,16 +114,37 @@ class CIff8svxSample : public CAudioSample
 protected:
     //Voice8Header m_VoiceHeader; // VHDR
 
+	//void unpackRunlen(uint8_t *pData, size_t nLen);
+	//void unpackDeltapack(uint8_t *pData, size_t nLen);
+	
 public:
     CIff8svxSample()
         : CAudioSample()
-        , m_VoiceHeader()
+        //, m_VoiceHeader()
     {}
     ~CIff8svxSample()
     {}
     
-    // from file/buffer
-    //virtual bool ParseSample(uint8_t *pData, size_t nLen);
+    // from file/buffer,
+	// conversion if sample-format is alreay set?
+    virtual bool ParseSample(uint8_t *pData, size_t nLen);
+};
+
+
+///////// adlib instrument format?
+
+class CAdlibSample : public CAudioSample
+{
+public:
+	CAdlibSample()
+        : CAudioSample()
+    {}
+    ~CAdlibSample()
+    {}
+    
+    // from file/buffer,
+	// conversion if sample-format is alreay set?
+    static CAudioSample *ParseSample(uint8_t *pData, size_t nLen);
 };
 
 

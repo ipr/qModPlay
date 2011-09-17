@@ -106,7 +106,7 @@ protected:
 	
     // TODO: implement
     void ReadInstrumentData(size_t nOffset);
-    void ReadPatternData(size_t nOffset);
+    void ReadPatternData(size_t nOffset, int index);
     
 public:
     CScreamTrackerPlayer(CReadBuffer *pFileData);
