@@ -20,6 +20,35 @@
 #include <string>
 
 
+// sample formats supported in instruments
+enum SyMMSampleFormat
+{
+	FMT_Unknown = 0,
+    FMT_Maestro = 1,
+    FMT_WAVE = 2,
+    FMT_AIFF = 3,
+    FMT_Raw = 4,
+    FMT_IFF8SVX = 5,
+    FMT_SYMPHEXPORT16BT = 6,
+	FMT_IFFMAUD = 7 // ? 16-bit IFF ?
+};
+
+// TODO: this could kindof stuff
+// should be a part of CAudioSample in future..
+struct SyMMSampleInfo_t
+{
+	SyMMSampleFormat m_enSampleFormat;
+	size_t m_nBitWidth;
+	
+	// constructor
+	SyMMSampleInfo_t()
+	{
+		m_enSampleFormat = FMT_Unknown;
+		m_nBitWidth = 0;
+	}
+};
+
+
 // force 1-byte alignment for struct (no padding)
 #pragma pack(push, 1)
 
@@ -148,7 +177,7 @@ protected:
         NOTEPITCH_OCTAVE	=	12,
         NOTEPITCH_MAX		=	(NOTEPITCH_OCTAVE*7)
     };
-    
+	
     // note:
     enum SymphonieChunkType
     {
@@ -190,6 +219,7 @@ protected:
             //, m_data()
             , m_bIsVirtual(false)
             , m_type(0)
+			, m_sampleFormat()
         {}
         ~SyMMInstrument()
         {
@@ -200,8 +230,11 @@ protected:
         //bufferedData_t m_data;
         bool m_bIsVirtual;
         size_t m_type;
-        
+		
+		// TODO: unpack to simple common type instead?
+        SyMMSampleInfo_t m_sampleFormat;
     };
+	size_t m_currentInstrument; // instrument index until all found..?
     SyMMInstrument *m_pInstruments;
     //size_t m_instrumentCount_; // CHECK! already in CT_SAMPLENUMB ??
     
@@ -292,6 +325,8 @@ protected:
     // TODO:..
     bool Decode8bitSample(const uint8_t *pData, const size_t nLen);
     bool Decode16bitSample(const uint8_t *pData, const size_t nLen);
+	
+	SyMMSampleFormat DetermineSampleFormat(uint8_t *pData, const size_t nLen);
     
     bool OnChunk(uint32_t chunkID);
     bool OnLargeChunk(uint32_t chunkID);

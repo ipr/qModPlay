@@ -106,6 +106,37 @@ bool CSymphoniePlayer::Decode16bitSample(const uint8_t *pData, const size_t nLen
     return false;
 }
 
+SyMMSampleFormat CSymphoniePlayer::DetermineSampleFormat(uint8_t *pData, const size_t nLen)
+{
+	//SampleFormat enFmt = FMT_Unknown;
+	if (::memcmp(pData, "MAESTRO", 7) == 0)
+	{
+		return FMT_Maestro;
+	}
+	if (::memcmp(pData, "16BT", 4) == 0)
+	{
+		return FMT_SYMPHEXPORT16BT;
+	}
+	if (::memcmp(pData, "RIFF", 4) == 0
+		&& ::memcmp(pData + 8, "WAVE", 4) == 0)
+	{
+		return FMT_WAVE;
+	}
+	if (::memcmp(pData, "FORM", 4) == 0
+		&& ::memcmp(pData + 8, "AIFF", 4) == 0)
+	{
+		return FMT_AIFF;
+	}
+	if (::memcmp(pData, "FORM", 4) == 0
+		&& ::memcmp(pData + 8, "8SVX", 4) == 0)
+	{
+		return FMT_IFF8SVX;
+	}
+	
+	// no header, just guess as raw-audio data..
+	return FMT_Raw;
+}
+
 
 // some chunks have just single parameter in 4 bytes
 // and no length of chunk; 
@@ -327,6 +358,12 @@ bool CSymphoniePlayer::OnInstrumentNames(uint8_t *pData, const size_t nLen)
 
 bool CSymphoniePlayer::OnInstrumentSample(uint8_t *pData, const size_t nLen)
 {
+	SyMMInstrument &instr = m_pInstruments[m_currentInstrument];
+	
+	// check what kind of sample-data there is
+	instr.m_sampleFormat.m_enSampleFormat = DetermineSampleFormat(pData, nLen);
+	
+	
     return false;
 }
 

@@ -59,6 +59,29 @@ protected:
     double m_dDuration; // sample duration (in millisec? microsec?)
     
 	
+	// argh! hate copying but here goes..
+	// figure out sharing later..
+	
+	uint16_t Swap2(const uint16_t val) const
+    {
+        return (((val >> 8)) | (val << 8));
+    }
+	uint32_t Swap4(const uint32_t val) const
+    {
+        return (
+                ((val & 0x000000FF) << 24) + ((val & 0x0000FF00) <<8) |
+                ((val & 0x00FF0000) >> 8) + ((val & 0xFF000000) >>24)
+                );
+    }
+	float SwapF(const float fval) const
+    {
+        float fTemp = fval;
+        uint32_t tmp = Swap4((*((uint32_t*)(&fTemp))));
+        fTemp = (*((float*)(&tmp)));
+        return fTemp;
+    }
+	
+	
 	uint32_t MakeTag(const unsigned char *buf) const
     {
 		// note byteorder.. (little-endian CPU)
@@ -120,7 +143,6 @@ protected:
 public:
     CIff8svxSample()
         : CAudioSample()
-        //, m_VoiceHeader()
     {}
     ~CIff8svxSample()
     {}
@@ -130,6 +152,29 @@ public:
     virtual bool ParseSample(uint8_t *pData, size_t nLen);
 };
 
+///////// IFF-MAUD
+
+class CIffMaudSample : public CAudioSample
+{
+};
+
+///////// IFF-AIFF
+
+class CAiffSample : public CAudioSample
+{
+};
+
+///////// RIFF-WAVE
+
+class CWaveSample : public CAudioSample
+{
+};
+
+///////// Maestro? (Samplitude?)
+
+class CMaestroSample : public CAudioSample
+{
+};
 
 ///////// adlib instrument format?
 

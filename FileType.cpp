@@ -137,6 +137,11 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
         // Amiga Oktalyzer tracker module
         return HEADERTYPE_OKTALYZER;
     }
+	else if (::memcmp(pBuffer, "MAESTRO", 7) == 0)
+	{
+		// Maestro (Samplitude?) sampleformat
+		return HEADERTYPE_MAESTRO;
+	}
 	else if (::memcmp(pBuffer, "FORM", 4) == 0)
 	{
 		// EA-IFF format file header:
@@ -185,6 +190,11 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		{
 			// 8SVX-audio
 			return HEADERTYPE_8SVX;
+		}
+		else if (::memcmp(pTmp, "MAUD", 4) == 0)
+		{
+			// 16-bit IFF-MAUD audio
+			return HEADERTYPE_MAUD;
 		}
 		else if (::memcmp(pTmp, "AIFF", 4) == 0)
 		{
