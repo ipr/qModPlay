@@ -60,6 +60,14 @@ bool CIff8svxSample::ParseSample(uint8_t *pData, size_t nLen)
 			// header
 			Voice8Header_t *pHeader = (Voice8Header_t*)(pData + nPos);
 			
+			m_enValueType = VT_INTEGER;
+			//m_nChannels = Swap2(pHeader->mhdr_Channels);
+			//m_nWidth = Swap2(pHeader->mhdr_SampleSizeU);
+			//m_dFrequency = Swap2(pHeader->samplesPerSec);
+			
+			//m_nSize = (m_nChannels * m_dFrequency * (m_nWidth /8));
+			//m_data = new uint8_t[m_nSize];
+			
 			// byteswap and store..
 		}
 		else if (chunkID == MakeTag("BODY"))
@@ -120,7 +128,15 @@ bool CIffMaudSample::ParseSample(uint8_t *pData, size_t nLen)
 		if (chunkID == MakeTag("MHDR"))
 		{
 			// header
-			MaudHeader *pMhdr = (MaudHeader*)(pData + nPos);
+			MaudHeader *pHeader = (MaudHeader*)(pData + nPos);
+			
+			m_enValueType = VT_INTEGER;
+			//m_nChannels = Swap2(pHeader->mhdr_Channels); // enumeration, not actual count
+			m_nWidth = Swap2(pHeader->mhdr_SampleSizeU);
+			m_dFrequency = (Swap4(pHeader->mhdr_RateSource) / Swap2(pHeader->mhdr_RateDevide));
+			
+			m_nSize = (m_nChannels * m_dFrequency * (m_nWidth /8));
+			m_data = new uint8_t[m_nSize];
 			
 			// byteswap and store..
 		}
@@ -137,12 +153,33 @@ bool CIffMaudSample::ParseSample(uint8_t *pData, size_t nLen)
 
 ///////// IFF-AIFF
 
+#pragma pack(push, 1)
+
+typedef struct 
+{
+    int16_t    numChannels;
+    uint32_t   numSampleFrames;
+    int16_t    sampleSize;
+	
+	/* note: "extended" or "long double" is not supported on Visual C++
+	  and it truncates definition to common "double" (80-bit -> 64-bit). */
+	/* extended: 80 bit IEEE Standard 754 floating point number 
+     (Standard Apple Numeric Environment [SANE] data type Extended). */
+	unsigned char    sampleRate[10]; // should be type: extended sampleRate;
+} AiffCommonChunk_t; 
+
+#pragma pack(pop)
+
 bool CAiffSample::ParseSample(uint8_t *pData, size_t nLen)
 {
 	size_t nPos = 0;
 
 	// starts with full file header?
 	IFFHeader_t *pHdr = (IFFHeader_t*)pData;
+	
+	// Note: FORM + AIFC for AIFF-C with compression support..
+	// FORM + AIFF is uncompressed
+	//
 	if (MakeTag("FORM") == pHdr->m_containerID
 		&& MakeTag("AIFF") == pHdr->m_dataType);
 	{
@@ -162,6 +199,16 @@ bool CAiffSample::ParseSample(uint8_t *pData, size_t nLen)
 		if (chunkID == MakeTag("COMM"))
 		{
 			// header
+			AiffCommonChunk_t *pHeader = (AiffCommonChunk_t*)(pData + nPos);
+			
+			// note: AIFF-C compression value ignored for now..
+			m_enValueType = VT_INTEGER;
+			m_nChannels = Swap2(pHeader->numChannels);
+			m_nWidth = Swap2(pHeader->sampleSize);
+			
+			// TODO: convert "extended" (long double) to integer/double..
+			//m_nSize = (m_nChannels * pHeader->sampleRate * (m_nWidth /8));
+			m_data = new uint8_t[m_nSize];
 			
 			// byteswap and store..
 		}
@@ -178,11 +225,31 @@ bool CAiffSample::ParseSample(uint8_t *pData, size_t nLen)
 
 ///////// RIFF-WAVE
 
+// only one we can really support..
+#define fmt_WAVE_FORMAT_PCM             (0x0001)
+
+#pragma pack(push, 1)
+
+typedef struct 
+{
+    int16_t     wFormatTag;    // Format category
+    int16_t     wChannels;     // Number of channels
+    uint32_t    dwSamplesPerSec;  // Sampling rate
+    uint32_t    dwAvgBytesPerSec; // For buffer estimation
+    int16_t     wBlockAlign;   // Data block size
+} RiffWAVEFormat_t;
+
+#pragma pack(pop)
+
 bool CWaveSample::ParseSample(uint8_t *pData, size_t nLen)
 {
 	size_t nPos = 0;
 
 	// starts with full file header?
+	
+	// note: RIFF + WAVE in little-endian byteorder
+	// RIFX + WAVE in big-endian?
+	//
 	IFFHeader_t *pHdr = (IFFHeader_t*)pData;
 	if (MakeTag("RIFF") == pHdr->m_containerID
 		&& MakeTag("WAVE") == pHdr->m_dataType);
@@ -203,6 +270,21 @@ bool CWaveSample::ParseSample(uint8_t *pData, size_t nLen)
 		if (chunkID == MakeTag("fmt "))
 		{
 			// header
+			RiffWAVEFormat_t *pHeader = (RiffWAVEFormat_t*)(pData + nPos);
+
+			m_enValueType = VT_INTEGER;
+			m_nChannels = pHeader->wChannels;
+			m_dFrequency = pHeader->dwSamplesPerSec;
+			
+			// only with this format there really _is_ size for sample width..
+			if (pHeader->wFormatTag == fmt_WAVE_FORMAT_PCM)
+			{
+				uint8_t *pFormat = (pData + nPos + sizeof(RiffWAVEFormat_t));
+				m_nWidth = (*((uint16_t*)pFormat));
+			}
+
+			m_nSize = (m_nChannels * pHeader->dwSamplesPerSec * (m_nWidth /8));
+			m_data = new uint8_t[m_nSize];
 			
 			// byteswap and store..
 		}
@@ -267,7 +349,100 @@ bool CMaestroSample::ParseSample(uint8_t *pData, size_t nLen)
 		nPos += 8; // offset by 8
 	}
 	
+	MaestroHeader_t tmp;
 	MaestroHeader_t *pHdr = (MaestroHeader_t*)(pData + nPos);
+	
+	// only three fields we are interested in..
+	tmp.sampletype = Swap2(pHdr->sampletype);
+	tmp.samplecount = Swap4(pHdr->samplecount);
+	tmp.samplerate = Swap4(pHdr->samplerate);
+	m_dFrequency = tmp.samplerate;
+
+	switch (tmp.sampletype)
+	{
+	case MSMT_STEREO_16:
+		m_nChannels = 2;
+		m_nWidth = 16;
+		m_enValueType = VT_INTEGER;
+		break;
+	case MSMT_STEREO_8:
+		m_nChannels = 2;
+		m_nWidth = 8;
+		m_enValueType = VT_INTEGER;
+		break;
+	case MSMT_MONO_16:
+		m_nChannels = 1;
+		m_nWidth = 16;
+		m_enValueType = VT_INTEGER;
+		break;
+	case MSMT_MONO_8:
+		m_nChannels = 1;
+		m_nWidth = 8;
+		m_enValueType = VT_INTEGER;
+		break;
+	case MSMT_STEREO_24:
+		m_nChannels = 2;
+		m_nWidth = 24;
+		m_enValueType = VT_INTEGER;
+		break;
+	case MSMT_MONO_24:
+		m_nChannels = 1;
+		m_nWidth = 24;
+		m_enValueType = VT_INTEGER;
+		break;
+	case MSMT_STEREO_32:
+		m_nChannels = 2;
+		m_nWidth = 32;
+		m_enValueType = VT_INTEGER;
+		break;
+	case MSMT_MONO_32:
+		m_nChannels = 1;
+		m_nWidth = 32;
+		m_enValueType = VT_INTEGER;
+		break;
+	case MSMT_STEREO_32F:
+		m_nChannels = 2;
+		m_nWidth = 32;
+		m_enValueType = VT_IEEE_FLOAT;
+		break;
+	case MSMT_MONO_32F:
+		m_nChannels = 1;
+		m_nWidth = 32;
+		m_enValueType = VT_IEEE_FLOAT;
+		break;
+	case MSMT_STEREO_64F:
+		m_nChannels = 2;
+		m_nWidth = 64;
+		m_enValueType = VT_IEEE_FLOAT;
+		break;
+	case MSMT_MONO_64F:
+		m_nChannels = 1;
+		m_nWidth = 64;
+		m_enValueType = VT_IEEE_FLOAT;
+		break;
+	case MSMT_STEREO_32FFP:
+		m_nChannels = 2;
+		m_nWidth = 32;
+		m_enValueType = VT_FFP_FLOAT;
+		break;
+	case MSMT_MONO_32FFP:
+		m_nChannels = 1;
+		m_nWidth = 32;
+		m_enValueType = VT_FFP_FLOAT;
+		break;
+	}
+	
+	nPos = 0x18; // start of actual sample data
+	pView = (pView + nPos);
+	m_nSize = (tmp.samplecount * (m_nWidth /8));
+	m_data = new uint8_t[m_nSize];
+
+	
+	// TODO:
+	// now handle sample-data..
+	
+	
+	return true;
 }
 
 ///////// adlib instrument format?

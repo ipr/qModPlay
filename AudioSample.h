@@ -70,14 +70,28 @@ protected:
     // and not "tracker-channels" which may be different
     // when outputting e.g. 256 channels in just two stereo-channels..
     size_t m_nChannels; // needed if we have PCM-encoded data here..?
-        
+     
+	// change this to size_t?
     double m_dFrequency; // sampling rate (such as 44.1kHz)
+	
     double m_dDuration; // sample duration (in millisec? microsec?)
-    
+
+	// check.. which are needed..
+	enum ValueType
+	{
+		//VT_SIGNED_INT,
+		//VT_UNSIGNED_INT,
+		VT_INTEGER,
+		VT_IEEE_FLOAT,
+		VT_FFP_FLOAT
+	};
+	ValueType m_enValueType;
+
 	
 	// argh! hate copying but here goes..
 	// figure out sharing later..
 	
+
 	uint16_t Swap2(const uint16_t val) const
     {
         return (((val >> 8)) | (val << 8));
