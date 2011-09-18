@@ -38,12 +38,11 @@ bool CIff8svxSample::ParseSample(uint8_t *pData, size_t nLen)
 	size_t nPos = 0;
 
 	// starts with full file header?
-	if (MakeTag("FORM") == ((pData[0] << 24)
-							| (pData[1] << 16)
-							| (pData[2] << 8)
-							| (pData[3])));
+	IFFHeader_t *pHdr = (IFFHeader_t*)pData;
+	if (MakeTag("FORM") == pHdr->m_containerID
+		&& MakeTag("8SVX") == pHdr->m_dataType);
 	{
-		nPos += 8; // skip
+		nPos += sizeof(IFFHeader_t); // skip
 	}
 	
 	// chunkID & chunkLen must fit,
@@ -101,12 +100,11 @@ bool CIffMaudSample::ParseSample(uint8_t *pData, size_t nLen)
 	size_t nPos = 0;
 
 	// starts with full file header?
-	if (MakeTag("FORM") == ((pData[0] << 24)
-							| (pData[1] << 16)
-							| (pData[2] << 8)
-							| (pData[3])));
+	IFFHeader_t *pHdr = (IFFHeader_t*)pData;
+	if (MakeTag("FORM") == pHdr->m_containerID
+		&& MakeTag("MAUD") == pHdr->m_dataType);
 	{
-		nPos += 8; // skip
+		nPos += sizeof(IFFHeader_t); // skip
 	}
 	
 	// chunkID & chunkLen must fit,
@@ -144,12 +142,11 @@ bool CAiffSample::ParseSample(uint8_t *pData, size_t nLen)
 	size_t nPos = 0;
 
 	// starts with full file header?
-	if (MakeTag("FORM") == ((pData[0] << 24)
-							| (pData[1] << 16)
-							| (pData[2] << 8)
-							| (pData[3])));
+	IFFHeader_t *pHdr = (IFFHeader_t*)pData;
+	if (MakeTag("FORM") == pHdr->m_containerID
+		&& MakeTag("AIFF") == pHdr->m_dataType);
 	{
-		nPos += 8; // skip
+		nPos += sizeof(IFFHeader_t); // skip
 	}
 	
 	// chunkID & chunkLen must fit,
@@ -186,12 +183,11 @@ bool CWaveSample::ParseSample(uint8_t *pData, size_t nLen)
 	size_t nPos = 0;
 
 	// starts with full file header?
-	if (MakeTag("RIFF") == ((pData[0] << 24)
-							| (pData[1] << 16)
-							| (pData[2] << 8)
-							| (pData[3])));
+	IFFHeader_t *pHdr = (IFFHeader_t*)pData;
+	if (MakeTag("RIFF") == pHdr->m_containerID
+		&& MakeTag("WAVE") == pHdr->m_dataType);
 	{
-		nPos += 8; // skip
+		nPos += sizeof(IFFHeader_t); // skip
 	}
 	
 	// chunkID & chunkLen must fit,

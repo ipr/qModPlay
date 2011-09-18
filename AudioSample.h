@@ -37,6 +37,22 @@
 // fwd. decl.
 //class CReadBuffer;
 
+
+#pragma pack(push, 1)
+
+// common IFF-FORM header
+// also used by RIFF and others
+//
+struct IFFHeader_t
+{
+	uint32_t m_containerID; // "FORM" tag
+	uint32_t m_FileLength; // size of file
+	uint32_t m_dataType; // actual type ("8SVX", "AIFF", "WAVE", "MAUD"..)
+};
+
+#pragma pack(pop)
+
+
 /////// base "interface"
 // 
 class CAudioSample
