@@ -124,7 +124,14 @@ public:
     // for processing "recorded" sample
     // from file/buffer
     // (check)
-    virtual bool ParseSample(uint8_t *pData, size_t nLen) { return true; }
+    virtual bool ParseSample(uint8_t *pData, size_t nLen) 
+	{
+		// for "raw" audio data?
+		// -> just copy and keep given..
+		m_data = new uint8_t[nLen];
+		::memcpy(m_data, pData, nLen);
+		return true; 
+	}
 };
 
 
@@ -156,27 +163,53 @@ public:
 
 class CIffMaudSample : public CAudioSample
 {
+public:
+    CIffMaudSample()
+        : CAudioSample()
+    {}
+    ~CIffMaudSample()
+    {}
+	virtual bool ParseSample(uint8_t *pData, size_t nLen);
 };
 
 ///////// IFF-AIFF
 
 class CAiffSample : public CAudioSample
 {
+public:
+	CAiffSample()
+        : CAudioSample()
+    {}
+    ~CAiffSample()
+    {}
+	virtual bool ParseSample(uint8_t *pData, size_t nLen);
 };
 
 ///////// RIFF-WAVE
 
 class CWaveSample : public CAudioSample
 {
+public:
+	CWaveSample()
+        : CAudioSample()
+    {}
+    ~CWaveSample()
+    {}
+	virtual bool ParseSample(uint8_t *pData, size_t nLen);
 };
 
-///////// Maestro? (Samplitude?)
+///////// Maestro (MaestroPro soundcard / Samplitude ?)
 
-/*
 class CMaestroSample : public CAudioSample
 {
+public:
+	CMaestroSample()
+        : CAudioSample()
+    {}
+    ~CMaestroSample()
+    {}
+	virtual bool ParseSample(uint8_t *pData, size_t nLen);
 };
-*/
 
 ///////// adlib instrument format?
 
@@ -191,7 +224,8 @@ public:
     
     // from file/buffer,
 	// conversion if sample-format is alreay set?
-    static CAudioSample *ParseSample(uint8_t *pData, size_t nLen);
+	virtual bool ParseSample(uint8_t *pData, size_t nLen);
+    //static CAudioSample *ParseSample(uint8_t *pData, size_t nLen);
 };
 
 

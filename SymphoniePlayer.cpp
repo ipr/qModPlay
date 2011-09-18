@@ -169,9 +169,11 @@ CAudioSample *CSymphoniePlayer::HandleSampleFormat(uint8_t *pData, const size_t 
 		
 	default:
 		// raw audio sample or something entirely different?
+		pSample = new CAudioSample();
 		break;
 	}
 	
+	pSample->ParseSample(pData, nLen);
 	return pSample;
 }
 

@@ -57,11 +57,13 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
         else if (::memcmp(pData, "FLT4", 4) == 0)
         {
             // Startrekker variant of MOD..
+			// also old FastTracker ?
             return HEADERTYPE_MOD_STARTREKKER;
         }
         else if (::memcmp(pData, "FLT8", 4) == 0)
         {
             // Startrekker variant of MOD..
+			// also old FastTracker ?
             return HEADERTYPE_MOD_STARTREKKER;
         }
         /*
