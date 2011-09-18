@@ -146,10 +146,17 @@ CAudioSample *CSymphoniePlayer::HandleSampleFormat(uint8_t *pData, const size_t 
 {
 	CAudioSample *pSample = nullptr;
 	
+	// TODO: what is this type really?
+	/*
+	if (::memcmp(pData, "16BT", 4) == 0)
+	{
+		// symphonie 16-bit export
+	}
+	*/
+	
 	// expecting full file header in this case..
-	CFileType type;
-	tHeaderType enType = type.DetermineFileType(pData, nLen);
-	switch (enType)
+	CFileType type(pData, nLen);
+	switch (type.m_enFileType)
 	{
 	case HEADERTYPE_8SVX:
 		pSample = new CIff8svxSample();

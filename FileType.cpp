@@ -229,6 +229,10 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
             {
                 return HEADERTYPE_XPK_NUKE;
             }
+			else if (::memcmp(pTmp, "RLEN", 4) == 0)
+			{
+				return HEADERTYPE_XPK_RLEN;
+			}
         }
 		return enFileType;
 	}
@@ -260,6 +264,11 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		// PowerPacker 2.0
         // TODO: other version also exist?
 		return HEADERTYPE_PP20;
+	}
+	else if (::memcmp(pBuffer, "IMP!", 4) == 0)
+	{
+		// imploder
+		return HEADERTYPE_IMPLODER;
 	}
     else if (::memcmp(pBuffer, "DIGI", 4) == 0)
 	{
@@ -466,6 +475,19 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 		return HEADERTYPE_AMIGAOSLIB;
 	}
 
+	// various imploder-variations/clones, only ID is different?
+	// check for magic ID 'IMP!', or one of the other IDs used by Imploder 
+	// clones; ATN!, BDPI, CHFI, Dupa, EDAM, FLT!, M.H., PARA and RDC9 */ 
+	if (ulFirstFour == 0x494d5021 || ulFirstFour == 0x41544e21 || ulFirstFour == 0x42445049
+		|| ulFirstFour == 0x43484649 || ulFirstFour == 0x44757061 || ulFirstFour == 0x4544414d
+		|| ulFirstFour == 0x464c5421 || ulFirstFour == 0x4d2e482e || ulFirstFour == 0x50415241
+		|| ulFirstFour == 0x52444339)
+	{
+		// imploder
+		return HEADERTYPE_IMPLODER;
+	}
+	
+	
 	/*
 	// TAR (POSIX)	.tar	75 73 74 61 72	ustar (offset by 257 bytes)
 	*/
@@ -489,9 +511,11 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
 		return HEADERCAT_ARCHIVE;
 		
 	case HEADERTYPE_PP20:
+	case HEADERTYPE_IMPLODER:
 	case HEADERTYPE_XPK_GENERIC:
 	case HEADERTYPE_XPK_SQSH:
 	case HEADERTYPE_XPK_NUKE:
+	case HEADERTYPE_XPK_RLEN:
 	case HEADERTYPE_GZIP:
 	case HEADERTYPE_BZIP2:
 	case HEADERTYPE_Z:
