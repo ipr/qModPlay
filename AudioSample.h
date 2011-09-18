@@ -172,9 +172,11 @@ class CWaveSample : public CAudioSample
 
 ///////// Maestro? (Samplitude?)
 
+/*
 class CMaestroSample : public CAudioSample
 {
 };
+*/
 
 ///////// adlib instrument format?
 

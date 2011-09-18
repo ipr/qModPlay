@@ -21,6 +21,7 @@
 
 
 // sample formats supported in instruments
+/*
 enum SyMMSampleFormat
 {
 	FMT_Unknown = 0,
@@ -32,22 +33,24 @@ enum SyMMSampleFormat
     FMT_SYMPHEXPORT16BT = 6,
 	FMT_IFFMAUD = 7 // ? 16-bit IFF ?
 };
+*/
 
 // TODO: this could kindof stuff
 // should be a part of CAudioSample in future..
+/*
 struct SyMMSampleInfo_t
 {
-	SyMMSampleFormat m_enSampleFormat;
+	//SyMMSampleFormat m_enSampleFormat;
 	size_t m_nBitWidth;
 	
 	// constructor
 	SyMMSampleInfo_t()
 	{
-		m_enSampleFormat = FMT_Unknown;
+		//m_enSampleFormat = FMT_Unknown;
 		m_nBitWidth = 0;
 	}
 };
-
+*/
 
 // force 1-byte alignment for struct (no padding)
 #pragma pack(push, 1)
@@ -219,7 +222,7 @@ protected:
             //, m_data()
             , m_bIsVirtual(false)
             , m_type(0)
-			, m_sampleFormat()
+			//, m_sampleFormat()
         {}
         ~SyMMInstrument()
         {
@@ -232,7 +235,8 @@ protected:
         size_t m_type;
 		
 		// TODO: unpack to simple common type instead?
-        SyMMSampleInfo_t m_sampleFormat;
+        //SyMMSampleInfo_t m_sampleFormat;
+		CAudioSample *m_pSample;
     };
 	size_t m_currentInstrument; // instrument index until all found..?
     SyMMInstrument *m_pInstruments;
@@ -326,7 +330,8 @@ protected:
     bool Decode8bitSample(const uint8_t *pData, const size_t nLen);
     bool Decode16bitSample(const uint8_t *pData, const size_t nLen);
 	
-	SyMMSampleFormat DetermineSampleFormat(uint8_t *pData, const size_t nLen);
+	//SyMMSampleFormat DetermineSampleFormat(uint8_t *pData, const size_t nLen);
+	CAudioSample *HandleSampleFormat(uint8_t *pData, const size_t nLen);
     
     bool OnChunk(uint32_t chunkID);
     bool OnLargeChunk(uint32_t chunkID);

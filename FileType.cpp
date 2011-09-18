@@ -519,8 +519,10 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
 		return HEADERCAT_SOUND_MODULE;
 		
 	case HEADERTYPE_8SVX:
-	case HEADERTYPE_WAVE:
+	case HEADERTYPE_MAUD:
 	case HEADERTYPE_AIFF:
+	case HEADERTYPE_WAVE:
+	case HEADERTYPE_MAESTRO: // ??
 	//case HEADERTYPE_AU:
 	//case HEADERTYPE_SND:
 	//case HEADERTYPE_OGG:

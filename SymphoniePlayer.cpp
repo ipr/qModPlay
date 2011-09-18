@@ -15,6 +15,8 @@
 
 #include "SymphoniePlayer.h"
 
+// reduce duplications..
+#include "FileType.h"
 
 //////////// protected methods
 
@@ -106,6 +108,7 @@ bool CSymphoniePlayer::Decode16bitSample(const uint8_t *pData, const size_t nLen
     return false;
 }
 
+/*
 SyMMSampleFormat CSymphoniePlayer::DetermineSampleFormat(uint8_t *pData, const size_t nLen)
 {
 	//SampleFormat enFmt = FMT_Unknown;
@@ -136,6 +139,42 @@ SyMMSampleFormat CSymphoniePlayer::DetermineSampleFormat(uint8_t *pData, const s
 	// no header, just guess as raw-audio data..
 	return FMT_Raw;
 }
+*/
+
+// more generic sample format support
+CAudioSample *CSymphoniePlayer::HandleSampleFormat(uint8_t *pData, const size_t nLen)
+{
+	CAudioSample *pSample = nullptr;
+	
+	// expecting full file header in this case..
+	CFileType type;
+	tHeaderType enType = type.DetermineFileType(pData, nLen);
+	switch (enType)
+	{
+	case HEADERTYPE_8SVX:
+		pSample = new CIff8svxSample();
+		break;
+	case HEADERTYPE_MAUD:
+		pSample = new CIffMaudSample();
+		break;
+	case HEADERTYPE_AIFF:
+		pSample = new CAiffSample();
+		break;
+	case HEADERTYPE_WAVE:
+		pSample = new CWaveSample();
+		break;
+	case HEADERTYPE_MAESTRO:
+		//pSample = new CMaestroSample();
+		break;
+		
+	default:
+		// raw audio sample or something entirely different?
+		break;
+	}
+	
+	return pSample;
+}
+
 
 
 // some chunks have just single parameter in 4 bytes
@@ -361,8 +400,10 @@ bool CSymphoniePlayer::OnInstrumentSample(uint8_t *pData, const size_t nLen)
 	SyMMInstrument &instr = m_pInstruments[m_currentInstrument];
 	
 	// check what kind of sample-data there is
-	instr.m_sampleFormat.m_enSampleFormat = DetermineSampleFormat(pData, nLen);
+	//instr.m_sampleFormat.m_enSampleFormat = DetermineSampleFormat(pData, nLen);
 	
+	// more generic way to handle these..
+	//instr.m_pSample = HandleSampleFormat(pData, nLen);
 	
     return false;
 }
