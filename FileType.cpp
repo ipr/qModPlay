@@ -101,7 +101,9 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
 
     if (ulLength >= 18)
     {
-        if (::memcmp(pBuffer, "Extended module: ", 17) == 0)
+		// quick&easy way to check..
+        if (::memcmp(pBuffer, "Extended module: ", 17) == 0
+			|| ::memcmp(pBuffer, "Extended Module: ", 17) == 0)
         {
             // starts with 17 byte string
             

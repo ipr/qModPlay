@@ -1,10 +1,11 @@
 //////////////////////////////////////
 //
-// CFastTrackerPlayer :
+// CFastTrackerPlayer : FastTracker 2 format files
+// note: should rename this class..
+// This one handles XM format of FT2
+// instead of MOD-like format of first FastTracker..
 //
-// just interface for now..
-//
-// Based on documentation By Mr.H of Triton in 1994
+// Based on documentation by: Fredrik Huss / Mr.H of Triton in 1994
 //
 //
 // Author: Ilkka Prusi, 2011
@@ -39,6 +40,34 @@ void CFastTrackerPlayer::OnPatternData()
     }
 }
 
+void CFastTrackerPlayer::OnInstruments()
+{
+    for (int i = 0; i < m_instrumentCount; i++)
+    {
+		// temp.. should keep somewhere too..
+		//
+        uint32_t instrSize = ReadLEUI32();
+        std::string name;
+        name.assign(m_pFileData->GetNext(22), 22);
+        uint8_t type = ReadUI8();
+        uint16_t sampleCount = ReadLEUI16();
+        if (sampleCount > 0)
+        {
+			// descriptor of instrument and related sample
+			FT2InstrumentSample_t *pInstrDesc = (FT2InstrumentSample_t*)m_pFileData->GetNext(sizeof(FT2InstrumentSample_t));
+			// TODO: keep values somewhere..
+			
+			// header of actual sample
+			FT2SampleHeader_t *pSample = (FT2SampleHeader_t*)m_pFileData->GetNext(sizeof(FT2SampleHeader_t));
+			
+			// delta-packed (signed) sample-data follows..
+			// unpack and keep somewhere
+			//
+			//DeltaUnpack(m_pFileData->GetNext(pSample->m_sampleLength));
+        }
+    }
+}
+
 
 /////////// public
 
@@ -56,13 +85,15 @@ CFastTrackerPlayer::~CFastTrackerPlayer()
 
 bool CFastTrackerPlayer::ParseFileInfo()
 {
-    if (::memcmp(m_pFileData->GetNext(17), "Extended module: ", 17) != 0)
+	// quick&easy way to check..
+	if (::memcmp(m_pFileData->GetNext(17), "Extended module: ", 17) != 0
+		&& ::memcmp(m_pFileData->GetNext(17), "Extended Module: ", 17) != 0)
     {
         // unsupported format
         return false;
     }
     
-    // mod name
+    // mod name (padded with zeroes)
     m_moduleName.assign((char*)m_pFileData->GetNext(20), 20);
     m_mystery = ReadUI8(); // $1a
     m_trackerName.assign((char*)m_pFileData->GetNext(20), 20);
@@ -82,15 +113,18 @@ bool CFastTrackerPlayer::ParseFileInfo()
     m_flags = ReadLEUI16();
     m_defaultTempo = ReadLEUI16();
     m_defaultBPM = ReadLEUI16();
-    
-    m_patternOrders.m_nLen = 256;
+
+	// we could skip this buffer and just process these directly..
+	//OnPatternData();
+	// for now, just read it..	
+    m_patternOrders.m_nLen = 256; // fixed 
     m_patternOrders.m_pBuf = new uint8_t[m_patternOrders.m_nLen];
     m_pFileData->NextArray(m_patternOrders.m_pBuf, m_patternOrders.m_nLen);
     
     // TODO: this is wrong? (should be by patterncount instead of channelcount..?)
     // allocate area for pattern data, including empty patterns (which aren't saved):
     // size amount of channels, each pattern at least 64 bytes
-    m_patterns = new FTPattern[m_channelCount];
+    //m_patterns = new FT2Pattern[m_channelCount];
     
     
     return true;

@@ -122,7 +122,7 @@ void PlaybackHandler::onPlayNotify()
 	// continue more into buffer..
 	// TODO: also check how much actually was written before overwriting..
 	//
-	m_nInBuf = m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin() + m_nInBuf, m_pDecodeBuffer->GetSize() - m_nInBuf);
+	m_nInBuf += m_pModPlayer->Decode(m_pDecodeBuffer->GetBegin() + m_nInBuf, m_pDecodeBuffer->GetSize() - m_nInBuf);
 	
     qint64 nWritten = m_pDevOut->write(m_pDecodeBuffer->GetBegin(), m_nInBuf);
 	if (nWritten == -1)

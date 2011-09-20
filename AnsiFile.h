@@ -47,7 +47,13 @@ public:
 	}
 };
 
-
+// simple buffer wrapper/helper:
+// buffer can be growable or mapped from file etc.
+//
+// could be easily modified to make
+// "poor-man's memory-mapping" by reading via C-style API
+// when buffer regions are acessed.. (in theory anyway) 
+//
 class CReadBuffer
 {
 private:
@@ -126,7 +132,7 @@ public:
 		CreateBuffer(nMinsize);
 	}
 
-    // "attach" to existing buffer
+    // "attach" to existing buffer, can be memory-mapped file
     CReadBuffer(unsigned char *pBuffer, const size_t nMinsize) 
         : m_pReadBuffer(pBuffer)
 		, m_nReadBufferSize(nMinsize)
@@ -199,12 +205,20 @@ public:
 
 	// reduce repeated code -> count to given offset from start
     // and get data there:
-    // just buffer-access with "old-style" files,
-    // otherwise we generate pagefault
-    // and OS "magically" retrieves the chunk of file for us..
+    // a) just buffer-access with "old-style" files (caller responsible reading the data)
+    // b) for memory-mapped files we will generate pagefault on access to memory
+    // and OS retrieves the accessed chunk of file for us.
     // 
 	unsigned char *GetAt(const size_t nOffset)
 	{
+#ifdef _DEBUG
+		// debug-case, access beyond buffer
+		if (m_nReadBufferSize <= nOffset)
+		{
+			return nullptr;
+		}
+#endif
+	
 		return m_pReadBuffer + nOffset;
 	}
 	
@@ -285,7 +299,17 @@ public:
     // copy n bytes to caller buffer
     size_t NextArray(void *pDest, const size_t nLen)
     {
-        //unsigned char *pSrc = GetNext(nLen);
+        unsigned char *pSrc = GetNext(nLen); // also update position
+#ifdef _DEBUG
+        if (pSrc == nullptr)
+        {
+			return 0;
+        }
+#endif
+        ::memcpy(pDest, pSrc, nLen);
+        return nLen;
+        
+        /*
         unsigned char *pSrc = GetAt(m_nCurrentPos);
         if (pSrc != nullptr)
         {
@@ -295,6 +319,7 @@ public:
         }
         // not copied, not enough remaining (debug-case)
         return 0;
+        */
     }
     
     // meh.. do some quick helpers..

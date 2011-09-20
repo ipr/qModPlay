@@ -165,6 +165,16 @@ public:
 		, m_nChannelCount(0)
 		, m_nSampleRate(0)
     {}
+
+    DecodeCtx(const size_t nChannels, const size_t nSampleSize, const size_t nSampleRate) 
+        : m_bIsLoopingPlayback(false)
+        , m_nCurrentFrame(0)
+        , m_nFrameSize(0)
+        , m_dFrameDuration(0)
+		, m_nSampleSize(nSampleSize)
+		, m_nChannelCount(nChannels)
+		, m_nSampleRate(nSampleRate)
+    {}
     
     // set initial values for decoder,
     // note that currently expecting all output to happen in PCM-encoded data

@@ -52,18 +52,23 @@ struct IFFHeader_t
 
 #pragma pack(pop)
 
+// TODO: simplify different sized samples?
+/*
+template SampleValue<T>
+{};
+*/
 
 /////// base "interface"
 // 
 class CAudioSample
 {
 protected:
-    
+
     // actual data, note bit-width..
     uint8_t *m_data;
     
     size_t m_nSize; // size in bytes
-    size_t m_nWidth; // bit-width of sample (8-bit/16-bit..32-bit)
+    size_t m_nWidth; // bit-width of sample (granularity, e.g. 8-bit/16-bit..32-bit)
     size_t m_nLength; // (m_nSize / (m_nWidth/8)) ?
 
     // note: this means "audio-channels"
@@ -72,7 +77,7 @@ protected:
     size_t m_nChannels; // needed if we have PCM-encoded data here..?
      
 	// change this to size_t?
-    double m_dFrequency; // sampling rate (such as 44.1kHz)
+    double m_dFrequency; // sampling rate (in Hz, e.g 44100Hz)
 	
     double m_dDuration; // sample duration (in millisec? microsec?)
 
