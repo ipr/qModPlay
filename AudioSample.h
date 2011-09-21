@@ -155,18 +155,39 @@ public:
     // may be based on ProTracker period table for example..
     //
     virtual void GenerateSample() {}
+
+	// unpack and keep (variations?):
+	// - raw data
+	// - no file header
+	// - unpack and keep
+    virtual void fromDeltaPacked8bit(uint8_t *pData, size_t nLen);
+
+	// unpack and keep (variations?):
+	// - raw data
+	// - no file header
+	// - unpack and keep
+    virtual void fromDeltaPacked16bit(uint8_t *pData, size_t nLen);
+
+	// runlength unpacking and keep data ?
+	//
+    //virtual void fromRunlenPacked(uint8_t *pData, size_t nLen);
     
-    // for processing "recorded" sample
-    // from file/buffer
-    // (check)
-    virtual bool ParseSample(uint8_t *pData, size_t nLen) 
-	{
+    // keep as-is, caller must know what to do with it..
+    //
+    virtual void fromRawData(uint8_t *pData, size_t nLen)
+    {
 		// for "raw" audio data?
 		// -> just copy and keep given..
 		m_data = new uint8_t[nLen];
 		::memcpy(m_data, pData, nLen);
-		return true; 
-	}
+    }
+    
+    // for processing "recorded" sample
+    // from file/buffer
+    virtual bool ParseSample(uint8_t *pData, size_t nLen) 
+    {
+		return false;
+    }
 };
 
 
@@ -260,7 +281,6 @@ public:
     // from file/buffer,
 	// conversion if sample-format is alreay set?
 	virtual bool ParseSample(uint8_t *pData, size_t nLen);
-    //static CAudioSample *ParseSample(uint8_t *pData, size_t nLen);
 };
 
 
