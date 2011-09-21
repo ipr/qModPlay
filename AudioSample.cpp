@@ -13,9 +13,13 @@
 
 ///////// AudioSample, generic stuff
 
-    virtual void fromDeltaPacked8bit(uint8_t *pData, size_t nLen);
+void CAudioSample::fromDeltaPacked8bit(uint8_t *pData, size_t nLen)
+{
+}
 
-    virtual void fromDeltaPacked16bit(uint8_t *pData, size_t nLen);
+void CAudioSample::fromDeltaPacked16bit(uint8_t *pData, size_t nLen)
+{
+}
 
 
 ///////// IFF 8SVX

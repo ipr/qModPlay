@@ -98,6 +98,11 @@ bool CSymphoniePlayer::UnpackRunlen(const uint8_t *pOrigData, const size_t nLen,
 // unpack delta compression of sample data
 bool CSymphoniePlayer::Decode8bitSample(const uint8_t *pData, const size_t nLen)
 {
+	// TODO:
+	// implement something more generic like this:
+	//CAudioSample *pSample = new CAudioSample();
+	//pSample->fromDeltaPacked16bit();
+
     return false;
 }
 
@@ -105,6 +110,11 @@ bool CSymphoniePlayer::Decode8bitSample(const uint8_t *pData, const size_t nLen)
 // unpack delta compression of sample data
 bool CSymphoniePlayer::Decode16bitSample(const uint8_t *pData, const size_t nLen)
 {
+	// TODO:
+	// implement something more generic like this:
+	//CAudioSample *pSample = new CAudioSample();
+	//pSample->fromDeltaPacked16bit();
+	
     return false;
 }
 

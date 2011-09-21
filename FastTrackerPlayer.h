@@ -85,6 +85,17 @@ protected:
 		uint8_t m_volumeColumn;
 		uint8_t m_effectType;
 		uint8_t m_effectParameter;
+
+		// constructor
+		FT2PatternNote()
+		{
+			// slightly unsure of packed-pattern format so initialize properly..
+			m_note = 0;
+			m_instrument = 0;
+			m_volumeColumn = 0;
+			m_effectType = 0;
+			m_effectParameter = 0;
+		}
 	};
     
     // empty patterns are not saved in file
@@ -94,25 +105,31 @@ protected:
     {
     public:
         FT2Pattern()
-            : m_patternData()
+            : m_notes(nullptr)
+            //, m_patternData()
             , m_patternHeaderLen(9)
             , m_packingType(0)
             , m_rowCount(64)
             , m_packedSize(0) // actually, 64*chcount, but we don't know that yet..
         {
+	        /*
             m_patternData.m_nLen = m_rowCount; // 64 bytes
             m_patternData.m_pBuf = uint8_t[m_patternData.m_nLen];
             ::memset(m_patternData.m_pBuf, 0x80, m_patternData.m_nLen);
+            */
         }
         ~FT2Pattern()
         {
-            delete m_patternData.m_pBuf;
+            //delete m_patternData.m_pBuf;
+            delete [] m_notes;
         }
         
         // pre-allocate in case will be empty..
         // size: 64 bytes
         // initial value $80 (in case empty)
-        bufferedData_t m_patternData;
+        //bufferedData_t m_patternData;
+        // replace with this?
+        FT2PatternNote *m_notes;
         
         uint32_t m_patternHeaderLen;
         uint8_t m_packingType; // always 0 ?
@@ -139,7 +156,8 @@ protected:
     // no need to keep, just for debugging now..
     uint32_t m_headerSize;
     
-    uint8_t m_mystery;
+    uint8_t m_mystery; // $1a
+    
     //uint16_t m_version;
     uint8_t m_version;
     uint8_t m_revision;

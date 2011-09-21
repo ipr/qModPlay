@@ -36,7 +36,50 @@ void CFastTrackerPlayer::OnPatternData()
         m_patterns[i].m_rowCount = ReadLEUI16();
         m_patterns[i].m_packedSize = ReadLEUI16();
         
-        // ..actual pattern data follows?
+        // ..actual packed pattern data follows?
+        
+        // something like this? size in bytes or "count"?
+        m_patterns[i] = new FT2PatternNote[m_patterns[i].m_packedSize];
+        for (int j = 0; j < m_patterns[i].m_packedSize; j++)
+        {
+			uint8_t tmpNote = ReadUI8();
+			
+			// if highest bit is set, value is used for compression-information
+			if (tmpNote & (1 << 8))
+			{
+				if (tmpNote & 1)
+				{
+					// bit 0 set: Note follows
+					m_patterns[i].m_notes[j].m_note = ReadUI8();
+				}
+				if (tmpNote & (1 << 1))
+				{
+					// bit 1 set: Instrument follows
+					m_patterns[i].m_notes[j].m_instrument = ReadUI8();
+				}
+				if (tmpNote & (1 << 2))
+				{
+					// bit 2 set: Volume column byte follows
+					m_patterns[i].m_notes[j].m_volumeColumn = ReadUI8();
+				}
+				if (tmpNote & (1 << 3))
+				{
+					// bit 3 set: Effect type follows
+					m_patterns[i].m_notes[j].m_effectType = ReadUI8();
+				}
+				if (tmpNote & (1 << 4))
+				{
+					// bit 4 set: Effect parameter follows
+					m_patterns[i].m_notes[j].m_effectParameter = ReadUI8();
+				}
+			}
+			else
+			{
+				// otherwise we use values "as-is" ??? 
+				// or what? just note given no other information?
+				m_patterns[i].m_notes[j].m_note = tmpNote;
+			}
+		}
     }
 }
 
@@ -58,12 +101,17 @@ void CFastTrackerPlayer::OnInstruments()
 			// TODO: keep values somewhere..
 			
 			// header of actual sample
-			FT2SampleHeader_t *pSample = (FT2SampleHeader_t*)m_pFileData->GetNext(sizeof(FT2SampleHeader_t));
+			FT2SampleHeader_t *pSampleHdr = (FT2SampleHeader_t*)m_pFileData->GetNext(sizeof(FT2SampleHeader_t));
 			
 			// delta-packed (signed) sample-data follows..
 			// unpack and keep somewhere
 			//
-			//DeltaUnpack(m_pFileData->GetNext(pSample->m_sampleLength));
+			//DeltaUnpack(m_pFileData->GetNext(pSampleHdr->m_sampleLength));
+			//
+			// something like this instead?
+			//
+			CAudioSample *pSample = new CAudioSample();
+			pSample->fromDeltaPacked8bit(m_pFileData->GetNext(pSampleHdr->m_sampleLength), pSampleHdr->m_sampleLength);
         }
     }
 }
