@@ -58,10 +58,23 @@ template SampleValue<T>
 {};
 */
 
+
 /////// base "interface"
 // 
 class CAudioSample
 {
+public:
+	// check.. which are needed..
+	enum ValueType
+	{
+		//VT_INTEGER,
+		VT_Unknown,
+		VT_SIGNED_INT,
+		VT_UNSIGNED_INT,
+		VT_IEEE_FLOAT,
+		VT_FFP_FLOAT
+	};
+
 protected:
 
     // actual data, note bit-width..
@@ -81,17 +94,7 @@ protected:
 	
     double m_dDuration; // sample duration (in millisec? microsec?)
 
-	// check.. which are needed..
-	enum ValueType
-	{
-		//VT_SIGNED_INT,
-		//VT_UNSIGNED_INT,
-		VT_INTEGER,
-		VT_IEEE_FLOAT,
-		VT_FFP_FLOAT
-	};
 	ValueType m_enValueType;
-
 	
 	// argh! hate copying but here goes..
 	// figure out sharing later..
@@ -135,6 +138,11 @@ public:
     ~CAudioSample()
     {
         delete m_data;
+    }
+    
+    void setValueType(ValueType enType)
+    {
+	    m_enValueType = enType;
     }
     
     // sample "width" (bit-size)

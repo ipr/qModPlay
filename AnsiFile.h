@@ -165,6 +165,7 @@ public:
 	{
         if (m_bConstBuffer == true)
         {
+			// bug: don't reallocate when attached..
             return false;
         }
         
@@ -184,10 +185,10 @@ public:
 		{
 			// otherwise just clear existing (keep existing)
 			::memset(m_pReadBuffer, 0, m_nReadBufferSize);
+			m_nCurrentPos = 0;
 		}
         return true;
 	}
-
 
 	// note: don't make it const:
 	// allow modify to read into it..
