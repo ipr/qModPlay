@@ -9,6 +9,11 @@ QT       += core gui multimedia
 TARGET = qModPlay
 TEMPLATE = app
 
+# TODO: use
+# decompression libraries
+#INCLUDEPATH += ../qLhaLib
+#INCLUDEPATH += ../qLZXLib
+#INCLUDEPATH += ../qXpkLib
 
 SOURCES += main.cpp\
         MainWindow.cpp \
@@ -26,7 +31,8 @@ SOURCES += main.cpp\
     ScreamTrackerPlayer.cpp \
     ImpulseTrackerPlayer.cpp \
     FastTrackerPlayer.cpp \
-    AudioSample.cpp
+    AudioSample.cpp \
+    ArchiveHandler.cpp
 
 HEADERS  += MainWindow.h \
     AnsiFile.h \
@@ -45,33 +51,32 @@ HEADERS  += MainWindow.h \
     ScreamTrackerPlayer.h \
     ImpulseTrackerPlayer.h \
     DecodeCtx.h \
-    FastTrackerPlayer.h
+    FastTrackerPlayer.h \
+    ArchiveHandler.h
 
 FORMS    += MainWindow.ui
 
+/*
+# TODO: use
+# decompression libraries
 
+LIBS += -lqLhaLib
+LIBS += -lqLZXLib
+LIBS += -lqXpkLib
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+CONFIG (debug, debug|release) 
+{
+    LIBS += -L../qLhaLib-build-desktop/debug
+    LIBS += -L../qLZXLib-build-desktop/debug
+    LIBS += -L../qXpkLib-build-desktop/debug
+} 
+CONFIG (release, debug|release) 
+{
+    LIBS += -L../qLhaLib-build-desktop/release
+    LIBS += -L../qLZXLib-build-desktop/release
+    LIBS += -L../qXpkLib-build-desktop/release
+}
+*/
 
 
 

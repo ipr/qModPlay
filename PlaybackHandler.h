@@ -19,6 +19,7 @@
 #include <QtMultimedia/QAudioOutput>
 #include <QFile>
 
+#include "ArchiveHandler.h"
 
 class CModPlayer;
 //class CFileType;
@@ -51,6 +52,10 @@ protected:
     void PlayFile(QString &filename);
     
 private:
+	// compressed file support
+	// (LhA, LZX, XPK, PowerPacker etc.)
+	ArchiveHandler *m_pArchiveHandler;
+
     QFile *m_pFile;
 	QString m_currentFilename;
     

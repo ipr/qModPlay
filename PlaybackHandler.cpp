@@ -17,6 +17,10 @@
 #include "AnsiFile.h"
 #include "FileType.h"
 
+// archived and compressed files:
+// decompression/unpack support
+#include "ArchiveHandler.h"
+
 #include "ModPlayer.h"
 #include "DigiBoosterPlayer.h"
 #include "DigiBoosterProPlayer.h"
@@ -33,12 +37,16 @@
 
 PlaybackHandler::PlaybackHandler(QObject *parent) :
     QObject(parent),
+    m_pArchiveHandler(nullptr),
     m_pFile(nullptr),
     m_pFileBuffer(nullptr),
     m_pModPlayer(nullptr),
     m_pDecodeBuffer(nullptr),
 	m_pAudioOut(nullptr)
 {
+	// compressed file support
+	m_pArchiveHandler = new ArchiveHandler(this);
+
     // we can adjust size later,
     // also reusable with suffcient buffer size
     //m_pFileBuffer = new CReadBuffer();
@@ -270,10 +278,23 @@ void PlaybackHandler::PlayFile(QString &filename)
     qint64 nSize = m_pFile->size();
     uchar *pView = m_pFile->map(0, nSize);
     
-    // use as interface to accessing memory-mapped file:
-    // OS will generate pagefaults as needed
-    //
-    m_pFileBuffer = new CReadBuffer(pView, nSize);
+    CFileType type(m_pFileBuffer->GetBegin(), m_pFileBuffer->GetSize());
+    if (type.m_enFileCategory == HEADERCAT_ARCHIVE
+		|| type.m_enFileCategory == HEADERCAT_PACKER)
+	{
+	
+		//m_pArchiveHandler->openArchive(filename);
+		//m_pArchiveHandler->openArchive(m_pFile);
+		
+		//m_pFileBuffer = m_pArchiveHandler->decrunchToBuffer();
+	}
+	else
+	{
+		// use as interface to accessing memory-mapped file:
+		// OS will generate pagefaults as needed
+		//
+		m_pFileBuffer = new CReadBuffer(pView, nSize);
+	}
 
 	// format-specific handling,
 	// fileformat, playback-to-buffer etc.

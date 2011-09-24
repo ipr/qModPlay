@@ -304,12 +304,12 @@ tHeaderType CFileType::FileTypeFromHeader(const uint8_t *pBuffer, const uint32_t
     else if (::memcmp(pBuffer, "IMPI", 4) == 0)
 	{
 		// ImpulseTracker instrument?
-		return HEADERTYPE_IT;
+		return HEADERTYPE_IT_INSTRUMENT;
 	}
     else if (::memcmp(pBuffer, "IMPS", 4) == 0)
 	{
 		// ImpulseTracker sample?
-		return HEADERTYPE_IT;
+		return HEADERTYPE_IT_SAMPLE;
 	}
     */
 	else if (::memcmp(pBuffer, "LZX", 3) == 0)
@@ -540,7 +540,6 @@ tHeaderCategory CFileType::FileCategoryByType(const tHeaderType enType) const
 	case HEADERTYPE_XM:
     case HEADERTYPE_IT:
 	case HEADERTYPE_S3M:
-	//case HEADERTYPE_S3I:
     case HEADERTYPE_MTM:
     //case HEADERTYPE_FC:
     case HEADERTYPE_MADTRACKER2:
