@@ -23,6 +23,7 @@
 
 // use for archive/compressed file information
 #include "ArchiveHandler.h"
+#include "FileType.h"
 
 // moved audio device and module file handling
 // to separate from GUI, simplifies later..
@@ -45,6 +46,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_playbackHandler, SIGNAL(playbackFinished()), this, SLOT(onPlaybackStopped()));
 	connect(m_playbackHandler, SIGNAL(status(QString)), this, SLOT(onStatus(QString)));
     connect(m_playbackHandler, SIGNAL(error(QString)), this, SLOT(onError(QString)));
+    
+	QStringList treeHeaders;
+	treeHeaders << "Name" 
+			<< "Compression" 
+			<< "Comments";
+	ui->treeWidget->setColumnCount(treeHeaders.size());
+	ui->treeWidget->setHeaderLabels(treeHeaders);
+    
 }
 
 MainWindow::~MainWindow()
@@ -109,6 +118,49 @@ void MainWindow::on_actionFiles_triggered()
 		// - show files in archive if multi-file archive
 		// - show single-file compression type if XPK/PP20/IMPL..
 		// - otherwise show as-is
+		CFileType type;
+		if (type.m_enFileCategory == HEADERCAT_ARCHIVE
+			|| type.m_enFileCategory == HEADERCAT_PACKER)
+		{
+			// multi-file archive/single crunched file
+			// -> show compression info
+			// (TODO: get more detailed info..)
+			// use archivehandler to determine..
+			//
+			switch (type.m_enFileType)
+			{
+			case HEADERTYPE_LHA:
+				pTopItem->setText(1, "LhA");
+				break;
+			case HEADERTYPE_LZX:
+				pTopItem->setText(1, "LZX");
+				break;
+			case HEADERTYPE_PP20:
+				pTopItem->setText(1, "PowerPacker");
+				break;
+			case HEADERTYPE_IMPLODER:
+				pTopItem->setText(1, "Imploder");
+				break;
+			case HEADERTYPE_XPK_GENERIC:
+			case HEADERTYPE_XPK_SQSH:
+			case HEADERTYPE_XPK_NUKE:
+			case HEADERTYPE_XPK_RLEN:
+				pTopItem->setText(1, "XPK");
+				break;
+			}
+			
+			// if multi-file archive, list files in it
+			// as sub-items..
+			if (type.m_enFileCategory == HEADERCAT_ARCHIVE)
+			{
+				// TODO: use archivehandler..
+			}
+		}
+		else
+		{
+			// not compressed/not supported..
+			pTopItem->setText(1, "-");
+		}
 		
 		ui->treeWidget->addTopLevelItem(pTopItem);
     }
