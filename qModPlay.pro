@@ -9,11 +9,10 @@ QT       += core gui multimedia
 TARGET = qModPlay
 TEMPLATE = app
 
-# TODO: use
 # decompression libraries
-#INCLUDEPATH += ../qLhaLib
-#INCLUDEPATH += ../qLZXLib
-#INCLUDEPATH += ../qXpkLib
+INCLUDEPATH += ../qLhaLib
+INCLUDEPATH += ../qLZXLib
+INCLUDEPATH += ../qXpkLib
 
 SOURCES += main.cpp\
         MainWindow.cpp \
@@ -56,10 +55,6 @@ HEADERS  += MainWindow.h \
 
 FORMS    += MainWindow.ui
 
-/*
-# TODO: use
-# decompression libraries
-
 LIBS += -lqLhaLib
 LIBS += -lqLZXLib
 LIBS += -lqXpkLib
@@ -76,7 +71,6 @@ CONFIG (release, debug|release)
     LIBS += -L../qLZXLib-build-desktop/release
     LIBS += -L../qXpkLib-build-desktop/release
 }
-*/
 
 
 

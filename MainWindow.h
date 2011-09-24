@@ -33,12 +33,13 @@ private slots:
     void on_actionPlay_triggered();
     void on_actionStop_triggered();
     void on_actionFiles_triggered();
+	void on_actionPath_triggered();
 
     // playback finished by player (end of file)
     void onPlaybackStopped();
 	void onStatus(QString message);
     void onError(QString message);
-    
+	
 private:
     Ui::MainWindow *ui;
     PlaybackHandler *m_playbackHandler;

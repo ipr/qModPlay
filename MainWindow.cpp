@@ -21,6 +21,9 @@
 // for testing
 #include <QThread>
 
+// use for archive/compressed file information
+#include "ArchiveHandler.h"
+
 // moved audio device and module file handling
 // to separate from GUI, simplifies later..
 //
@@ -53,12 +56,13 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionPlay_triggered()
 {
     // get selection from list
-    QListWidgetItem *pItem = ui->listWidget->currentItem();
+    QTreeWidgetItem *pItem = ui->treeWidget->currentItem();
+    //QListWidgetItem *pItem = ui->listWidget->currentItem();
     if (pItem == NULL
-        && ui->listWidget->count() > 0)
+        && ui->treeWidget->count() > 0)
     {
         // get first
-        pItem = ui->listWidget->item(0);
+        pItem = ui->treeWidget->item(0);
     }
     
     if (pItem != NULL)
@@ -97,8 +101,31 @@ void MainWindow::on_actionFiles_triggered()
 		// -> no reason to use that old shit anywhere
 		//
 		file.replace('\\', "/");
-		ui->listWidget->addItem(new QListWidgetItem(file));
+		
+		QTreeWidgetItem *pTopItem = new QTreeWidgetItem((QTreeWidgetItem*)0);
+		pTopItem->setText(0, file);
+		
+		// TODO: check file type:
+		// - show files in archive if multi-file archive
+		// - show single-file compression type if XPK/PP20/IMPL..
+		// - otherwise show as-is
+		
+		ui->treeWidget->addTopLevelItem(pTopItem);
     }
+}
+
+void MainWindow::on_actionPath_triggered()
+{
+    QStringList path = QFileDialog::getExistingDirectory(this, tr("Select dir"), m_lastPath);
+    if (path == NULL)
+    {
+		return;
+    }
+    
+    // keep this
+    m_lastPath = path;
+    
+	// list recursively supported files in selected path
 }
 
 void MainWindow::onPlaybackStopped()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>541</width>
+    <height>306</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,13 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QListWidget" name="listWidget"/>
+       <widget class="QTreeWidget" name="treeWidget">
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
+       </widget>
       </item>
      </layout>
     </item>
@@ -29,7 +35,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
+     <width>541</width>
      <height>21</height>
     </rect>
    </property>
@@ -45,6 +51,7 @@
    <addaction name="actionPlay"/>
    <addaction name="actionStop"/>
    <addaction name="actionFiles"/>
+   <addaction name="actionPath"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionQuit">
@@ -68,6 +75,11 @@
   <action name="actionFiles">
    <property name="text">
     <string>Files</string>
+   </property>
+  </action>
+  <action name="actionPath">
+   <property name="text">
+    <string>Path</string>
    </property>
   </action>
  </widget>

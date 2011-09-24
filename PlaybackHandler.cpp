@@ -278,19 +278,28 @@ void PlaybackHandler::PlayFile(QString &filename)
     qint64 nSize = m_pFile->size();
     uchar *pView = m_pFile->map(0, nSize);
     
-    CFileType type(m_pFileBuffer->GetBegin(), m_pFileBuffer->GetSize());
-    if (type.m_enFileCategory == HEADERCAT_ARCHIVE
-		|| type.m_enFileCategory == HEADERCAT_PACKER)
-	{
-	
+    CFileType type(pView, nSize);
+    if (type.m_enFileCategory == HEADERCAT_ARCHIVE)
+    {
+		// need to know which file in archive to decompress for playback..
 		//m_pArchiveHandler->openArchive(filename);
 		//m_pArchiveHandler->openArchive(m_pFile);
+    }
+	else if (type.m_enFileCategory == HEADERCAT_PACKER)
+	{
+		// single-file compression
+		// -> just decrunch to buffer
+	
+		//m_pArchiveHandler->openArchive(filename);
+		//m_pArchiveHandler->openArchive(pView, nSize);
 		
-		//m_pFileBuffer = m_pArchiveHandler->decrunchToBuffer();
+		//m_pFileBuffer = m_pArchiveHandler->decrunchToBuffer(pView, nSize);
 	}
 	else
 	{
-		// use as interface to accessing memory-mapped file:
+		// module file without compression, just use as-is.
+		//
+		// use buffer as interface to accessing memory-mapped file:
 		// OS will generate pagefaults as needed
 		//
 		m_pFileBuffer = new CReadBuffer(pView, nSize);
