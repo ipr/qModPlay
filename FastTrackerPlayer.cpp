@@ -112,6 +112,8 @@ void CFastTrackerPlayer::OnInstruments()
 			//
 			CAudioSample *pSample = new CAudioSample();
 			pSample->fromDeltaPacked8bit(m_pFileData->GetNext(pSampleHdr->m_sampleLength), pSampleHdr->m_sampleLength);
+			pSample->setValueType(CAudioSample::VT_SIGNED_INT); // signed int
+			pSample->setWidth(8); // 8-bits
         }
     }
 }

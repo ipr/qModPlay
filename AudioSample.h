@@ -99,6 +99,17 @@ protected:
 	// argh! hate copying but here goes..
 	// figure out sharing later..
 	
+	uint16_t GetUWord(const unsigned char *pBuf)
+	{
+		// combine&byteswap
+		return ((pBuf[0] << 8) + pBuf[1]);
+	}
+	
+	uint32_t GetULong(const unsigned char *pBuf)
+	{
+		// combine&byteswap
+		return ((pBuf[0] << 24) + (pBuf[1] << 16) + (pBuf[2] << 8) + pBuf[3]);
+	}
 
 	uint16_t Swap2(const uint16_t val) const
     {
@@ -206,10 +217,15 @@ public:
 class CIff8svxSample : public CAudioSample
 {
 protected:
-    //Voice8Header m_VoiceHeader; // VHDR
+
+    //Voice8Header_t m_VoiceHeader; // VHDR
 
 	//void unpackRunlen(uint8_t *pData, size_t nLen);
 	//void unpackDeltapack(uint8_t *pData, size_t nLen);
+
+	// Fibonacci delta unpack
+	short D1Unpack(int8_t *source, int32_t n, int8_t *dest, int8_t x);
+	void DUnpack(int8_t *source, int32_t n, int8_t *dest);
 	
 public:
     CIff8svxSample()

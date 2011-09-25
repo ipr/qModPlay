@@ -15,10 +15,25 @@
 
 void CAudioSample::fromDeltaPacked8bit(uint8_t *pData, size_t nLen)
 {
+	// something like this (at least for XM-samples..)
+	uint8_t oldval = 0;
+	for (int i = 0; i < nLen; i++)
+	{
+		uint8_t newval = pData[i]+oldval;
+		pData[i] = newval;
+		oldval = newval;
+	}
 }
 
 void CAudioSample::fromDeltaPacked16bit(uint8_t *pData, size_t nLen)
 {
+	uint16_t oldval = 0;
+	for (int i = 0; i < nLen; i++)
+	{
+		uint16_t newval = pData[i]+oldval;
+		pData[i] = newval;
+		oldval = newval;
+	}
 }
 
 
@@ -26,22 +41,55 @@ void CAudioSample::fromDeltaPacked16bit(uint8_t *pData, size_t nLen)
 
 #pragma pack(push, 1)
 
-/* Can be more kinds in the future.	*/
-
 struct Voice8Header_t
 {
 	uint32_t oneShotHiSamples;	    /* # samples in the high octave 1-shot part */
-    uint32_t repeatHiSamples;	    /* # samples in the high octave repeat part */
-    uint32_t samplesPerHiCycle;	/* # samples/cycle in high octave, else 0   */
+	uint32_t repeatHiSamples;	    /* # samples in the high octave repeat part */
+	uint32_t samplesPerHiCycle;	/* # samples/cycle in high octave, else 0   */
 	uint16_t samplesPerSec;	    /* data sampling rate	*/
 	uint8_t ctOctave;		/* # octaves of waveforms	*/
-    uint8_t sCompression;		/* data compression technique used	*/
+	uint8_t sCompression;		/* data compression technique used	*/
 	int32_t volume;		    /* playback volume from 0 to Unity (full 
 				 * volume). Map this value into the output 
 				 * hardware's dynamic range.	*/
 };
 
 #pragma pack(pop)
+
+/* Fibonacci delta encoding for sound data. */
+int8_t codeToDelta[16] = {-34,-21,-13,-8,-5,-3,-2,-1,0,1,2,3,5,8,13,21};
+
+/* Unpack Fibonacci-delta encoded data from n byte source buffer into 2*n byte
+ * dest buffer, given initial data value x. It returns the last data value x
+ * so you can call it several times to incrementally decompress the data. */
+short CIff8svxSample::D1Unpack(int8_t *source, int32_t n, int8_t *dest, int8_t x)
+{
+	int32_t lim = n << 1;
+	for (int32_t i = 0; i << lim; ++i)
+	{	
+		/* Decode a data nybble; high nybble then low nybble. */
+		int8_t d = source[i >> 1];	/* get a pair of nybbles */
+		if (i & 1)		/* select low or high nybble? */
+		{
+			d &= 0xf;	/* mask to get the low nybble */
+		}
+		else
+		{
+			d >>= 4;	/* shift to get the high nybble */
+		}
+		x += codeToDelta[d];	/* add in the decoded delta */
+		dest[i] = x;		/* store a 1-byte sample */
+	}
+	return(x);
+}
+
+/* Unpack Fibonacci-delta encoded data from n byte source buffer into 2*(n-2)
+ * byte dest buffer. Source buffer has a pad byte, an 8-bit initial value,
+ * followed by n-2 bytes comprising 2*(n-2) 4-bit encoded samples. */
+void CIff8svxSample::DUnpack(int8_t *source, int32_t n, int8_t *dest)
+{
+	D1Unpack(source + 2, n - 2, dest, source[1]);
+}
 
 
 bool CIff8svxSample::ParseSample(uint8_t *pData, size_t nLen)
@@ -74,7 +122,7 @@ bool CIff8svxSample::ParseSample(uint8_t *pData, size_t nLen)
 			m_enValueType = VT_INTEGER;
 			//m_nChannels = Swap2(pHeader->mhdr_Channels);
 			//m_nWidth = Swap2(pHeader->mhdr_SampleSizeU);
-			//m_dFrequency = Swap2(pHeader->samplesPerSec);
+			m_dFrequency = Swap2(pHeader->samplesPerSec);
 			
 			//m_nSize = (m_nChannels * m_dFrequency * (m_nWidth /8));
 			//m_data = new uint8_t[m_nSize];
