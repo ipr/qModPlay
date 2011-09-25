@@ -28,12 +28,19 @@ GPL? (v2/v3?) (or BSD?/MIT? undecided..)
 Point is, non-profit use only: this is supposed to stay open so that modules can be played in future also
 when there's no PC anymore and everything is done on handheld-devices (or other such scenario).
 
-Status:
+Current status:
+* Some fileformats mostly read, others not so much
+ - some sample-formats are not yet handled
+ - sample-format handling is biggest step to do before starting work on playback of modules..
+* Decode/playback of modules missing from all currently (working on it)
+* Application-side "framework" for handling playback mostly done
+ - may need some work but should make noise when data is given by player-object
+* packed/crunched file support started using external libraries for most common cases
+ - LhA and LZX archive libraries should be fully functional (GUI-side missing)
+ - XPK/XFD and other "cruncher" formats in progress..
+* GUI/playlist is still awful.. need to work on that later..
 
-Some fileformats mostly read, others not so much.
-Decode/playback missing from all currently (working on it).
-
-List below:
+Status by module formats below:
 * DBM0 (DigiBooster PRO) 
   - fileformat is missing sample-handling (working on it)
   - no playback
@@ -53,7 +60,7 @@ List below:
 * ProTracker 
   - maybe 5-10% of fileformat done?
 * Oktalyzer 
-  - maybe 5-15% of fileformat done?
+  - maybe 20% of fileformat done?
 * NoiseTracker? 
   - nothing yet (placeholder)
 * S3M (ScreamTracker 2/3) 
@@ -67,7 +74,9 @@ List below:
 * MTM (MultiTracker)
   - nothing yet (placeholder)
 * XM (FastTracker 2)
-  - nothing yet (placeholder)
+  - maybe 20-35% of fileformat done?
+  - working on sampleformat support (generic stuff for other formats also)
+  - no playback yet
 * ... and so on ..
 
 Seems sad? Try locating documentation for some of these..
