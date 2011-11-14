@@ -7,12 +7,14 @@
 #include <QList>
 
 // LZX-archive decompression
-#include "qlzxlib.h"
+// -> added XAD-support in qXpkLib
+//#include "qlzxlib.h"
 
 // LhA-archive decompression
-#include "qlhalib.h"
+// -> added XAD-support in qXpkLib
+//#include "qlhalib.h"
 
-// generic cruncher decompression
+// generic cruncher/packer/archive decompression
 // (XPK crunchers, PowerPacker, Imploder, GZip..)
 #include "qxpklib.h"
 
@@ -27,6 +29,7 @@ class ArchiveHandler : public QObject
     Q_OBJECT
 public:
     explicit ArchiveHandler(QObject *parent = 0);
+    virtual ~ArchiveHandler(void);
 
 	bool openArchive(QString &archiveFile);
 	//bool openArchive(QFile *pFile);
@@ -45,6 +48,7 @@ public slots:
 
 private:
 	CFileType m_type;
+	QXpkLib *m_xpklib;
 	
 	// files in archive..
 	class FileInfo
